@@ -10,9 +10,11 @@ import SwiftData
 
 @main
 struct JustWaterApp: App {
+    
     var body: some Scene {
         WindowGroup {
-            RootView() 
+            RootView()
         }
+        .modelContainer(for: WaterEntryEntity.self)
     }
 }
