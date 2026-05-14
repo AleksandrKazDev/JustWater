@@ -39,6 +39,7 @@ final class HomeViewModel {
             try storageService.saveEntry(amount: amount)
             loadEntries()
             lastAddedEntry = hydrationState.entries.first
+            HapticService.success()
         } catch {
             print("Failed to save water entry: \(error)")
         }
@@ -48,6 +49,7 @@ final class HomeViewModel {
         do {
             try storageService.deleteEntry(id: entry.id)
             loadEntries()
+            HapticService.lightImpact()
         } catch {
             print("Failed to delete water entry: \(error)")
         }
@@ -58,5 +60,6 @@ final class HomeViewModel {
         
         deleteEntry(lastAddedEntry)
         self.lastAddedEntry = nil
+        HapticService.warning()
     }
 }

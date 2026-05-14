@@ -14,48 +14,72 @@ struct RecentActivitySection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.md) {
-            HStack {
-                Text("Recent Activity")
-                    .font(AppTypography.headline)
-                    .foregroundStyle(AppColors.primaryText)
-                
-                Spacer()
-            }
+            Text("Recent Activity")
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.primaryText)
             
-            GlassCard {
-                VStack(spacing: AppSpacing.md) {
-                    ForEach(entries.prefix(3)) { entry in
-                        HStack {
-                            Image(systemName: "drop.fill")
-                                .foregroundStyle(AppColors.primaryBlue)
-                                .frame(width: 32, height: 32)
-                                .background {
-                                    Circle()
-                                        .fill(AppColors.lightBlue.opacity(0.35))
-                                }
-                            
-                            Text("\(entry.amount) ml")
-                                .font(AppTypography.body)
-                                .foregroundStyle(AppColors.primaryText)
-                            
-                            Spacer()
-                            
-                            Text(entry.date, style: .time)
-                                .font(AppTypography.caption)
-                                .foregroundStyle(AppColors.secondaryText)
-                            
-                            Button {
-                                onDelete(entry)
-                            } label: {
-                                Image(systemName: "trash")
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundStyle(AppColors.secondaryText)
-                            }
-                            .buttonStyle(.plain)
+            if entries.isEmpty {
+                emptyState
+            } else {
+                GlassCard {
+                    VStack(spacing: AppSpacing.md) {
+                        ForEach(entries.prefix(3)) { entry in
+                            entryRow(entry)
                         }
                     }
                 }
             }
+        }
+    }
+    
+    private var emptyState: some View {
+        GlassCard {
+            VStack(spacing: AppSpacing.sm) {
+                Image(systemName: "drop")
+                    .font(.system(size: 28, weight: .medium))
+                    .foregroundStyle(AppColors.primaryBlue)
+                
+                Text("No water added yet")
+                    .font(AppTypography.headline)
+                    .foregroundStyle(AppColors.primaryText)
+                
+                Text("Your recent activity will appear here after your first drink.")
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.secondaryText)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+    
+    private func entryRow(_ entry: WaterEntry) -> some View {
+        HStack {
+            Image(systemName: "drop.fill")
+                .foregroundStyle(AppColors.primaryBlue)
+                .frame(width: 32, height: 32)
+                .background {
+                    Circle()
+                        .fill(AppColors.lightBlue.opacity(0.35))
+                }
+            
+            Text("\(entry.amount) ml")
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.primaryText)
+            
+            Spacer()
+            
+            Text(entry.date, style: .time)
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.secondaryText)
+            
+            Button {
+                onDelete(entry)
+            } label: {
+                Image(systemName: "trash")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(AppColors.secondaryText)
+            }
+            .buttonStyle(.plain)
         }
     }
 }
@@ -65,11 +89,7 @@ struct RecentActivitySection: View {
         AppColors.background.ignoresSafeArea()
         
         RecentActivitySection(
-            entries: [
-                WaterEntry(amount: 250),
-                WaterEntry(amount: 500),
-                WaterEntry(amount: 300)
-            ],
+            entries: [],
             onDelete: { _ in }
         )
         .padding(AppSpacing.lg)

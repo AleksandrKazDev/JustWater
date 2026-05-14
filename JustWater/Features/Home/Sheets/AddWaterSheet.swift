@@ -11,13 +11,24 @@ struct AddWaterSheet: View {
     
     @Environment(\.dismiss) private var dismiss
     
+    
     let presets: [Int]
     let onAdd: (Int) -> Void
+    
+    private let minimumAmount = 1
+    private let maximumAmount = 5000
     
     @State private var customAmountText = ""
     
     private var customAmount: Int? {
-        Int(customAmountText)
+        guard let amount = Int(customAmountText),
+              amount >= minimumAmount,
+              amount <= maximumAmount
+        else {
+            return nil
+        }
+        
+        return amount
     }
     
     var body: some View {
@@ -30,6 +41,7 @@ struct AddWaterSheet: View {
             
             PrimaryButton(title: "Add Water", systemImage: "plus") {
                 guard let amount = customAmount, amount > 0 else { return }
+                HapticService.selection()
                 onAdd(amount)
                 dismiss()
             }
@@ -59,6 +71,7 @@ struct AddWaterSheet: View {
         HStack(spacing: AppSpacing.sm) {
             ForEach(presets, id: \.self) { amount in
                 QuickAddButton(amount: amount) {
+                    HapticService.selection()
                     onAdd(amount)
                     dismiss()
                 }
@@ -73,12 +86,15 @@ struct AddWaterSheet: View {
                     .keyboardType(.numberPad)
                     .font(AppTypography.headline)
                     .foregroundStyle(AppColors.primaryText)
-                
+                    .onChange(of: customAmountText) { _, newValue in
+                        customAmountText = newValue.filter(\.isNumber)
+                    }
                 Text("ml")
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.secondaryText)
             }
         }
+        
     }
 }
 
