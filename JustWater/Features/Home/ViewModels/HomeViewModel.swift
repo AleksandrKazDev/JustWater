@@ -27,7 +27,7 @@ final class HomeViewModel {
     
     func loadEntries() {
         do {
-            let entries = try storageService.fetchEntries()
+            let entries = try storageService.fetchEntries(for: Date.now)
             hydrationState.entries = entries
         } catch {
             print("Failed to fetch water entries: \(error)")

@@ -11,11 +11,17 @@ import SwiftData
 @MainActor
 final class WaterStorageService {
     
+    // MARK: - Properties
+    
     private let context: ModelContext
+    
+    // MARK: - Initializer
     
     init(context: ModelContext) {
         self.context = context
     }
+    
+    // MARK: - Public Methods
     
     func fetchEntries() throws -> [WaterEntry] {
         let descriptor = FetchDescriptor<WaterEntryEntity>(
@@ -55,5 +61,39 @@ final class WaterStorageService {
         context.delete(entity)
         
         try context.save()
+    }
+    
+    /// Home screen отображает только записи текущего календарного дня.
+    /// Исторические записи сохраняются для будущей аналитики.
+    func fetchEntries(for date: Date) throws -> [WaterEntry] {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        
+        guard let endOfDay = calendar.date(
+            byAdding: .day,
+            value: 1,
+            to: startOfDay
+        ) else {
+            return []
+        }
+        
+        let descriptor = FetchDescriptor<WaterEntryEntity>(
+            predicate: #Predicate { entry in
+                entry.date >= startOfDay && entry.date < endOfDay
+            },
+            sortBy: [
+                SortDescriptor(\.date, order: .reverse)
+            ]
+        )
+        
+        let entities = try context.fetch(descriptor)
+        
+        return entities.map {
+            WaterEntry(
+                id: $0.id,
+                amount: $0.amount,
+                date: $0.date
+            )
+        }
     }
 }
