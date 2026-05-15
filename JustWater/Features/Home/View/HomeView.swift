@@ -23,6 +23,14 @@ struct HomeView: View {
     
     private let quickAddAmounts = [100, 200, 300]
     
+    private var todayTitle: String {
+        Date.now.formatted(
+            .dateTime
+                .day()
+                .month(.wide)
+        )
+    }
+    
     var body: some View {
         ZStack {
             AppColors.background
@@ -103,7 +111,7 @@ struct HomeView: View {
     private var header: some View {
         HStack {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                Text("Today")
+                Text("Today, \(todayTitle)")
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.secondaryText)
                 

@@ -23,10 +23,20 @@ struct RecentActivitySection: View {
             } else {
                 GlassCard {
                     VStack(spacing: AppSpacing.md) {
-                        ForEach(entries.prefix(3)) { entry in
+                        ForEach(Array(entries.prefix(5))) { entry in
                             entryRow(entry)
+                                .transition(
+                                    .asymmetric(
+                                        insertion: .opacity,
+                                        removal: .opacity.combined(with: .scale(scale: 0.96))
+                                    )
+                                )
                         }
                     }
+                    .animation(
+                        .spring(response: 0.45, dampingFraction: 0.9),
+                        value: entries.map(\.id)
+                    )
                 }
             }
         }
@@ -86,7 +96,8 @@ struct RecentActivitySection: View {
 
 #Preview {
     ZStack {
-        AppColors.background.ignoresSafeArea()
+        AppColors.background
+            .ignoresSafeArea()
         
         RecentActivitySection(
             entries: [],

@@ -11,6 +11,9 @@ struct WaterProgressView: View {
     
     let progress: Double
     
+    @State private var wavePhase: CGFloat = 0
+    @State private var secondaryWavePhase: CGFloat = .pi
+    
     private var clampedProgress: Double {
         min(max(progress, 0), 1)
     }
@@ -47,33 +50,50 @@ struct WaterProgressView: View {
     }
     
     private var waterFill: some View {
-        GeometryReader { proxy in
-            let size = proxy.size
-            let fillHeight = size.height * clampedProgress
+        ZStack {
+            WaterWaveShape(
+                progress: clampedProgress,
+                waveHeight: 8,
+                phase: wavePhase
+            )
+            .fill(
+                LinearGradient(
+                    colors: [
+                        AppColors.lightBlue.opacity(0.48),
+                        AppColors.primaryBlue.opacity(0.28)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
             
-            VStack(spacing: 0) {
-                Spacer(minLength: 0)
-                
-                Rectangle()
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                AppColors.lightBlue.opacity(0.42),
-                                AppColors.primaryBlue.opacity(0.26)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .frame(height: fillHeight)
-            }
-            .clipShape(Circle())
+            WaterWaveShape(
+                progress: clampedProgress,
+                waveHeight: 5,
+                phase: secondaryWavePhase
+            )
+            .fill(
+                LinearGradient(
+                    colors: [
+                        AppColors.primaryBlue.opacity(0.24),
+                        AppColors.deepBlue.opacity(0.18)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
         }
+        .clipShape(Circle())
         .padding(18)
-        .animation(
-            .spring(response: 0.7, dampingFraction: 0.85),
-            value: clampedProgress
-        )
+        .onAppear {
+            withAnimation(.linear(duration: 2.8).repeatForever(autoreverses: false)) {
+                wavePhase = .pi * 4
+            }
+            
+            withAnimation(.linear(duration: 3.6).repeatForever(autoreverses: false)) {
+                secondaryWavePhase = .pi * 5
+            }
+        }
     }
     
     private var progressRing: some View {
