@@ -7,30 +7,48 @@
 
 import Foundation
 
-@MainActor
 @Observable
+@MainActor
 final class HistoryViewModel {
     
-    // MARK: - Properties
+    // MARK: - Dependencies
     
     private let storageService: WaterStorageService
     
-    var summaries: [DailyHydrationSummary] = []
+    // MARK: - State
+    
+    var selectedPeriod: HistoryPeriod = .day
+    var analytics: HistoryAnalytics?
     
     // MARK: - Initializer
     
     init(storageService: WaterStorageService) {
         self.storageService = storageService
-        loadSummaries()
+        loadAnalytics()
     }
     
     // MARK: - Public Methods
     
-    func loadSummaries() {
+    func selectPeriod(_ period: HistoryPeriod) {
+        selectedPeriod = period
+        loadAnalytics()
+    }
+    
+    func loadAnalytics() {
         do {
-            summaries = try storageService.fetchDailySummaries()
+            let entries = try storageService.fetchEntries(
+                for: selectedPeriod
+            )
+            
+            analytics = HistoryAnalyticsService.makeAnalytics(
+                period: selectedPeriod,
+                entries: entries,
+                dailyGoal: AppSettingsStorage.dailyGoal
+            )
         } catch {
-            print("Failed to fetch daily summaries: \(error)")
+            print(
+                "Failed to load history analytics: \(error)"
+            )
         }
     }
 }

@@ -62,6 +62,8 @@ struct CalculatorView: View {
                 Text("\(recommendedGoal) ml per day")
             }
         }
+        .navigationTitle("Water Goal")
+        .navigationBarTitleDisplayMode(.inline)
     }
     
     // MARK: - Components

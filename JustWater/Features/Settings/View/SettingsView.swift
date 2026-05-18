@@ -18,6 +18,8 @@ struct SettingsView: View {
                 .font(AppTypography.title)
                 .foregroundStyle(AppColors.primaryText)
         }
+        .navigationTitle("Settings")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
