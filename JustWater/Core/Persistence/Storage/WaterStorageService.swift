@@ -96,4 +96,29 @@ final class WaterStorageService {
             )
         }
     }
+    
+    func fetchDailySummaries() throws -> [DailyHydrationSummary] {
+        let descriptor = FetchDescriptor<WaterEntryEntity>(
+            sortBy: [
+                SortDescriptor(\.date, order: .reverse)
+            ]
+        )
+        
+        let entities = try context.fetch(descriptor)
+        let calendar = Calendar.current
+        
+        let groupedByDay = Dictionary(grouping: entities) { entity in
+            calendar.startOfDay(for: entity.date)
+        }
+        
+        return groupedByDay
+            .map { date, entries in
+                DailyHydrationSummary(
+                    date: date,
+                    totalAmount: entries.reduce(0) { $0 + $1.amount },
+                    entriesCount: entries.count
+                )
+            }
+            .sorted { $0.date > $1.date }
+    }
 }

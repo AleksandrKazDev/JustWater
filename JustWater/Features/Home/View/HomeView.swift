@@ -15,6 +15,7 @@ struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     
+    @Environment(AppCoordinator.self) private var coordinator
     // MARK: - State
     
     @State private var viewModel: HomeViewModel?
@@ -132,10 +133,33 @@ struct HomeView: View {
             
             Spacer()
             
-            Button {
-                print("Settings tapped")
+            Menu {
+                Button {
+                    print("History tapped")
+                } label: {
+                    Label("History", systemImage: "clock.arrow.circlepath")
+                }
+                
+                Button {
+                    print("Water Goal tapped")
+                } label: {
+                    Label("Water Goal", systemImage: "target")
+                }
+                
+                Button {
+                    print("Settings tapped")
+                } label: {
+                    Label("Settings", systemImage: "gearshape")
+                }
+                Divider()
+
+                Button(role: .destructive) {
+                    coordinator.resetOnboarding()
+                } label: {
+                    Label("Reset Onboarding", systemImage: "arrow.counterclockwise")
+                }
             } label: {
-                Image(systemName: "gearshape")
+                Image(systemName: "ellipsis")
                     .font(.system(size: 20, weight: .semibold))
                     .foregroundStyle(AppColors.secondaryText)
                     .frame(width: 44, height: 44)

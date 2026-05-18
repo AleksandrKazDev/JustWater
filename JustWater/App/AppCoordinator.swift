@@ -6,17 +6,40 @@
 //
 
 import Foundation
-import SwiftUI
 
 @Observable
 final class AppCoordinator {
     
-    var selectedTab: AppTab = .home
-}
+    // MARK: - Properties
+    
+    var flow: AppFlow
+    var onboardingStep: OnboardingStep = .welcome
+    
+    // MARK: - Initializer
+    
+    init() {
+        flow = AppSettingsStorage.hasCompletedOnboarding ? .main : .onboarding
+    }
+    
+    // MARK: - Public Methods
+    
+    func completeOnboarding() {
+        AppSettingsStorage.hasCompletedOnboarding = true
+        flow = .main
+    }
+    
+    func showCalculatorStep() {
+        onboardingStep = .calculator
+    }
 
-enum AppTab {
-    case home
-    case calculator
-    case insights
-    case settings
+    func showResultStep() {
+        onboardingStep = .result
+    }
+    
+    func resetOnboarding() {
+        AppSettingsStorage.hasCompletedOnboarding = false
+        
+        onboardingStep = .welcome
+        flow = .onboarding
+    }
 }
