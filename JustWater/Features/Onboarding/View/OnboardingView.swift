@@ -57,41 +57,47 @@ struct OnboardingView: View {
     }
     
     private var calculatorStep: some View {
+        CalculatorView { goal in
+            AppSettingsStorage.dailyGoal = goal
+            coordinator.showResultStep()
+        }
+    }
+//    private var calculatorStep: some View {
+//        VStack(spacing: AppSpacing.lg) {
+//            Text("Water Goal")
+//                .font(AppTypography.title)
+//                .foregroundStyle(AppColors.primaryText)
+//            
+//            Text("We’ll help you estimate your daily water goal.")
+//                .font(AppTypography.body)
+//                .foregroundStyle(AppColors.secondaryText)
+//                .multilineTextAlignment(.center)
+//            
+//            PrimaryButton(
+//                title: "Calculate",
+//                systemImage: "target"
+//            ) {
+//                coordinator.showResultStep()
+//            }
+//        }
+//        .padding(AppSpacing.lg)
+//    }
+    
+    private var resultStep: some View {
         VStack(spacing: AppSpacing.lg) {
-            Text("Water Goal")
-                .font(AppTypography.title)
+            Text("\(AppSettingsStorage.dailyGoal) ml")
+                .font(AppTypography.largeTitle)
                 .foregroundStyle(AppColors.primaryText)
             
-            Text("We’ll help you estimate your daily water goal.")
+            Text("Your daily hydration goal is ready.")
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.secondaryText)
                 .multilineTextAlignment(.center)
             
             PrimaryButton(
-                title: "Calculate",
-                systemImage: "target"
-            ) {
-                coordinator.showResultStep()
-            }
-        }
-        .padding(AppSpacing.lg)
-    }
-    
-    private var resultStep: some View {
-        VStack(spacing: AppSpacing.lg) {
-            Text("2,000 ml")
-                .font(AppTypography.largeTitle)
-                .foregroundStyle(AppColors.primaryText)
-            
-            Text("Recommended daily goal")
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.secondaryText)
-            
-            PrimaryButton(
-                title: "Use This Goal",
+                title: "Start Tracking",
                 systemImage: "checkmark"
             ) {
-                AppSettingsStorage.dailyGoal = 2000
                 coordinator.completeOnboarding()
             }
         }

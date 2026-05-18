@@ -9,7 +9,7 @@ import Foundation
 
 struct HydrationState {
     
-    let dailyGoal: Int
+    var dailyGoal: Int
     var entries: [WaterEntry]
     
     var consumedWater: Int {

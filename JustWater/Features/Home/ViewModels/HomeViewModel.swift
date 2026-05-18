@@ -14,7 +14,7 @@ final class HomeViewModel {
     private let storageService: WaterStorageService
     
     var hydrationState = HydrationState(
-        dailyGoal: 2000,
+        dailyGoal: AppSettingsStorage.dailyGoal,
         entries: []
     )
     
@@ -27,6 +27,8 @@ final class HomeViewModel {
     
     func loadEntries() {
         do {
+            hydrationState.dailyGoal = AppSettingsStorage.dailyGoal
+            
             let entries = try storageService.fetchEntries(for: Date.now)
             hydrationState.entries = entries
         } catch {
