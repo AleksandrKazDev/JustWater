@@ -71,7 +71,7 @@ enum HistoryAnalyticsService {
         
         return HistoryAnalytics(
             period: .day,
-            statistics: makeStatistics(
+            statistics: makeDayStatistics(
                 entries: entries,
                 dailyGoal: dailyGoal
             ),
@@ -100,7 +100,10 @@ enum HistoryAnalyticsService {
             .map { date, entries in
                 HistoryChartPoint(
                     date: date,
-                    label: date.formatted(.dateTime.day().month(.abbreviated)),
+                    label: chartLabel(
+                        for: date,
+                        period: period
+                    ),
                     amount: entries.reduce(0) { $0 + $1.amount }
                 )
             }
@@ -108,8 +111,8 @@ enum HistoryAnalyticsService {
         
         return HistoryAnalytics(
             period: period,
-            statistics: makeStatistics(
-                entries: entries,
+            statistics: makeGroupedStatistics(
+                chartPoints: chartPoints,
                 dailyGoal: dailyGoal
             ),
             chartPoints: chartPoints,
@@ -124,7 +127,11 @@ enum HistoryAnalyticsService {
     ) -> Date {
         switch component {
         case .month:
-            let components = calendar.dateComponents([.year, .month], from: date)
+            let components = calendar.dateComponents(
+                [.year, .month],
+                from: date
+            )
+            
             return calendar.date(from: components) ?? date
             
         default:
@@ -132,7 +139,26 @@ enum HistoryAnalyticsService {
         }
     }
     
-    private static func makeStatistics(
+    private static func chartLabel(
+        for date: Date,
+        period: HistoryPeriod
+    ) -> String {
+        switch period {
+        case .day:
+            return date.formatted(.dateTime.hour())
+            
+        case .week:
+            return date.formatted(.dateTime.weekday(.abbreviated))
+            
+        case .month:
+            return date.formatted(.dateTime.day())
+            
+        case .year:
+            return date.formatted(.dateTime.month(.abbreviated))
+        }
+    }
+    
+    private static func makeDayStatistics(
         entries: [WaterEntry],
         dailyGoal: Int
     ) -> HistoryStatistics {
@@ -151,7 +177,47 @@ enum HistoryAnalyticsService {
             totalAmount: totalAmount,
             averageAmount: averageAmount,
             completionRate: completionRate,
-            entriesCount: entriesCount
+            entriesCount: entriesCount,
+            goalReachedCount: completionRate >= 1 ? 1 : 0,
+            bestAmount: totalAmount,
+            bestLabel: nil
+        )
+    }
+    
+    private static func makeGroupedStatistics(
+        chartPoints: [HistoryChartPoint],
+        dailyGoal: Int
+    ) -> HistoryStatistics {
+        let totalAmount = chartPoints.reduce(0) {
+            $0 + $1.amount
+        }
+        
+        let periodsCount = chartPoints.count
+        
+        let averageAmount = periodsCount == 0
+        ? 0
+        : totalAmount / periodsCount
+        
+        let goalReachedCount = chartPoints.filter {
+            $0.amount >= dailyGoal
+        }.count
+        
+        let bestPoint = chartPoints.max {
+            $0.amount < $1.amount
+        }
+        
+        let completionRate = dailyGoal > 0
+        ? min(Double(averageAmount) / Double(dailyGoal), 1)
+        : 0
+        
+        return HistoryStatistics(
+            totalAmount: totalAmount,
+            averageAmount: averageAmount,
+            completionRate: completionRate,
+            entriesCount: periodsCount,
+            goalReachedCount: goalReachedCount,
+            bestAmount: bestPoint?.amount ?? 0,
+            bestLabel: bestPoint?.label
         )
     }
 }

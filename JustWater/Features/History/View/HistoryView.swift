@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import Charts
 
 struct HistoryView: View {
     
@@ -31,11 +32,7 @@ struct HistoryView: View {
                         periodPicker(viewModel: viewModel)
                         
                         if let analytics = viewModel.analytics {
-                            statisticsSection(analytics.statistics)
-                            
-                            chartPlaceholder(analytics)
-                            
-                            entriesSection(analytics.entries)
+                            historyContent(analytics)
                         }
                     }
                     .padding(AppSpacing.lg)
@@ -131,7 +128,7 @@ struct HistoryView: View {
         }
     }
     
-    private func chartPlaceholder(
+    private func chartSection(
         _ analytics: HistoryAnalytics
     ) -> some View {
         GlassCard {
@@ -144,37 +141,26 @@ struct HistoryView: View {
                     Text("No data for selected period")
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.secondaryText)
-                        .frame(maxWidth: .infinity, minHeight: 120)
+                        .frame(maxWidth: .infinity, minHeight: 160)
                 } else {
-                    VStack(spacing: AppSpacing.sm) {
-                        ForEach(analytics.chartPoints.prefix(8)) { point in
-                            HStack {
-                                Text(point.label)
-                                    .font(AppTypography.caption)
-                                    .foregroundStyle(AppColors.secondaryText)
-                                    .frame(width: 56, alignment: .leading)
-                                
-                                GeometryReader { proxy in
-                                    Capsule()
-                                        .fill(AppColors.primaryBlue.opacity(0.35))
-                                        .frame(
-                                            width: barWidth(
-                                                amount: point.amount,
-                                                maxAmount: analytics.chartPoints.map(\.amount).max() ?? 1,
-                                                containerWidth: proxy.size.width
-                                            )
-                                        )
-                                }
-                                .frame(height: 10)
-                                
-                                Text("\(point.amount)")
-                                    .font(AppTypography.caption)
-                                    .foregroundStyle(AppColors.secondaryText)
-                                    .frame(width: 48, alignment: .trailing)
-                            }
+                    Chart(analytics.chartPoints) { point in
+                        BarMark(
+                            x: .value("Period", point.label),
+                            y: .value("Water", point.amount)
+                        )
+                        .foregroundStyle(AppColors.primaryBlue.gradient)
+                        .cornerRadius(6)
+                    }
+                    .frame(height: 180)
+                    .chartYAxis {
+                        AxisMarks(position: .leading)
+                    }
+                    .chartXAxis {
+                        AxisMarks(values: .automatic) { value in
+                            AxisValueLabel()
+                                .foregroundStyle(AppColors.secondaryText)
                         }
                     }
-                    .frame(minHeight: 120)
                 }
             }
         }
@@ -220,18 +206,124 @@ struct HistoryView: View {
             .padding(AppSpacing.lg)
     }
     
+    
+    private func historyContent(
+        _ analytics: HistoryAnalytics
+    ) -> some View {
+        VStack(spacing: AppSpacing.lg) {
+            switch analytics.period {
+            case .day:
+                statisticsSection(analytics.statistics)
+                chartSection(analytics)
+                entriesSection(analytics.entries)
+                
+            case .week:
+                periodStatisticsSection(
+                    analytics.statistics,
+                    averageTitle: "Daily Avg",
+                    bestTitle: "Best Day"
+                )
+                chartSection(analytics)
+                periodSummarySection(
+                    title: "Daily Summary",
+                    points: analytics.chartPoints
+                )
+                
+            case .month:
+                periodStatisticsSection(
+                    analytics.statistics,
+                    averageTitle: "Daily Avg",
+                    bestTitle: "Best Day"
+                )
+                chartSection(analytics)
+                periodSummarySection(
+                    title: "Month Summary",
+                    points: analytics.chartPoints
+                )
+                
+            case .year:
+                periodStatisticsSection(
+                    analytics.statistics,
+                    averageTitle: "Monthly Avg",
+                    bestTitle: "Best Month"
+                )
+                chartSection(analytics)
+                periodSummarySection(
+                    title: "Monthly Summary",
+                    points: analytics.chartPoints
+                )
+            }
+        }
+    }
+    
+    private func periodStatisticsSection(
+        _ statistics: HistoryStatistics,
+        averageTitle: String,
+        bestTitle: String
+    ) -> some View {
+        VStack(spacing: AppSpacing.md) {
+            HStack(spacing: AppSpacing.md) {
+                statisticCard(
+                    title: "Total",
+                    value: "\(statistics.totalAmount) ml"
+                )
+                
+                statisticCard(
+                    title: averageTitle,
+                    value: "\(statistics.averageAmount) ml"
+                )
+            }
+            
+            HStack(spacing: AppSpacing.md) {
+                statisticCard(
+                    title: "Goal Days",
+                    value: "\(statistics.goalReachedCount)"
+                )
+                
+                statisticCard(
+                    title: bestTitle,
+                    value: statistics.bestAmount > 0
+                    ? "\(statistics.bestAmount) ml"
+                    : "—"
+                )
+            }
+        }
+    }
+
+    private func periodSummarySection(
+        title: String,
+        points: [HistoryChartPoint]
+    ) -> some View {
+        VStack(alignment: .leading, spacing: AppSpacing.md) {
+            Text(title)
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.primaryText)
+            
+            if points.isEmpty {
+                emptyState
+            } else {
+                GlassCard {
+                    VStack(spacing: AppSpacing.md) {
+                        ForEach(points) { point in
+                            HStack {
+                                Text(point.label)
+                                    .font(AppTypography.body)
+                                    .foregroundStyle(AppColors.primaryText)
+                                
+                                Spacer()
+                                
+                                Text("\(point.amount) ml")
+                                    .font(AppTypography.caption)
+                                    .foregroundStyle(AppColors.secondaryText)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     // MARK: - Helpers
     
-    private func barWidth(
-        amount: Int,
-        maxAmount: Int,
-        containerWidth: CGFloat
-    ) -> CGFloat {
-        guard maxAmount > 0 else { return 0 }
-        
-        let ratio = Double(amount) / Double(maxAmount)
-        return max(containerWidth * ratio, 8)
-    }
     
     // MARK: - Setup
     
