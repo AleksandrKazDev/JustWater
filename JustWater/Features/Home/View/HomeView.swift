@@ -134,29 +134,46 @@ struct HomeView: View {
             Spacer()
             
             Menu {
-                Button {
-                    print("History tapped")
+                NavigationLink {
+                    HistoryView()
                 } label: {
-                    Label("History", systemImage: "clock.arrow.circlepath")
+                    Label(
+                        "History",
+                        systemImage: "clock.arrow.circlepath"
+                    )
                 }
                 
-                Button {
-                    print("Water Goal tapped")
+                NavigationLink {
+                    CalculatorView { goal in
+                        AppSettingsStorage.dailyGoal = goal
+                        
+                        viewModel?.loadEntries()
+                    }
                 } label: {
-                    Label("Water Goal", systemImage: "target")
+                    Label(
+                        "Water Goal",
+                        systemImage: "target"
+                    )
                 }
                 
-                Button {
-                    print("Settings tapped")
+                NavigationLink {
+                    SettingsView()
                 } label: {
-                    Label("Settings", systemImage: "gearshape")
+                    Label(
+                        "Settings",
+                        systemImage: "gearshape"
+                    )
                 }
+                
                 Divider()
-
+                
                 Button(role: .destructive) {
                     coordinator.resetOnboarding()
                 } label: {
-                    Label("Reset Onboarding", systemImage: "arrow.counterclockwise")
+                    Label(
+                        "Reset Onboarding",
+                        systemImage: "arrow.counterclockwise"
+                    )
                 }
             } label: {
                 Image(systemName: "ellipsis")
@@ -167,7 +184,7 @@ struct HomeView: View {
                         Circle()
                             .fill(AppColors.cardBackground)
                     }
-            }
+            } 
             .buttonStyle(.plain)
         }
     }

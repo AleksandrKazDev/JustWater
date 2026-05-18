@@ -22,34 +22,16 @@ struct RootView: View {
                 .environment(coordinator)
             
         case .main:
-            HomeView()
-                .environment(coordinator)
+            NavigationStack {
+                HomeView()
+                    .environment(coordinator)
+            }
         }
     }
-    
-    // MARK: - Components
-    
-//    private var onboardingPlaceholder: some View {
-//        VStack(spacing: AppSpacing.lg) {
-//            Text("Welcome to JustWater")
-//                .font(AppTypography.title)
-//                .foregroundStyle(AppColors.primaryText)
-//            
-//            PrimaryButton(
-//                title: "Continue",
-//                systemImage: "arrow.right"
-//            ) {
-//                coordinator.completeOnboarding()
-//            }
-//            .padding(.horizontal, AppSpacing.lg)
-//        }
-//        .frame(maxWidth: .infinity, maxHeight: .infinity)
-//        .background(AppColors.background)
-//    }
 }
 
 // MARK: - Preview
 
-#Preview {
-    RootView()
-}
+//#Preview {
+//    RootView()
+//}

@@ -75,4 +75,14 @@ final class CalculatorViewModel {
             customGoalText = digitsOnly
         }
     }
+    
+    func selectGender(_ gender: Gender) {
+        self.gender = gender
+        recommendedGoal = nil
+    }
+
+    func selectActivityLevel(_ activityLevel: ActivityLevel) {
+        self.activityLevel = activityLevel
+        recommendedGoal = nil
+    }
 }

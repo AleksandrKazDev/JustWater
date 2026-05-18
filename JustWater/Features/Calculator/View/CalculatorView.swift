@@ -9,10 +9,17 @@ import SwiftUI
 
 struct CalculatorView: View {
     
+    // MARK: - Environment
+    
+    @Environment(\.dismiss) private var dismiss
+    
     // MARK: - State
     
     @State private var viewModel = CalculatorViewModel()
+    
     @State private var selectedActivityInfo: ActivityLevel?
+    
+    @State private var isRecommendationAlertPresented = false
     
     // MARK: - Actions
     
@@ -34,14 +41,26 @@ struct CalculatorView: View {
                 calculateButton
                 
                 if let recommendedGoal = viewModel.recommendedGoal {
-                    resultCard(goal: recommendedGoal)
+                    recommendedGoalSection(goal: recommendedGoal)
                 }
+                
+                customGoalSection
             }
             .padding(AppSpacing.lg)
         }
         .background(AppColors.background)
         .sheet(item: $selectedActivityInfo) { level in
             activityInfoSheet(level)
+        }
+        .alert(
+            "Recommended Goal",
+            isPresented: $isRecommendationAlertPresented
+        ) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            if let recommendedGoal = viewModel.recommendedGoal {
+                Text("\(recommendedGoal) ml per day")
+            }
         }
     }
     
@@ -53,10 +72,12 @@ struct CalculatorView: View {
                 .font(AppTypography.title)
                 .foregroundStyle(AppColors.primaryText)
             
-            Text("Get a personalized daily hydration recommendation.")
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.secondaryText)
-                .multilineTextAlignment(.center)
+            Text(
+                "Get a personalized daily hydration recommendation."
+            )
+            .font(AppTypography.body)
+            .foregroundStyle(AppColors.secondaryText)
+            .multilineTextAlignment(.center)
         }
     }
     
@@ -66,16 +87,21 @@ struct CalculatorView: View {
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.primaryText)
             
-            TextField("Enter your weight", text: $viewModel.weightText)
-                .keyboardType(.numberPad)
-                .padding(AppSpacing.md)
-                .background {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(AppColors.cardBackground)
-                }
-                .onChange(of: viewModel.weightText) { _, newValue in
-                    viewModel.updateWeightText(newValue)
-                }
+            TextField(
+                "Enter your weight",
+                text: $viewModel.weightText
+            )
+            .keyboardType(.numberPad)
+            .padding(AppSpacing.md)
+            .background {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(AppColors.cardBackground)
+            }
+            .onChange(
+                of: viewModel.weightText
+            ) { _, newValue in
+                viewModel.updateWeightText(newValue)
+            }
         }
     }
     
@@ -88,7 +114,7 @@ struct CalculatorView: View {
             HStack(spacing: AppSpacing.sm) {
                 ForEach(Gender.allCases) { gender in
                     Button {
-                        viewModel.gender = gender
+                        viewModel.selectGender(gender)
                     } label: {
                         Text(gender.title)
                             .font(AppTypography.body)
@@ -100,12 +126,14 @@ struct CalculatorView: View {
                             .frame(maxWidth: .infinity)
                             .frame(height: 48)
                             .background {
-                                RoundedRectangle(cornerRadius: AppRadius.lg)
-                                    .fill(
-                                        viewModel.gender == gender
-                                        ? AppColors.primaryBlue
-                                        : AppColors.cardBackground
-                                    )
+                                RoundedRectangle(
+                                    cornerRadius: AppRadius.lg
+                                )
+                                .fill(
+                                    viewModel.gender == gender
+                                    ? AppColors.primaryBlue
+                                    : AppColors.cardBackground
+                                )
                             }
                     }
                     .buttonStyle(.plain)
@@ -131,104 +159,124 @@ struct CalculatorView: View {
     private func activityButton(
         _ level: ActivityLevel
     ) -> some View {
-        Button {
-            viewModel.activityLevel = level
-        } label: {
-            HStack {
-                Text(level.title)
-                    .font(AppTypography.body)
-                    .foregroundStyle(AppColors.primaryText)
-                
-                Spacer()
-
-                Button {
-                    selectedActivityInfo = level
-                } label: {
-                    Image(systemName: "info.circle")
-                        .foregroundStyle(AppColors.secondaryText)
+        HStack(spacing: AppSpacing.sm) {
+            Button {
+                viewModel.selectActivityLevel(level)
+            } label: {
+                HStack {
+                    Text(level.title)
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.primaryText)
+                    
+                    Spacer()
+                    
+                    if viewModel.activityLevel == level {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(AppColors.primaryBlue)
+                    }
                 }
-
-                if viewModel.activityLevel == level {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(AppColors.primaryBlue)
-                }
+                .contentShape(Rectangle())
             }
-            .padding(AppSpacing.md)
-            .background {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(AppColors.cardBackground)
+            .buttonStyle(.plain)
+            
+            Button {
+                selectedActivityInfo = level
+            } label: {
+                Image(systemName: "info.circle")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundStyle(AppColors.secondaryText)
+                    .frame(width: 44, height: 44)
             }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
+        .padding(.leading, AppSpacing.md)
+        .padding(.trailing, AppSpacing.sm)
+        .padding(.vertical, AppSpacing.xs)
+        .background {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(AppColors.cardBackground)
+        }
     }
     
     private var calculateButton: some View {
         PrimaryButton(
-            title: "Calculate Goal",
-            systemImage: "drop.fill"
+            title: "Calculate Recommendation",
+            systemImage: "function"
         ) {
             viewModel.calculateGoal()
+            
+            if viewModel.recommendedGoal != nil {
+                isRecommendationAlertPresented = true
+            }
         }
     }
     
-    private func resultCard(goal: Int) -> some View {
+    private func recommendedGoalSection(
+        goal: Int
+    ) -> some View {
         GlassCard {
-            VStack(spacing: AppSpacing.lg) {
+            VStack(spacing: AppSpacing.md) {
+                Text("Recommended Goal")
+                    .font(AppTypography.headline)
+                    .foregroundStyle(AppColors.primaryText)
                 
-                VStack(spacing: AppSpacing.xs) {
-                    Text("\(goal) ml")
-                        .font(AppTypography.largeTitle)
-                        .foregroundStyle(AppColors.primaryText)
-                    
-                    Text("Recommended daily goal")
-                        .font(AppTypography.body)
-                        .foregroundStyle(AppColors.secondaryText)
-                }
+                Text("\(goal) ml")
+                    .font(AppTypography.largeTitle)
+                    .foregroundStyle(AppColors.primaryText)
                 
                 PrimaryButton(
                     title: "Use Recommended Goal",
                     systemImage: "checkmark"
                 ) {
                     onComplete(goal)
-                }
-                
-                VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                    Text("Custom Goal")
-                        .font(AppTypography.headline)
-                        .foregroundStyle(AppColors.primaryText)
-                    
-                    HStack(spacing: AppSpacing.sm) {
-                        TextField("Enter custom goal", text: $viewModel.customGoalText)
-                            .keyboardType(.numberPad)
-                            .onChange(of: viewModel.customGoalText) { _, newValue in viewModel.updateCustomGoalText(newValue)
-                            }
-                        Text("ml")
-                            .font(AppTypography.body)
-                            .foregroundStyle(AppColors.secondaryText)
-                    }
-                    .padding(AppSpacing.md)
-                    .background {
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(AppColors.cardBackground)
-                    }
-                    .onChange(
-                        of: viewModel.customGoalText
-                    ) { _, newValue in
-                        viewModel.updateCustomGoalText(newValue)
-                    }
-                    
-                    if let customGoal = viewModel.customGoal {
-                        PrimaryButton(
-                            title: "Use Custom Goal",
-                            systemImage: "slider.horizontal.3"
-                        ) {
-                            onComplete(customGoal)
-                        }
-                    }
+                    dismiss()
                 }
             }
         }
     }
+    
+    private var customGoalSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            Text("Custom Goal")
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.primaryText)
+            
+            HStack(spacing: AppSpacing.sm) {
+                TextField(
+                    "1 - 10000",
+                    text: $viewModel.customGoalText
+                )
+                .keyboardType(.numberPad)
+                .onChange(
+                    of: viewModel.customGoalText
+                ) { _, newValue in
+                    viewModel.updateCustomGoalText(newValue)
+                }
+                
+                Text("ml")
+                    .font(AppTypography.body)
+                    .foregroundStyle(
+                        AppColors.secondaryText
+                    )
+            }
+            .padding(AppSpacing.md)
+            .background {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(AppColors.cardBackground)
+            }
+            
+            if let customGoal = viewModel.customGoal {
+                PrimaryButton(
+                    title: "Use Custom Goal",
+                    systemImage: "slider.horizontal.3"
+                ) {
+                    onComplete(customGoal)
+                    dismiss()
+                }
+            }
+        }
+    }
+    
     private func activityInfoSheet(
         _ level: ActivityLevel
     ) -> some View {

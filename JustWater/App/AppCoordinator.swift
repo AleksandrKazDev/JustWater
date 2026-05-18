@@ -28,18 +28,17 @@ final class AppCoordinator {
         flow = .main
     }
     
+    func resetOnboarding() {
+        AppSettingsStorage.hasCompletedOnboarding = false
+        onboardingStep = .welcome
+        flow = .onboarding
+    }
+    
     func showCalculatorStep() {
         onboardingStep = .calculator
     }
-
+    
     func showResultStep() {
         onboardingStep = .result
-    }
-    
-    func resetOnboarding() {
-        AppSettingsStorage.hasCompletedOnboarding = false
-        
-        onboardingStep = .welcome
-        flow = .onboarding
     }
 }
