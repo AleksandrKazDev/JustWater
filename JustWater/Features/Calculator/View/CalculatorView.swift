@@ -12,6 +12,7 @@ struct CalculatorView: View {
     // MARK: - State
     
     @State private var viewModel = CalculatorViewModel()
+    @State private var selectedActivityInfo: ActivityLevel?
     
     // MARK: - Actions
     
@@ -39,6 +40,9 @@ struct CalculatorView: View {
             .padding(AppSpacing.lg)
         }
         .background(AppColors.background)
+        .sheet(item: $selectedActivityInfo) { level in
+            activityInfoSheet(level)
+        }
     }
     
     // MARK: - Components
@@ -136,7 +140,14 @@ struct CalculatorView: View {
                     .foregroundStyle(AppColors.primaryText)
                 
                 Spacer()
-                
+
+                Button {
+                    selectedActivityInfo = level
+                } label: {
+                    Image(systemName: "info.circle")
+                        .foregroundStyle(AppColors.secondaryText)
+                }
+
                 if viewModel.activityLevel == level {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(AppColors.primaryBlue)
@@ -162,28 +173,85 @@ struct CalculatorView: View {
     
     private func resultCard(goal: Int) -> some View {
         GlassCard {
-            VStack(spacing: AppSpacing.sm) {
-                Text("\(goal) ml")
-                    .font(AppTypography.largeTitle)
-                    .foregroundStyle(AppColors.primaryText)
+            VStack(spacing: AppSpacing.lg) {
                 
-                Text("Recommended daily goal")
-                    .font(AppTypography.body)
-                    .foregroundStyle(AppColors.secondaryText)
+                VStack(spacing: AppSpacing.xs) {
+                    Text("\(goal) ml")
+                        .font(AppTypography.largeTitle)
+                        .foregroundStyle(AppColors.primaryText)
+                    
+                    Text("Recommended daily goal")
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.secondaryText)
+                }
                 
                 PrimaryButton(
-                    title: "Use This Goal",
+                    title: "Use Recommended Goal",
                     systemImage: "checkmark"
                 ) {
                     onComplete(goal)
                 }
+                
+                VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                    Text("Custom Goal")
+                        .font(AppTypography.headline)
+                        .foregroundStyle(AppColors.primaryText)
+                    
+                    HStack(spacing: AppSpacing.sm) {
+                        TextField("Enter custom goal", text: $viewModel.customGoalText)
+                            .keyboardType(.numberPad)
+                            .onChange(of: viewModel.customGoalText) { _, newValue in viewModel.updateCustomGoalText(newValue)
+                            }
+                        Text("ml")
+                            .font(AppTypography.body)
+                            .foregroundStyle(AppColors.secondaryText)
+                    }
+                    .padding(AppSpacing.md)
+                    .background {
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(AppColors.cardBackground)
+                    }
+                    .onChange(
+                        of: viewModel.customGoalText
+                    ) { _, newValue in
+                        viewModel.updateCustomGoalText(newValue)
+                    }
+                    
+                    if let customGoal = viewModel.customGoal {
+                        PrimaryButton(
+                            title: "Use Custom Goal",
+                            systemImage: "slider.horizontal.3"
+                        ) {
+                            onComplete(customGoal)
+                        }
+                    }
+                }
             }
         }
+    }
+    private func activityInfoSheet(
+        _ level: ActivityLevel
+    ) -> some View {
+        VStack(spacing: AppSpacing.lg) {
+            Text(level.title)
+                .font(AppTypography.title)
+                .foregroundStyle(AppColors.primaryText)
+            
+            Text(level.description)
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.secondaryText)
+                .multilineTextAlignment(.center)
+            
+            Spacer()
+        }
+        .padding(AppSpacing.xl)
+        .presentationDetents([.height(220)])
+        .presentationDragIndicator(.visible)
     }
 }
 
 // MARK: - Preview
 
-#Preview {
-    CalculatorView { _ in }
-}
+//#Preview {
+//    CalculatorView { _ in }
+//}

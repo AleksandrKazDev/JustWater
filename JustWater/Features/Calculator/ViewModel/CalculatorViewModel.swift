@@ -14,11 +14,21 @@ final class CalculatorViewModel {
     
     var weightText = ""
     private let maximumWeight = 250
-    
     var gender: Gender = .male
-    
     var activityLevel: ActivityLevel = .moderate
     
+    var customGoalText = ""
+    private let minimumCustomGoal = 1
+    private let maximumCustomGoal = 10000
+    var customGoal: Int? {
+        guard let goal = Int(customGoalText),
+              goal >= minimumCustomGoal,
+              goal <= maximumCustomGoal else {
+            return nil
+        }
+        
+        return goal
+    }
     // MARK: - Output
     
     var recommendedGoal: Int?
@@ -49,5 +59,20 @@ final class CalculatorViewModel {
         }
         
         recommendedGoal = nil
+    }
+    
+    func updateCustomGoalText(_ newValue: String) {
+        let digitsOnly = newValue.filter(\.isNumber)
+        
+        guard let goal = Int(digitsOnly) else {
+            customGoalText = digitsOnly
+            return
+        }
+        
+        if goal > maximumCustomGoal {
+            customGoalText = "\(maximumCustomGoal)"
+        } else {
+            customGoalText = digitsOnly
+        }
     }
 }

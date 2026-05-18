@@ -95,7 +95,7 @@ struct HistoryView: View {
 
 // MARK: - Preview
 
-#Preview {
-    HistoryView()
-        .modelContainer(PreviewContainer.shared)
-}
+//#Preview {
+//    HistoryView()
+//        .modelContainer(PreviewContainer.shared)
+//}

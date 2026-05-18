@@ -272,7 +272,7 @@ struct HomeView: View {
 
 // MARK: - Preview
 
-#Preview {
-    HomeView()
-        .modelContainer(PreviewContainer.shared)
-}
+//#Preview {
+//    HomeView()
+//        .modelContainer(PreviewContainer.shared)
+//}

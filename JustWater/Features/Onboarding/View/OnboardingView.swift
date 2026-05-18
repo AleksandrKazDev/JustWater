@@ -107,7 +107,7 @@ struct OnboardingView: View {
 
 // MARK: - Preview
 
-#Preview {
-    OnboardingView()
-        .environment(AppCoordinator())
-}
+//#Preview {
+//    OnboardingView()
+//        .environment(AppCoordinator())
+//}
