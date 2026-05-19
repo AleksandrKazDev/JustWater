@@ -14,7 +14,8 @@ enum HistoryAnalyticsService {
     static func makeAnalytics(
         period: HistoryPeriod,
         entries: [WaterEntry],
-        dailyGoal: Int
+        dailyGoal: Int,
+        referenceDate: Date
     ) -> HistoryAnalytics {
         switch period {
         case .day:
@@ -28,7 +29,8 @@ enum HistoryAnalyticsService {
                 period: period,
                 entries: entries,
                 dailyGoal: dailyGoal,
-                component: .day
+                component: .day,
+                referenceDate: referenceDate
             )
             
         case .month:
@@ -36,7 +38,8 @@ enum HistoryAnalyticsService {
                 period: period,
                 entries: entries,
                 dailyGoal: dailyGoal,
-                component: .day
+                component: .day,
+                referenceDate: referenceDate
             )
             
         case .year:
@@ -44,7 +47,8 @@ enum HistoryAnalyticsService {
                 period: period,
                 entries: entries,
                 dailyGoal: dailyGoal,
-                component: .month
+                component: .month,
+                referenceDate: referenceDate
             )
         }
     }
@@ -84,7 +88,8 @@ enum HistoryAnalyticsService {
         period: HistoryPeriod,
         entries: [WaterEntry],
         dailyGoal: Int,
-        component: Calendar.Component
+        component: Calendar.Component,
+        referenceDate: Date
     ) -> HistoryAnalytics {
         let calendar = Calendar.current
         
@@ -96,18 +101,24 @@ enum HistoryAnalyticsService {
             )
         }
         
-        let chartPoints = grouped
-            .map { date, entries in
-                HistoryChartPoint(
-                    date: date,
-                    label: chartLabel(
-                        for: date,
-                        period: period
-                    ),
-                    amount: entries.reduce(0) { $0 + $1.amount }
-                )
-            }
-            .sorted { $0.date < $1.date }
+        let dates = normalizedDates(
+            for: period,
+            referenceDate: referenceDate,
+            calendar: calendar
+        )
+        
+        let chartPoints = dates.map { date in
+            let entriesForDate = grouped[date] ?? []
+            
+            return HistoryChartPoint(
+                date: date,
+                label: chartLabel(
+                    for: date,
+                    period: period
+                ),
+                amount: entriesForDate.reduce(0) { $0 + $1.amount }
+            )
+        }
         
         return HistoryAnalytics(
             period: period,
@@ -139,6 +150,70 @@ enum HistoryAnalyticsService {
         }
     }
     
+    private static func normalizedDates(
+        for period: HistoryPeriod,
+        referenceDate: Date,
+        calendar: Calendar
+    ) -> [Date] {
+        switch period {
+        case .day:
+            return []
+            
+        case .week:
+            guard let weekInterval = calendar.dateInterval(
+                of: .weekOfYear,
+                for: referenceDate
+            ) else {
+                return []
+            }
+            
+            return (0..<7).compactMap { dayOffset in
+                calendar.date(
+                    byAdding: .day,
+                    value: dayOffset,
+                    to: weekInterval.start
+                )
+            }
+            
+        case .month:
+            guard let monthInterval = calendar.dateInterval(
+                of: .month,
+                for: referenceDate
+            ),
+                  let range = calendar.range(
+                    of: .day,
+                    in: .month,
+                    for: referenceDate
+                  ) else {
+                return []
+            }
+            
+            return range.compactMap { day in
+                calendar.date(
+                    byAdding: .day,
+                    value: day - 1,
+                    to: monthInterval.start
+                )
+            }
+            
+        case .year:
+            guard let yearInterval = calendar.dateInterval(
+                of: .year,
+                for: referenceDate
+            ) else {
+                return []
+            }
+            
+            return (0..<12).compactMap { monthOffset in
+                calendar.date(
+                    byAdding: .month,
+                    value: monthOffset,
+                    to: yearInterval.start
+                )
+            }
+        }
+    }
+    
     private static func chartLabel(
         for date: Date,
         period: HistoryPeriod
@@ -148,7 +223,7 @@ enum HistoryAnalyticsService {
             return date.formatted(.dateTime.hour())
             
         case .week:
-            return date.formatted(.dateTime.weekday(.abbreviated))
+            return date.formatted(.dateTime.day())
             
         case .month:
             return date.formatted(.dateTime.day())
@@ -170,7 +245,7 @@ enum HistoryAnalyticsService {
         : totalAmount / entriesCount
         
         let completionRate = dailyGoal > 0
-        ? min(Double(totalAmount) / Double(dailyGoal), 1)
+        ? Double(totalAmount) / Double(dailyGoal)
         : 0
         
         return HistoryStatistics(
@@ -207,7 +282,7 @@ enum HistoryAnalyticsService {
         }
         
         let completionRate = dailyGoal > 0
-        ? min(Double(averageAmount) / Double(dailyGoal), 1)
+        ? Double(averageAmount) / Double(dailyGoal)
         : 0
         
         return HistoryStatistics(

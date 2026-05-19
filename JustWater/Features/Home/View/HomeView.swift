@@ -56,7 +56,8 @@ struct HomeView: View {
                         GlassCard {
                             VStack(spacing: AppSpacing.lg) {
                                 WaterProgressView(
-                                    progress: viewModel.hydrationState.progress
+                                    progress: viewModel.hydrationState.visualProgress,
+                                    percentage: Int(viewModel.hydrationState.completionRate * 100)
                                 )
                                 
                                 VStack(spacing: AppSpacing.xs) {

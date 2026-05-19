@@ -161,7 +161,8 @@ struct HistoryView: View {
                 chartSection(analytics)
                 periodSummarySection(
                     title: "Daily Summary",
-                    points: analytics.chartPoints
+                    points: analytics.chartPoints,
+                    labelProvider: weekSummaryLabel
                 )
                 
             case .month:
@@ -171,10 +172,6 @@ struct HistoryView: View {
                     bestTitle: "Best Day"
                 )
                 chartSection(analytics)
-                periodSummarySection(
-                    title: "Month Summary",
-                    points: analytics.chartPoints
-                )
                 
             case .year:
                 periodStatisticsSection(
@@ -185,7 +182,8 @@ struct HistoryView: View {
                 chartSection(analytics)
                 periodSummarySection(
                     title: "Monthly Summary",
-                    points: analytics.chartPoints
+                    points: analytics.chartPoints,
+                    labelProvider: { $0.label }
                 )
             }
         }
@@ -364,10 +362,7 @@ struct HistoryView: View {
                         AxisMarks(position: .leading)
                     }
                     .chartXAxis {
-                        AxisMarks(values: .automatic) { _ in
-                            AxisValueLabel()
-                                .foregroundStyle(AppColors.secondaryText)
-                        }
+                        chartXAxis(for: analytics)
                     }
                 }
             }
@@ -442,7 +437,8 @@ struct HistoryView: View {
     
     private func periodSummarySection(
         title: String,
-        points: [HistoryChartPoint]
+        points: [HistoryChartPoint],
+        labelProvider: @escaping (HistoryChartPoint) -> String
     ) -> some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
@@ -460,7 +456,7 @@ struct HistoryView: View {
                     VStack(spacing: AppSpacing.md) {
                         ForEach(points) { point in
                             HStack {
-                                Text(point.label)
+                                Text(labelProvider(point))
                                     .font(AppTypography.body)
                                     .foregroundStyle(AppColors.primaryText)
                                 
@@ -517,6 +513,61 @@ struct HistoryView: View {
         case .week, .month, .year:
             return "Consumption"
         }
+    }
+    
+    @AxisContentBuilder
+    private func chartXAxis(
+        for analytics: HistoryAnalytics
+    ) -> some AxisContent {
+        switch analytics.period {
+        case .month:
+            AxisMarks(
+                values: monthAxisLabels(from: analytics.chartPoints)
+            ) { _ in
+                AxisValueLabel()
+                    .foregroundStyle(AppColors.secondaryText)
+            }
+            
+        default:
+            AxisMarks(values: .automatic) { _ in
+                AxisValueLabel()
+                    .foregroundStyle(AppColors.secondaryText)
+            }
+        }
+    }
+    
+    private func monthAxisLabels(
+        from points: [HistoryChartPoint]
+    ) -> [String] {
+        points
+            .map(\.label)
+            .filter { label in
+                guard let day = Int(label) else {
+                    return false
+                }
+                
+                return day == 1 ||
+                day == 5 ||
+                day == 10 ||
+                day == 15 ||
+                day == 20 ||
+                day == 25 ||
+                day == 30
+            }
+    }
+    
+    private func weekSummaryLabel(
+        for point: HistoryChartPoint
+    ) -> String {
+        let weekday = point.date.formatted(
+            .dateTime.weekday(.abbreviated)
+        )
+        
+        let day = point.date.formatted(
+            .dateTime.day()
+        )
+        
+        return "\(weekday) \(day)"
     }
     
     private func chartYDomain(

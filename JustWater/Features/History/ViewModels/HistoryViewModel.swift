@@ -93,7 +93,8 @@ final class HistoryViewModel {
             analytics = HistoryAnalyticsService.makeAnalytics(
                 period: selectedPeriod,
                 entries: entries,
-                dailyGoal: AppSettingsStorage.dailyGoal
+                dailyGoal: AppSettingsStorage.dailyGoal,
+                referenceDate: referenceDate
             )
         } catch {
             print(

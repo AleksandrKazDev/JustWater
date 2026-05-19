@@ -10,6 +10,7 @@ import SwiftUI
 struct WaterProgressView: View {
     
     let progress: Double
+    let percentage: Int
     
     @State private var wavePhase: CGFloat = 0
     @State private var secondaryWavePhase: CGFloat = .pi
@@ -123,7 +124,7 @@ struct WaterProgressView: View {
     
     private var centerContent: some View {
         VStack(spacing: AppSpacing.xs) {
-            Text("\(Int(clampedProgress * 100))%")
+            Text("\(percentage)%")
                 .font(.system(size: 48, weight: .bold))
                 .foregroundStyle(AppColors.deepBlue)
             
@@ -131,12 +132,5 @@ struct WaterProgressView: View {
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.secondaryText)
         }
-    }
-}
-
-#Preview {
-    ZStack {
-        AppColors.background.ignoresSafeArea()
-        WaterProgressView(progress: 0.6)
     }
 }
