@@ -109,6 +109,7 @@ struct HomeView: View {
         }
         .onAppear {
             setupViewModelIfNeeded()
+            viewModel?.loadEntries()
         }
         .onChange(of: scenePhase) { _, newPhase in
             guard newPhase == .active else { return }

@@ -21,6 +21,49 @@ final class HistoryViewModel {
     var referenceDate = Date.now
     var analytics: HistoryAnalytics?
     
+    var periodTitle: String {
+        switch selectedPeriod {
+        case .day:
+            return referenceDate.formatted(
+                .dateTime
+                    .day()
+                    .month(.wide)
+            )
+            
+        case .week:
+            let calendar = Calendar.current
+            
+            guard let weekInterval = calendar.dateInterval(
+                of: .weekOfYear,
+                for: referenceDate
+            ) else {
+                return ""
+            }
+            
+            let start = weekInterval.start.formatted(
+                .dateTime.day().month(.abbreviated)
+            )
+            
+            let end = weekInterval.end.formatted(
+                .dateTime.day().month(.abbreviated)
+            )
+            
+            return "\(start) – \(end)"
+            
+        case .month:
+            return referenceDate.formatted(
+                .dateTime
+                    .month(.wide)
+                    .year()
+            )
+            
+        case .year:
+            return referenceDate.formatted(
+                .dateTime
+                    .year()
+            )
+        }
+    }
     // MARK: - Initializer
     
     init(storageService: WaterStorageService) {
@@ -94,47 +137,13 @@ final class HistoryViewModel {
         shiftPeriod(by: 1)
     }
     
-    var periodTitle: String {
-        switch selectedPeriod {
-        case .day:
-            return referenceDate.formatted(
-                .dateTime
-                    .day()
-                    .month(.wide)
-            )
-            
-        case .week:
-            let calendar = Calendar.current
-            
-            guard let weekInterval = calendar.dateInterval(
-                of: .weekOfYear,
-                for: referenceDate
-            ) else {
-                return ""
-            }
-            
-            let start = weekInterval.start.formatted(
-                .dateTime.day().month(.abbreviated)
-            )
-            
-            let end = weekInterval.end.formatted(
-                .dateTime.day().month(.abbreviated)
-            )
-            
-            return "\(start) – \(end)"
-            
-        case .month:
-            return referenceDate.formatted(
-                .dateTime
-                    .month(.wide)
-                    .year()
-            )
-            
-        case .year:
-            return referenceDate.formatted(
-                .dateTime
-                    .year()
-            )
+    func deleteEntry(_ entry: WaterEntry) {
+        do {
+            try storageService.deleteEntry(id: entry.id)
+            loadAnalytics()
+            HapticService.lightImpact()
+        } catch {
+            print("Failed to delete history entry: \(error)")
         }
     }
 }
