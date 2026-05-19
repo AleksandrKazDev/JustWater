@@ -18,6 +18,7 @@ struct HistoryView: View {
     // MARK: - State
     
     @State private var viewModel: HistoryViewModel?
+    @State private var isDatePickerPresented = false
     
     // MARK: - Body
     
@@ -30,6 +31,8 @@ struct HistoryView: View {
                 if let viewModel {
                     VStack(alignment: .leading, spacing: AppSpacing.lg) {
                         periodPicker(viewModel: viewModel)
+                        
+                        periodNavigation(viewModel: viewModel)
                         
                         if let analytics = viewModel.analytics {
                             historyContent(analytics)
@@ -45,6 +48,11 @@ struct HistoryView: View {
         }
         .navigationTitle("History")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $isDatePickerPresented) {
+            if let viewModel {
+                datePickerSheet(viewModel: viewModel)
+            }
+        }
     }
     
     // MARK: - Components
@@ -78,6 +86,81 @@ struct HistoryView: View {
                 .buttonStyle(.plain)
             }
         }
+    }
+    
+    private func periodNavigation(
+        viewModel: HistoryViewModel
+    ) -> some View {
+        HStack {
+            Button {
+                viewModel.showPreviousPeriod()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(AppColors.primaryText)
+                    .frame(width: 40, height: 40)
+                    .background {
+                        Circle()
+                            .fill(AppColors.cardBackground)
+                    }
+            }
+            .buttonStyle(.plain)
+            
+            Spacer()
+            
+            Button {
+                isDatePickerPresented = true
+            } label: {
+                Text(viewModel.periodTitle)
+                    .font(AppTypography.headline)
+                    .foregroundStyle(AppColors.primaryText)
+            }
+            .buttonStyle(.plain)
+            
+            Spacer()
+            
+            Button {
+                viewModel.showNextPeriod()
+            } label: {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(AppColors.primaryText)
+                    .frame(width: 40, height: 40)
+                    .background {
+                        Circle()
+                            .fill(AppColors.cardBackground)
+                    }
+            }
+            .buttonStyle(.plain)
+        }
+    }
+    
+    private func datePickerSheet(
+        viewModel: HistoryViewModel
+    ) -> some View {
+        VStack(spacing: AppSpacing.md) {
+            Text("Select Date")
+                .font(AppTypography.title)
+                .foregroundStyle(AppColors.primaryText)
+            
+            DatePicker(
+                "Date",
+                selection: Binding(
+                    get: {
+                        viewModel.referenceDate
+                    },
+                    set: { newDate in
+                        viewModel.selectReferenceDate(newDate)
+                    }
+                ),
+                displayedComponents: .date
+            )
+            .datePickerStyle(.graphical)
+            .labelsHidden()
+        }
+        .padding(AppSpacing.lg)
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
     }
     
     private func statisticsSection(
