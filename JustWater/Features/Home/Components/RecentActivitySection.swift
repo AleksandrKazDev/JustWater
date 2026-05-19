@@ -11,6 +11,7 @@ struct RecentActivitySection: View {
     
     let entries: [WaterEntry]
     let onDelete: (WaterEntry) -> Void
+    let onOpenHistory: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.md) {
@@ -20,6 +21,10 @@ struct RecentActivitySection: View {
             
             if entries.isEmpty {
                 emptyState
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        onOpenHistory()
+                    }
             } else {
                 GlassCard {
                     VStack(spacing: AppSpacing.md) {
@@ -37,6 +42,10 @@ struct RecentActivitySection: View {
                         .spring(response: 0.45, dampingFraction: 0.9),
                         value: entries.map(\.id)
                     )
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    onOpenHistory()
                 }
             }
         }
@@ -88,21 +97,23 @@ struct RecentActivitySection: View {
                 Image(systemName: "trash")
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(AppColors.secondaryText)
+                    .frame(width: 32, height: 32)
             }
             .buttonStyle(.plain)
         }
+        .contentShape(Rectangle())
     }
 }
 
-#Preview {
-    ZStack {
-        AppColors.background
-            .ignoresSafeArea()
-        
-        RecentActivitySection(
-            entries: [],
-            onDelete: { _ in }
-        )
-        .padding(AppSpacing.lg)
-    }
-}
+//#Preview {
+//    ZStack {
+//        AppColors.background
+//            .ignoresSafeArea()
+//        
+//        RecentActivitySection(
+//            entries: [],
+//            onDelete: { _ in }
+//        )
+//        .padding(AppSpacing.lg)
+//    }
+//}

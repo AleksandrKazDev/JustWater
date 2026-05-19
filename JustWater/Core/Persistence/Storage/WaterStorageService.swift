@@ -41,8 +41,28 @@ final class WaterStorageService {
         }
     }
     
+//    func saveEntry(amount: Int) throws {
+//        let entity = WaterEntryEntity(amount: amount)
+//        
+//        context.insert(entity)
+//        
+//        try context.save()
+//    }
     func saveEntry(amount: Int) throws {
-        let entity = WaterEntryEntity(amount: amount)
+        try saveEntry(
+            amount: amount,
+            date: Date()
+        )
+    }
+
+    func saveEntry(
+        amount: Int,
+        date: Date
+    ) throws {
+        let entity = WaterEntryEntity(
+            amount: amount,
+            date: date
+        )
         
         context.insert(entity)
         

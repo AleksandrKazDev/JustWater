@@ -24,6 +24,7 @@ struct HomeView: View {
     
     @State private var isUndoBannerPresented = false
     @State private var isUndoBannerVisible = false
+    @State private var isHistoryPresented = false
     
     @State private var undoBannerDismissTask: Task<Void, Never>?
     
@@ -83,7 +84,10 @@ struct HomeView: View {
                         
                         RecentActivitySection(
                             entries: viewModel.hydrationState.entries,
-                            onDelete: viewModel.deleteEntry
+                            onDelete: viewModel.deleteEntry,
+                            onOpenHistory: {
+                                isHistoryPresented = true
+                            }
                         )
                         
                         Spacer(minLength: AppSpacing.xl)
@@ -107,6 +111,9 @@ struct HomeView: View {
                     }
                 )
             }
+        }
+        .navigationDestination(isPresented: $isHistoryPresented) {
+            HistoryView()
         }
         .onAppear {
             setupViewModelIfNeeded()

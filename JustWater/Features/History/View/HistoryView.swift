@@ -19,6 +19,7 @@ struct HistoryView: View {
     
     @State private var viewModel: HistoryViewModel?
     @State private var isDatePickerPresented = false
+    @State private var isEntryEditorPresented = false
     
     // MARK: - Body
     
@@ -52,6 +53,18 @@ struct HistoryView: View {
         .sheet(isPresented: $isDatePickerPresented) {
             if let viewModel {
                 datePickerSheet(viewModel: viewModel)
+            }
+        }
+        .sheet(isPresented: $isEntryEditorPresented) {
+            if let viewModel {
+                WaterEntryEditorSheet(
+                    selectedDate: viewModel.referenceDate
+                ) { amount, date in
+                    viewModel.addEntry(
+                        amount: amount,
+                        date: date
+                    )
+                }
             }
         }
         .navigationTitle("History")
@@ -149,6 +162,9 @@ struct HistoryView: View {
                 chartSection(analytics)
                 entriesSection(
                     analytics.entries,
+                    onAdd: {
+                        isEntryEditorPresented = true
+                    },
                     onDelete: viewModel.deleteEntry
                 )
                 
@@ -371,13 +387,33 @@ struct HistoryView: View {
     
     private func entriesSection(
         _ entries: [WaterEntry],
+        onAdd: @escaping () -> Void,
         onDelete: @escaping (WaterEntry) -> Void
     ) -> some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                Text("Entries")
-                    .font(AppTypography.headline)
-                    .foregroundStyle(AppColors.primaryText)
+                HStack {
+                    Text("Entries")
+                        .font(AppTypography.headline)
+                        .foregroundStyle(AppColors.primaryText)
+                    
+                    Spacer()
+                    
+                    Button {
+                        onAdd()
+                    } label: {
+                        Label("Add", systemImage: "plus")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.primaryBlue)
+                            .padding(.horizontal, AppSpacing.sm)
+                            .padding(.vertical, AppSpacing.xs)
+                            .background {
+                                Capsule()
+                                    .fill(AppColors.lightBlue.opacity(0.28))
+                            }
+                    }
+                    .buttonStyle(.plain)
+                }
                 
                 if entries.isEmpty {
                     Text("No entries yet")
