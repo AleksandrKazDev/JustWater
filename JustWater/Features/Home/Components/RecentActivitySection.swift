@@ -73,14 +73,7 @@ struct RecentActivitySection: View {
     
     private func entryRow(_ entry: WaterEntry) -> some View {
         HStack(spacing: AppSpacing.sm) {
-            Image(systemName: entry.drinkType.systemImage)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(entry.drinkType.tintColor)
-                .frame(width: 32, height: 32)
-                .background {
-                    Circle()
-                        .fill(entry.drinkType.tintColor.opacity(0.18))
-                }
+            DrinkIconView(drinkType: entry.drinkType)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text("\(entry.amount) ml")

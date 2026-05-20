@@ -56,14 +56,8 @@ private struct DrinkSummaryRow: View {
     
     var body: some View {
         HStack(spacing: AppSpacing.sm) {
-            Image(systemName: item.drinkType.systemImage)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(item.drinkType.tintColor)
-                .frame(width: 32, height: 32)
-                .background {
-                    Circle()
-                        .fill(item.drinkType.tintColor.opacity(0.18))
-                }
+            
+            DrinkIconView(drinkType: item.drinkType)
             
             Text(item.drinkType.title)
                 .font(AppTypography.body)

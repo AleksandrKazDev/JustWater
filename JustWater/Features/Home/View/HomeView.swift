@@ -14,23 +14,21 @@ struct HomeView: View {
     
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
-
     @Environment(AppCoordinator.self) private var coordinator
+    
     // MARK: - State
     
     @State private var viewModel: HomeViewModel?
-    
     @State private var isAddWaterSheetPresented = false
-    
     @State private var isUndoBannerPresented = false
     @State private var isUndoBannerVisible = false
     @State private var isHistoryPresented = false
-    
     @State private var undoBannerDismissTask: Task<Void, Never>?
     
     // MARK: - Constants
     
     private let quickAddAmounts = [100, 200, 300]
+    private let addWaterPresetAmounts = [100, 200, 300, 500]
     
     // MARK: - Computed Properties
     
@@ -52,26 +50,18 @@ struct HomeView: View {
             ScrollView(showsIndicators: false) {
                 if let viewModel {
                     VStack(spacing: AppSpacing.xl) {
-                        header
                         
-                        GlassCard {
-                            VStack(spacing: AppSpacing.lg) {
-                                WaterProgressView(
-                                    progress: viewModel.hydrationState.visualProgress,
-                                    percentage: Int(viewModel.hydrationState.completionRate * 100)
-                                )
-                                
-                                VStack(spacing: AppSpacing.xs) {
-                                    Text("\(viewModel.hydrationState.consumedWater) ml")
-                                        .font(AppTypography.largeTitle)
-                                        .foregroundStyle(AppColors.primaryText)
-                                    
-                                    Text("of \(viewModel.hydrationState.dailyGoal) ml")
-                                        .font(AppTypography.body)
-                                        .foregroundStyle(AppColors.secondaryText)
-                                }
+                        HomeHeader(
+                            todayTitle: todayTitle,
+                            onResetOnboarding: coordinator.resetOnboarding,
+                            onGoalUpdated: {
+                                viewModel.loadEntries()
                             }
-                        }
+                        )
+                        
+                        HomeProgressCard(
+                            hydrationState: viewModel.hydrationState
+                        )
                         
                         PrimaryButton(
                             title: "Add Water",
@@ -80,7 +70,13 @@ struct HomeView: View {
                             isAddWaterSheetPresented = true
                         }
                         
-                        quickAddSection(viewModel: viewModel)
+                        QuickAddSection(
+                            amounts: quickAddAmounts,
+                            onAdd: { amount in
+                                viewModel.addWater(amount)
+                                showUndoBanner()
+                            }
+                        )
                         
                         RecentActivitySection(
                             entries: viewModel.hydrationState.entries,
@@ -98,15 +94,28 @@ struct HomeView: View {
             }
             
             if isUndoBannerPresented, let viewModel {
-                undoBanner(viewModel: viewModel)
+                HomeUndoBanner(
+                    isVisible: isUndoBannerVisible,
+                    onUndo: {
+                        undoBannerDismissTask?.cancel()
+                        viewModel.undoLastAdd()
+                        
+                        Task {
+                            await hideUndoBanner()
+                        }
+                    }
+                )
             }
         }
         .sheet(isPresented: $isAddWaterSheetPresented) {
             if let viewModel {
                 AddWaterSheet(
-                    presets: [100, 200, 300, 500],
+                    presets: addWaterPresetAmounts,
                     onAdd: { amount, drinkType in
-                        viewModel.addWater(amount, drinkType: drinkType)
+                        viewModel.addWater(
+                            amount,
+                            drinkType: drinkType
+                        )
                         showUndoBanner()
                     }
                 )
@@ -123,127 +132,6 @@ struct HomeView: View {
             guard newPhase == .active else { return }
             
             viewModel?.loadEntries()
-        }
-    }
-    
-    // MARK: - Components
-    
-    private var header: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                Text("Today, \(todayTitle)")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.secondaryText)
-                
-                Text("JustWater")
-                    .font(AppTypography.title)
-                    .foregroundStyle(AppColors.primaryText)
-            }
-            
-            Spacer()
-            
-            Menu {
-                NavigationLink {
-                    HistoryView()
-                } label: {
-                    Label(
-                        "History",
-                        systemImage: "clock.arrow.circlepath"
-                    )
-                }
-                
-                NavigationLink {
-                    CalculatorView { goal in
-                        AppSettingsStorage.dailyGoal = goal
-                        
-                        viewModel?.loadEntries()
-                    }
-                } label: {
-                    Label(
-                        "Water Goal",
-                        systemImage: "target"
-                    )
-                }
-                
-                NavigationLink {
-                    SettingsView()
-                } label: {
-                    Label(
-                        "Settings",
-                        systemImage: "gearshape"
-                    )
-                }
-                
-                Divider()
-                
-                Button(role: .destructive) {
-                    coordinator.resetOnboarding()
-                } label: {
-                    Label(
-                        "Reset Onboarding",
-                        systemImage: "arrow.counterclockwise"
-                    )
-                }
-            } label: {
-                Image(systemName: "ellipsis")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(AppColors.secondaryText)
-                    .frame(width: 44, height: 44)
-                    .background {
-                        Circle()
-                            .fill(AppColors.cardBackground)
-                    }
-            } 
-            .buttonStyle(.plain)
-        }
-    }
-    
-    private func quickAddSection(
-        viewModel: HomeViewModel
-    ) -> some View {
-        HStack(spacing: AppSpacing.sm) {
-            ForEach(quickAddAmounts, id: \.self) { amount in
-                QuickAddButton(amount: amount) {
-                    viewModel.addWater(amount)
-                    showUndoBanner()
-                }
-            }
-        }
-    }
-    
-    private func undoBanner(
-        viewModel: HomeViewModel
-    ) -> some View {
-        VStack {
-            Spacer()
-            
-            HStack {
-                Text("Water added")
-                    .font(AppTypography.body)
-                    .foregroundStyle(.white)
-                
-                Spacer()
-                
-                Button("Undo") {
-                    undoBannerDismissTask?.cancel()
-                    viewModel.undoLastAdd()
-                    
-                    Task {
-                        await hideUndoBanner()
-                    }
-                }
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.lightBlue)
-            }
-            .padding(AppSpacing.md)
-            .background {
-                Capsule()
-                    .fill(.black.opacity(0.82))
-            }
-            .padding(.horizontal, AppSpacing.lg)
-            .padding(.bottom, AppSpacing.lg)
-            .opacity(isUndoBannerVisible ? 1 : 0)
-            .allowsHitTesting(isUndoBannerVisible)
         }
     }
     
@@ -295,7 +183,6 @@ struct HomeView: View {
         }
     }
 }
-
 // MARK: - Preview
 
 //#Preview {

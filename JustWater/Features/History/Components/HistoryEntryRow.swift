@@ -56,14 +56,7 @@ struct HistoryEntryRow: View {
     }
     
     private var drinkIcon: some View {
-        Image(systemName: entry.drinkType.systemImage)
-            .font(.system(size: 14, weight: .semibold))
-            .foregroundStyle(entry.drinkType.tintColor)
-            .frame(width: 32, height: 32)
-            .background {
-                Circle()
-                    .fill(entry.drinkType.tintColor.opacity(0.18))
-            }
+        DrinkIconView(drinkType: entry.drinkType)
     }
     
     private var deleteButton: some View {
