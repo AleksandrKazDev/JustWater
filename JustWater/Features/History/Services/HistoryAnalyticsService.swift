@@ -16,6 +16,7 @@ enum HistoryAnalyticsService {
         entries: [WaterEntry],
         dailyGoal: Int,
         referenceDate: Date
+        
     ) -> HistoryAnalytics {
         switch period {
         case .day:
@@ -80,7 +81,8 @@ enum HistoryAnalyticsService {
                 dailyGoal: dailyGoal
             ),
             chartPoints: chartPoints,
-            entries: entries
+            entries: entries,
+            drinkBreakdown: makeDrinkBreakdown(from: entries)
         )
     }
     
@@ -127,7 +129,8 @@ enum HistoryAnalyticsService {
                 dailyGoal: dailyGoal
             ),
             chartPoints: chartPoints,
-            entries: entries
+            entries: entries,
+            drinkBreakdown: makeDrinkBreakdown(from: entries)
         )
     }
     
@@ -294,5 +297,25 @@ enum HistoryAnalyticsService {
             bestAmount: bestPoint?.amount ?? 0,
             bestLabel: bestPoint?.label
         )
+    }
+    
+    private static func makeDrinkBreakdown(
+        from entries: [WaterEntry]
+    ) -> [DrinkBreakdownItem] {
+        let grouped = Dictionary(grouping: entries) { entry in
+            entry.drinkType
+        }
+        
+        return grouped
+            .map { drinkType, entries in
+                DrinkBreakdownItem(
+                    drinkType: drinkType,
+                    amount: entries.reduce(0) { $0 + $1.amount }
+                )
+            }
+            .filter { $0.amount > 0 }
+            .sorted { lhs, rhs in
+                lhs.amount > rhs.amount
+            }
     }
 }

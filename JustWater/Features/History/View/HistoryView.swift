@@ -168,6 +168,7 @@ struct HistoryView: View {
                     },
                     onDelete: viewModel.deleteEntry
                 )
+                drinkBreakdownSection(analytics.drinkBreakdown)
                 
             case .week:
                 periodStatisticsSection(
@@ -181,6 +182,7 @@ struct HistoryView: View {
                     points: analytics.chartPoints,
                     labelProvider: weekSummaryLabel
                 )
+                drinkBreakdownSection(analytics.drinkBreakdown)
                 
             case .month:
                 periodStatisticsSection(
@@ -189,6 +191,7 @@ struct HistoryView: View {
                     bestTitle: "Best Day"
                 )
                 chartSection(analytics)
+                drinkBreakdownSection(analytics.drinkBreakdown)
                 
             case .year:
                 periodStatisticsSection(
@@ -202,6 +205,7 @@ struct HistoryView: View {
                     points: analytics.chartPoints,
                     labelProvider: { $0.label }
                 )
+                drinkBreakdownSection(analytics.drinkBreakdown)
             }
         }
     }
@@ -553,6 +557,55 @@ struct HistoryView: View {
         .presentationDragIndicator(.visible)
     }
     
+    private func drinkBreakdownSection(
+        _ items: [DrinkBreakdownItem]
+    ) -> some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: AppSpacing.md) {
+                Text("Drink Summary")
+                    .font(AppTypography.headline)
+                    .foregroundStyle(AppColors.primaryText)
+                
+                if items.isEmpty {
+                    Text("No drinks logged yet")
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.secondaryText)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, AppSpacing.md)
+                } else {
+                    VStack(spacing: AppSpacing.md) {
+                        ForEach(items) { item in
+                            drinkBreakdownRow(item)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    private func drinkBreakdownRow(
+        _ item: DrinkBreakdownItem
+    ) -> some View {
+        HStack(spacing: AppSpacing.sm) {
+            Image(systemName: item.drinkType.systemImage)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(item.drinkType.tintColor)
+                .frame(width: 32, height: 32)
+                .background {
+                    Circle()
+                        .fill(item.drinkType.tintColor.opacity(0.18))
+                }
+            
+            Text(item.drinkType.title)
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.primaryText)
+            
+            Spacer()
+            
+            Text("\(item.amount) ml")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.secondaryText)
+        }
+    }
     // MARK: - Helpers
     
     private func chartTitle(

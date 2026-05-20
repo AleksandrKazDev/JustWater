@@ -12,5 +12,6 @@ struct HistoryAnalytics: Equatable {
     let statistics: HistoryStatistics
     let chartPoints: [HistoryChartPoint]
     let entries: [WaterEntry]
+    let drinkBreakdown: [DrinkBreakdownItem]
 }
 
