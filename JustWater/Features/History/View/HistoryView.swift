@@ -425,10 +425,25 @@ struct HistoryView: View {
                 } else {
                     VStack(spacing: AppSpacing.md) {
                         ForEach(entries) { entry in
-                            HStack {
-                                Text("\(entry.amount) ml")
-                                    .font(AppTypography.body)
-                                    .foregroundStyle(AppColors.primaryText)
+                            HStack(spacing: AppSpacing.sm) {
+                                Image(systemName: entry.drinkType.systemImage)
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundStyle(entry.drinkType.tintColor)
+                                    .frame(width: 32, height: 32)
+                                    .background {
+                                        Circle()
+                                            .fill(entry.drinkType.tintColor.opacity(0.18))
+                                    }
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("\(entry.amount) ml")
+                                        .font(AppTypography.body)
+                                        .foregroundStyle(AppColors.primaryText)
+                                    
+                                    Text(entry.drinkType.title)
+                                        .font(AppTypography.caption)
+                                        .foregroundStyle(AppColors.secondaryText)
+                                }
                                 
                                 Spacer()
                                 

@@ -25,6 +25,8 @@ struct WaterEntryEditorSheet: View {
     private let selectedDate: Date
     private let onSave: (Int, Date, DrinkType) -> Void
     
+    // MARK: - Constants
+    
     private let minimumAmount = 1
     private let maximumAmount = 10_000
     
@@ -38,6 +40,10 @@ struct WaterEntryEditorSheet: View {
         }
         
         return amount
+    }
+    
+    private var isSaveEnabled: Bool {
+        amount != nil
     }
     
     private var selectedDateTitle: String {
@@ -60,43 +66,31 @@ struct WaterEntryEditorSheet: View {
         self.selectedDate = selectedDate
         self.onSave = onSave
         
-        _selectedTime = State(
-            initialValue: selectedDate
-        )
-        
-        _selectedDrinkType = State(
-            initialValue: selectedDrinkType
-        )
+        _selectedTime = State(initialValue: selectedDate)
+        _selectedDrinkType = State(initialValue: selectedDrinkType)
     }
     
     // MARK: - Body
     
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: AppSpacing.xl) {
+            VStack(spacing: AppSpacing.lg) {
                 header
                 
-                VStack(spacing: AppSpacing.lg) {
-                    amountInput
-                    drinkTypeSelector
-                    timePicker
-                }
+                amountInput
                 
-                PrimaryButton(
-                    title: "Save Entry",
-                    systemImage: "checkmark"
-                ) {
-                    saveEntry()
-                }
-                .disabled(amount == nil)
-                .opacity(amount == nil ? 0.45 : 1)
+                drinkTypeSelector
+                
+                timePicker
+                
+                saveButton
             }
             .padding(.horizontal, AppSpacing.lg)
-            .padding(.top, AppSpacing.xl)
+            .padding(.top, AppSpacing.lg)
             .padding(.bottom, AppSpacing.xl)
         }
         .background(AppColors.background)
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.large])
         .presentationDragIndicator(.visible)
     }
     
@@ -108,10 +102,9 @@ struct WaterEntryEditorSheet: View {
                 .font(AppTypography.title)
                 .foregroundStyle(AppColors.primaryText)
             
-            Text("Add water for \(selectedDateTitle)")
+            Text(selectedDateTitle)
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.secondaryText)
-                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
     }
@@ -162,15 +155,17 @@ struct WaterEntryEditorSheet: View {
                         drinkTypeButton(drinkType)
                     }
                 }
+                .padding(.horizontal, 1)
             }
         }
     }
-
+    
     private func drinkTypeButton(
         _ drinkType: DrinkType
     ) -> some View {
         Button {
             selectedDrinkType = drinkType
+            HapticService.selection()
         } label: {
             HStack(spacing: AppSpacing.xs) {
                 Image(systemName: drinkType.systemImage)
@@ -206,6 +201,7 @@ struct WaterEntryEditorSheet: View {
         }
         .buttonStyle(.plain)
     }
+    
     private var timePicker: some View {
         HStack {
             Text("Time")
@@ -233,6 +229,17 @@ struct WaterEntryEditorSheet: View {
         }
     }
     
+    private var saveButton: some View {
+        PrimaryButton(
+            title: "Save Entry",
+            systemImage: "checkmark"
+        ) {
+            saveEntry()
+        }
+        .disabled(!isSaveEnabled)
+        .opacity(isSaveEnabled ? 1 : 0.45)
+    }
+    
     // MARK: - Actions
     
     private func saveEntry() {
@@ -243,7 +250,12 @@ struct WaterEntryEditorSheet: View {
             time: selectedTime
         )
         
-        onSave(amount, entryDate, selectedDrinkType)
+        onSave(
+            amount,
+            entryDate,
+            selectedDrinkType
+        )
+        
         dismiss()
     }
     
@@ -295,9 +307,9 @@ struct WaterEntryEditorSheet: View {
 
 // MARK: - Preview
 
-//#Preview {
-//    WaterEntryEditorSheet(
-//        selectedDate: Date(),
-//        onSave: { _, _ in }
-//    )
-//}
+#Preview {
+    WaterEntryEditorSheet(
+        selectedDate: Date(),
+        onSave: { _, _, _ in }
+    )
+}

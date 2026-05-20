@@ -72,18 +72,25 @@ struct RecentActivitySection: View {
     }
     
     private func entryRow(_ entry: WaterEntry) -> some View {
-        HStack {
-            Image(systemName: "drop.fill")
-                .foregroundStyle(AppColors.primaryBlue)
+        HStack(spacing: AppSpacing.sm) {
+            Image(systemName: entry.drinkType.systemImage)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(entry.drinkType.tintColor)
                 .frame(width: 32, height: 32)
                 .background {
                     Circle()
-                        .fill(AppColors.lightBlue.opacity(0.35))
+                        .fill(entry.drinkType.tintColor.opacity(0.18))
                 }
             
-            Text("\(entry.amount) ml")
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.primaryText)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(entry.amount) ml")
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.primaryText)
+                
+                Text(entry.drinkType.title)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.secondaryText)
+            }
             
             Spacer()
             
@@ -102,8 +109,7 @@ struct RecentActivitySection: View {
             .buttonStyle(.plain)
         }
         .contentShape(Rectangle())
-    }
-}
+    }}
 
 //#Preview {
 //    ZStack {
