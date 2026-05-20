@@ -73,6 +73,27 @@ final class WaterStorageService {
         try context.save()
     }
     
+    func updateEntry(
+        id: UUID,
+        amount: Int,
+        date: Date,
+        drinkType: DrinkType
+    ) throws {
+        let descriptor = FetchDescriptor<WaterEntryEntity>()
+        
+        let entities = try context.fetch(descriptor)
+        
+        guard let entity = entities.first(where: { $0.id == id }) else {
+            return
+        }
+        
+        entity.amount = amount
+        entity.date = date
+        entity.drinkTypeRawValue = drinkType.rawValue
+        
+        try context.save()
+    }
+    
     /// Home screen отображает только записи текущего календарного дня.
     /// Исторические записи сохраняются для будущей аналитики.
     func fetchEntries(for date: Date) throws -> [WaterEntry] {

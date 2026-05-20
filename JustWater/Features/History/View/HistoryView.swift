@@ -19,7 +19,8 @@ struct HistoryView: View {
     
     @State private var viewModel: HistoryViewModel?
     @State private var isDatePickerPresented = false
-    @State private var isEntryEditorPresented = false
+//    @State private var isEntryEditorPresented = false
+    @State private var editorMode: WaterEntryEditorMode?
     
     // MARK: - Body
     
@@ -55,16 +56,27 @@ struct HistoryView: View {
                 datePickerSheet(viewModel: viewModel)
             }
         }
-        .sheet(isPresented: $isEntryEditorPresented) {
+        .sheet(item: $editorMode) { mode in
             if let viewModel {
                 WaterEntryEditorSheet(
-                    selectedDate: viewModel.referenceDate
+                    mode: mode
                 ) { amount, date, drinkType in
-                    viewModel.addEntry(
-                        amount: amount,
-                        date: date,
-                        drinkType: drinkType
-                    )
+                    switch mode {
+                    case .add:
+                        viewModel.addEntry(
+                            amount: amount,
+                            date: date,
+                            drinkType: drinkType
+                        )
+                        
+                    case .edit(let entry):
+                        viewModel.updateEntry(
+                            entry,
+                            amount: amount,
+                            date: date,
+                            drinkType: drinkType
+                        )
+                    }
                 }
             }
         }
@@ -164,7 +176,12 @@ struct HistoryView: View {
                 entriesSection(
                     analytics.entries,
                     onAdd: {
-                        isEntryEditorPresented = true
+                        editorMode = .add(
+                            date: viewModel.referenceDate
+                        )
+                    },
+                    onEdit: { entry in
+                        editorMode = .edit(entry: entry)
                     },
                     onDelete: viewModel.deleteEntry
                 )
@@ -393,6 +410,7 @@ struct HistoryView: View {
     private func entriesSection(
         _ entries: [WaterEntry],
         onAdd: @escaping () -> Void,
+        onEdit: @escaping (WaterEntry) -> Void,
         onDelete: @escaping (WaterEntry) -> Void
     ) -> some View {
         GlassCard {
@@ -429,49 +447,11 @@ struct HistoryView: View {
                 } else {
                     VStack(spacing: AppSpacing.md) {
                         ForEach(entries) { entry in
-                            HStack(spacing: AppSpacing.sm) {
-                                Image(systemName: entry.drinkType.systemImage)
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundStyle(entry.drinkType.tintColor)
-                                    .frame(width: 32, height: 32)
-                                    .background {
-                                        Circle()
-                                            .fill(entry.drinkType.tintColor.opacity(0.18))
-                                    }
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("\(entry.amount) ml")
-                                        .font(AppTypography.body)
-                                        .foregroundStyle(AppColors.primaryText)
-                                    
-                                    Text(entry.drinkType.title)
-                                        .font(AppTypography.caption)
-                                        .foregroundStyle(AppColors.secondaryText)
-                                }
-                                
-                                Spacer()
-                                
-                                Text(entry.date, style: .time)
-                                    .font(AppTypography.caption)
-                                    .foregroundStyle(AppColors.secondaryText)
-                                
-                                Button {
-                                    withAnimation(
-                                        .spring(
-                                            response: 0.45,
-                                            dampingFraction: 0.9
-                                        )
-                                    ) {
-                                        onDelete(entry)
-                                    }
-                                } label: {
-                                    Image(systemName: "trash")
-                                        .font(.system(size: 14, weight: .semibold))
-                                        .foregroundStyle(AppColors.secondaryText)
-                                        .frame(width: 32, height: 32)
-                                }
-                                .buttonStyle(.plain)
-                            }
+                            entryRow(
+                                entry,
+                                onEdit: onEdit,
+                                onDelete: onDelete
+                            )
                             .transition(
                                 .asymmetric(
                                     insertion: .opacity,
@@ -706,6 +686,64 @@ struct HistoryView: View {
         
         let step = 500
         return ((value + step - 1) / step) * step
+    }
+    
+    private func entryRow(
+        _ entry: WaterEntry,
+        onEdit: @escaping (WaterEntry) -> Void,
+        onDelete: @escaping (WaterEntry) -> Void
+    ) -> some View {
+        HStack(spacing: AppSpacing.sm) {
+            Button {
+                onEdit(entry)
+            } label: {
+                HStack(spacing: AppSpacing.sm) {
+                    Image(systemName: entry.drinkType.systemImage)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(entry.drinkType.tintColor)
+                        .frame(width: 32, height: 32)
+                        .background {
+                            Circle()
+                                .fill(entry.drinkType.tintColor.opacity(0.18))
+                        }
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("\(entry.amount) ml")
+                            .font(AppTypography.body)
+                            .foregroundStyle(AppColors.primaryText)
+                        
+                        Text(entry.drinkType.title)
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.secondaryText)
+                    }
+                    
+                    Spacer()
+                    
+                    Text(entry.date, style: .time)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.secondaryText)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            
+            Button {
+                withAnimation(
+                    .spring(
+                        response: 0.45,
+                        dampingFraction: 0.9
+                    )
+                ) {
+                    onDelete(entry)
+                }
+            } label: {
+                Image(systemName: "trash")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(AppColors.secondaryText)
+                    .frame(width: 32, height: 32)
+            }
+            .buttonStyle(.plain)
+        }
     }
     
     // MARK: - Setup

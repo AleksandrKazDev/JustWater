@@ -15,14 +15,13 @@ struct WaterEntryEditorSheet: View {
     
     // MARK: - State
     
-    @State private var amountText = ""
+    @State private var amountText: String
     @State private var selectedTime: Date
     @State private var selectedDrinkType: DrinkType
     
     // MARK: - Properties
     
-    private let title: String
-    private let selectedDate: Date
+    private let mode: WaterEntryEditorMode
     private let onSave: (Int, Date, DrinkType) -> Void
     
     // MARK: - Constants
@@ -47,7 +46,7 @@ struct WaterEntryEditorSheet: View {
     }
     
     private var selectedDateTitle: String {
-        selectedDate.formatted(
+        mode.selectedDate.formatted(
             .dateTime
                 .day()
                 .month(.wide)
@@ -57,17 +56,23 @@ struct WaterEntryEditorSheet: View {
     // MARK: - Initializer
     
     init(
-        title: String = "Add Entry",
-        selectedDate: Date,
-        selectedDrinkType: DrinkType = .water,
+        mode: WaterEntryEditorMode,
         onSave: @escaping (Int, Date, DrinkType) -> Void
     ) {
-        self.title = title
-        self.selectedDate = selectedDate
+        self.mode = mode
         self.onSave = onSave
         
-        _selectedTime = State(initialValue: selectedDate)
-        _selectedDrinkType = State(initialValue: selectedDrinkType)
+        _amountText = State(
+            initialValue: mode.initialAmountText
+        )
+        
+        _selectedTime = State(
+            initialValue: mode.selectedDate
+        )
+        
+        _selectedDrinkType = State(
+            initialValue: mode.initialDrinkType
+        )
     }
     
     // MARK: - Body
@@ -98,7 +103,7 @@ struct WaterEntryEditorSheet: View {
     
     private var header: some View {
         VStack(spacing: AppSpacing.xs) {
-            Text(title)
+            Text(mode.title)
                 .font(AppTypography.title)
                 .foregroundStyle(AppColors.primaryText)
             
@@ -231,7 +236,7 @@ struct WaterEntryEditorSheet: View {
     
     private var saveButton: some View {
         PrimaryButton(
-            title: "Save Entry",
+            title: mode.actionTitle,
             systemImage: "checkmark"
         ) {
             saveEntry()
@@ -246,7 +251,7 @@ struct WaterEntryEditorSheet: View {
         guard let amount else { return }
         
         let entryDate = mergedDate(
-            selectedDate,
+            mode.selectedDate,
             time: selectedTime
         )
         
@@ -307,9 +312,22 @@ struct WaterEntryEditorSheet: View {
 
 // MARK: - Preview
 
-#Preview {
-    WaterEntryEditorSheet(
-        selectedDate: Date(),
-        onSave: { _, _, _ in }
-    )
-}
+//#Preview("Add") {
+//    WaterEntryEditorSheet(
+//        mode: .add(date: Date()),
+//        onSave: { _, _, _ in }
+//    )
+//}
+
+//#Preview("Edit") {
+//    WaterEntryEditorSheet(
+//        mode: .edit(
+//            entry: WaterEntry(
+//                amount: 350,
+//                date: Date(),
+//                drinkType: .tea
+//            )
+//        ),
+//        onSave: { _, _, _ in }
+//    )
+//}

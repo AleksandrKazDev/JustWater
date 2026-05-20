@@ -175,6 +175,27 @@ final class HistoryViewModel {
         }
     }
     
+    func updateEntry(
+        _ entry: WaterEntry,
+        amount: Int,
+        date: Date,
+        drinkType: DrinkType
+    ) {
+        do {
+            try storageService.updateEntry(
+                id: entry.id,
+                amount: amount,
+                date: date,
+                drinkType: drinkType
+            )
+            
+            loadAnalytics()
+            HapticService.success()
+        } catch {
+            print("Failed to update history entry: \(error)")
+        }
+    }
+    
     // MARK: - Private Methods
     
     private func setReferenceDate(
