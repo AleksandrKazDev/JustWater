@@ -59,10 +59,11 @@ struct HistoryView: View {
             if let viewModel {
                 WaterEntryEditorSheet(
                     selectedDate: viewModel.referenceDate
-                ) { amount, date in
+                ) { amount, date, drinkType in
                     viewModel.addEntry(
                         amount: amount,
-                        date: date
+                        date: date,
+                        drinkType: drinkType
                     )
                 }
             }

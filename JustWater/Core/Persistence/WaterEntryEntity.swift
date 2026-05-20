@@ -14,14 +14,17 @@ final class WaterEntryEntity {
     var id: UUID
     var amount: Int
     var date: Date
+    var drinkTypeRawValue: String
     
     init(
         id: UUID = UUID(),
         amount: Int,
-        date: Date = Date()
+        date: Date = Date(),
+        drinkTypeRawValue: String = DrinkType.water.rawValue
     ) {
         self.id = id
         self.amount = amount
         self.date = date
+        self.drinkTypeRawValue = drinkTypeRawValue
     }
 }

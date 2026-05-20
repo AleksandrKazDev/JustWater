@@ -17,12 +17,13 @@ struct WaterEntryEditorSheet: View {
     
     @State private var amountText = ""
     @State private var selectedTime: Date
+    @State private var selectedDrinkType: DrinkType
     
     // MARK: - Properties
     
     private let title: String
     private let selectedDate: Date
-    private let onSave: (Int, Date) -> Void
+    private let onSave: (Int, Date, DrinkType) -> Void
     
     private let minimumAmount = 1
     private let maximumAmount = 10_000
@@ -52,7 +53,8 @@ struct WaterEntryEditorSheet: View {
     init(
         title: String = "Add Entry",
         selectedDate: Date,
-        onSave: @escaping (Int, Date) -> Void
+        selectedDrinkType: DrinkType = .water,
+        onSave: @escaping (Int, Date, DrinkType) -> Void
     ) {
         self.title = title
         self.selectedDate = selectedDate
@@ -60,6 +62,10 @@ struct WaterEntryEditorSheet: View {
         
         _selectedTime = State(
             initialValue: selectedDate
+        )
+        
+        _selectedDrinkType = State(
+            initialValue: selectedDrinkType
         )
     }
     
@@ -72,6 +78,7 @@ struct WaterEntryEditorSheet: View {
                 
                 VStack(spacing: AppSpacing.lg) {
                     amountInput
+                    drinkTypeSelector
                     timePicker
                 }
                 
@@ -143,6 +150,62 @@ struct WaterEntryEditorSheet: View {
         }
     }
     
+    private var drinkTypeSelector: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            Text("Drink Type")
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.primaryText)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: AppSpacing.sm) {
+                    ForEach(DrinkType.allCases) { drinkType in
+                        drinkTypeButton(drinkType)
+                    }
+                }
+            }
+        }
+    }
+
+    private func drinkTypeButton(
+        _ drinkType: DrinkType
+    ) -> some View {
+        Button {
+            selectedDrinkType = drinkType
+        } label: {
+            HStack(spacing: AppSpacing.xs) {
+                Image(systemName: drinkType.systemImage)
+                    .font(.system(size: 14, weight: .semibold))
+                
+                Text(drinkType.title)
+                    .font(AppTypography.caption)
+            }
+            .foregroundStyle(
+                selectedDrinkType == drinkType
+                ? .white
+                : AppColors.primaryText
+            )
+            .padding(.horizontal, AppSpacing.md)
+            .frame(height: 38)
+            .background {
+                Capsule()
+                    .fill(
+                        selectedDrinkType == drinkType
+                        ? AppColors.primaryBlue
+                        : AppColors.cardBackground
+                    )
+            }
+            .overlay {
+                Capsule()
+                    .stroke(
+                        selectedDrinkType == drinkType
+                        ? AppColors.primaryBlue.opacity(0)
+                        : AppColors.border,
+                        lineWidth: 1
+                    )
+            }
+        }
+        .buttonStyle(.plain)
+    }
     private var timePicker: some View {
         HStack {
             Text("Time")
@@ -180,7 +243,7 @@ struct WaterEntryEditorSheet: View {
             time: selectedTime
         )
         
-        onSave(amount, entryDate)
+        onSave(amount, entryDate, selectedDrinkType)
         dismiss()
     }
     

@@ -32,36 +32,26 @@ final class WaterStorageService {
         
         let entities = try context.fetch(descriptor)
         
-        return entities.map {
-            WaterEntry(
-                id: $0.id,
-                amount: $0.amount,
-                date: $0.date
-            )
-        }
+        return entities.map(makeDomainModel)
     }
     
-//    func saveEntry(amount: Int) throws {
-//        let entity = WaterEntryEntity(amount: amount)
-//        
-//        context.insert(entity)
-//        
-//        try context.save()
-//    }
     func saveEntry(amount: Int) throws {
         try saveEntry(
             amount: amount,
-            date: Date()
+            date: Date(),
+            drinkType: .water
         )
     }
-
+    
     func saveEntry(
         amount: Int,
-        date: Date
+        date: Date,
+        drinkType: DrinkType = .water
     ) throws {
         let entity = WaterEntryEntity(
             amount: amount,
-            date: date
+            date: date,
+            drinkTypeRawValue: drinkType.rawValue
         )
         
         context.insert(entity)
@@ -108,13 +98,7 @@ final class WaterStorageService {
         
         let entities = try context.fetch(descriptor)
         
-        return entities.map {
-            WaterEntry(
-                id: $0.id,
-                amount: $0.amount,
-                date: $0.date
-            )
-        }
+        return entities.map(makeDomainModel)
     }
     
     func fetchDailySummaries() throws -> [DailyHydrationSummary] {
@@ -157,13 +141,7 @@ final class WaterStorageService {
         
         let entities = try context.fetch(descriptor)
         
-        return entities.map {
-            WaterEntry(
-                id: $0.id,
-                amount: $0.amount,
-                date: $0.date
-            )
-        }
+        return entities.map(makeDomainModel)
     }
     
     func fetchEntries(
@@ -215,6 +193,19 @@ final class WaterStorageService {
         return try fetchEntries(
             from: startDate,
             to: endDate
+        )
+    }
+    
+    // MARK: - Private Methods
+    
+    private func makeDomainModel(
+        from entity: WaterEntryEntity
+    ) -> WaterEntry {
+        WaterEntry(
+            id: entity.id,
+            amount: entity.amount,
+            date: entity.date,
+            drinkType: DrinkType(rawValue: entity.drinkTypeRawValue) ?? .water
         )
     }
 }

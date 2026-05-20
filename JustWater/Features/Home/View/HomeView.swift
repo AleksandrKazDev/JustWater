@@ -105,8 +105,8 @@ struct HomeView: View {
             if let viewModel {
                 AddWaterSheet(
                     presets: [100, 200, 300, 500],
-                    onAdd: { amount in
-                        viewModel.addWater(amount)
+                    onAdd: { amount, drinkType in
+                        viewModel.addWater(amount, drinkType: drinkType)
                         showUndoBanner()
                     }
                 )

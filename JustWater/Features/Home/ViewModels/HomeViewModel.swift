@@ -36,9 +36,17 @@ final class HomeViewModel {
         }
     }
     
-    func addWater(_ amount: Int) {
+    func addWater(
+        _ amount: Int,
+        drinkType: DrinkType = .water
+    ) {
         do {
-            try storageService.saveEntry(amount: amount)
+            try storageService.saveEntry(
+                amount: amount,
+                date: Date(),
+                drinkType: drinkType
+            )
+            
             loadEntries()
             lastAddedEntry = hydrationState.entries.first
             HapticService.success()

@@ -158,12 +158,14 @@ final class HistoryViewModel {
     
     func addEntry(
         amount: Int,
-        date: Date
+        date: Date,
+        drinkType: DrinkType = .water
     ) {
         do {
             try storageService.saveEntry(
                 amount: amount,
-                date: date
+                date: date,
+                drinkType: drinkType
             )
             
             loadAnalytics()

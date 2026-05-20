@@ -9,16 +9,19 @@ import Foundation
 
 struct WaterEntry: Identifiable, Equatable {
     let id: UUID
-    var amount: Int
+    let amount: Int
     let date: Date
+    let drinkType: DrinkType
     
     init(
         id: UUID = UUID(),
         amount: Int,
-        date: Date = Date()
+        date: Date = Date(),
+        drinkType: DrinkType = .water
     ) {
         self.id = id
         self.amount = amount
         self.date = date
+        self.drinkType = drinkType
     }
 }
