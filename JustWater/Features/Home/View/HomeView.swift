@@ -140,12 +140,8 @@ struct HomeView: View {
     private func setupViewModelIfNeeded() {
         guard viewModel == nil else { return }
         
-        let storageService = WaterStorageService(
+        viewModel = AppFactory.makeHomeViewModel(
             context: modelContext
-        )
-        
-        viewModel = HomeViewModel(
-            storageService: storageService
         )
     }
     

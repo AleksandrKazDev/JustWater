@@ -21,7 +21,7 @@ final class WaterStorageService {
         self.context = context
     }
     
-    // MARK: - Public Methods
+    // MARK: - Fetching
     
     func fetchEntries() throws -> [WaterEntry] {
         let descriptor = FetchDescriptor<WaterEntryEntity>(
@@ -30,10 +30,61 @@ final class WaterStorageService {
             ]
         )
         
-        let entities = try context.fetch(descriptor)
-        
-        return entities.map(makeDomainModel)
+        return try fetchDomainModels(using: descriptor)
     }
+    
+    /// Home screen отображает только записи выбранного календарного дня.
+    /// Исторические записи сохраняются для аналитики.
+    func fetchEntries(for date: Date) throws -> [WaterEntry] {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        
+        guard let endOfDay = calendar.date(
+            byAdding: .day,
+            value: 1,
+            to: startOfDay
+        ) else {
+            return []
+        }
+        
+        return try fetchEntries(
+            from: startOfDay,
+            to: endOfDay
+        )
+    }
+    
+    func fetchEntries(
+        from startDate: Date,
+        to endDate: Date
+    ) throws -> [WaterEntry] {
+        let descriptor = FetchDescriptor<WaterEntryEntity>(
+            predicate: #Predicate { entry in
+                entry.date >= startDate && entry.date < endDate
+            },
+            sortBy: [
+                SortDescriptor(\.date, order: .reverse)
+            ]
+        )
+        
+        return try fetchDomainModels(using: descriptor)
+    }
+    
+    func fetchEntries(
+        for period: HistoryPeriod,
+        referenceDate: Date = Date.now
+    ) throws -> [WaterEntry] {
+        let interval = dateInterval(
+            for: period,
+            referenceDate: referenceDate
+        )
+        
+        return try fetchEntries(
+            from: interval.start,
+            to: interval.end
+        )
+    }
+    
+    // MARK: - Saving
     
     func saveEntry(amount: Int) throws {
         try saveEntry(
@@ -59,19 +110,7 @@ final class WaterStorageService {
         try context.save()
     }
     
-    func deleteEntry(id: UUID) throws {
-        let descriptor = FetchDescriptor<WaterEntryEntity>()
-        
-        let entities = try context.fetch(descriptor)
-        
-        guard let entity = entities.first(where: { $0.id == id }) else {
-            return
-        }
-        
-        context.delete(entity)
-        
-        try context.save()
-    }
+    // MARK: - Updating
     
     func updateEntry(
         id: UUID,
@@ -79,11 +118,7 @@ final class WaterStorageService {
         date: Date,
         drinkType: DrinkType
     ) throws {
-        let descriptor = FetchDescriptor<WaterEntryEntity>()
-        
-        let entities = try context.fetch(descriptor)
-        
-        guard let entity = entities.first(where: { $0.id == id }) else {
+        guard let entity = try fetchEntity(id: id) else {
             return
         }
         
@@ -94,130 +129,107 @@ final class WaterStorageService {
         try context.save()
     }
     
-    /// Home screen отображает только записи текущего календарного дня.
-    /// Исторические записи сохраняются для будущей аналитики.
-    func fetchEntries(for date: Date) throws -> [WaterEntry] {
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: date)
-        
-        guard let endOfDay = calendar.date(
-            byAdding: .day,
-            value: 1,
-            to: startOfDay
-        ) else {
-            return []
+    // MARK: - Deleting
+    
+    func deleteEntry(id: UUID) throws {
+        guard let entity = try fetchEntity(id: id) else {
+            return
         }
         
-        let descriptor = FetchDescriptor<WaterEntryEntity>(
-            predicate: #Predicate { entry in
-                entry.date >= startOfDay && entry.date < endOfDay
-            },
-            sortBy: [
-                SortDescriptor(\.date, order: .reverse)
-            ]
-        )
+        context.delete(entity)
         
+        try context.save()
+    }
+    
+    // MARK: - Private Fetching
+    
+    private func fetchDomainModels(
+        using descriptor: FetchDescriptor<WaterEntryEntity>
+    ) throws -> [WaterEntry] {
         let entities = try context.fetch(descriptor)
         
         return entities.map(makeDomainModel)
     }
     
-    func fetchDailySummaries() throws -> [DailyHydrationSummary] {
+    private func fetchEntity(
+        id: UUID
+    ) throws -> WaterEntryEntity? {
         let descriptor = FetchDescriptor<WaterEntryEntity>(
-            sortBy: [
-                SortDescriptor(\.date, order: .reverse)
-            ]
-        )
-        
-        let entities = try context.fetch(descriptor)
-        let calendar = Calendar.current
-        
-        let groupedByDay = Dictionary(grouping: entities) { entity in
-            calendar.startOfDay(for: entity.date)
-        }
-        
-        return groupedByDay
-            .map { date, entries in
-                DailyHydrationSummary(
-                    date: date,
-                    totalAmount: entries.reduce(0) { $0 + $1.amount },
-                    entriesCount: entries.count
-                )
+            predicate: #Predicate { entry in
+                entry.id == id
             }
-            .sorted { $0.date > $1.date }
-    }
-    
-    func fetchEntries(
-        from startDate: Date,
-        to endDate: Date
-    ) throws -> [WaterEntry] {
-        let descriptor = FetchDescriptor<WaterEntryEntity>(
-            predicate: #Predicate { entry in
-                entry.date >= startDate && entry.date < endDate
-            },
-            sortBy: [
-                SortDescriptor(\.date, order: .reverse)
-            ]
         )
         
-        let entities = try context.fetch(descriptor)
-        
-        return entities.map(makeDomainModel)
+        return try context.fetch(descriptor).first
     }
     
-    func fetchEntries(
+    // MARK: - Private Helpers
+    
+    private func dateInterval(
         for period: HistoryPeriod,
-        referenceDate: Date = Date.now
-    ) throws -> [WaterEntry] {
+        referenceDate: Date
+    ) -> DateInterval {
         let calendar = Calendar.current
-        
-        let startDate: Date
-        let endDate: Date
         
         switch period {
         case .day:
-            startDate = calendar.startOfDay(for: referenceDate)
-            endDate = calendar.date(
+            let startDate = calendar.startOfDay(for: referenceDate)
+            let endDate = calendar.date(
                 byAdding: .day,
                 value: 1,
                 to: startDate
             ) ?? referenceDate
             
+            return DateInterval(
+                start: startDate,
+                end: endDate
+            )
+            
         case .week:
-            let interval = calendar.dateInterval(
+            return calendar.dateInterval(
                 of: .weekOfYear,
                 for: referenceDate
+            ) ?? fallbackDateInterval(
+                referenceDate: referenceDate,
+                calendar: calendar
             )
-            
-            startDate = interval?.start ?? calendar.startOfDay(for: referenceDate)
-            endDate = interval?.end ?? referenceDate
             
         case .month:
-            let interval = calendar.dateInterval(
+            return calendar.dateInterval(
                 of: .month,
                 for: referenceDate
+            ) ?? fallbackDateInterval(
+                referenceDate: referenceDate,
+                calendar: calendar
             )
-            
-            startDate = interval?.start ?? calendar.startOfDay(for: referenceDate)
-            endDate = interval?.end ?? referenceDate
             
         case .year:
-            let interval = calendar.dateInterval(
+            return calendar.dateInterval(
                 of: .year,
                 for: referenceDate
+            ) ?? fallbackDateInterval(
+                referenceDate: referenceDate,
+                calendar: calendar
             )
-            
-            startDate = interval?.start ?? calendar.startOfDay(for: referenceDate)
-            endDate = interval?.end ?? referenceDate
         }
-        
-        return try fetchEntries(
-            from: startDate,
-            to: endDate
-        )
     }
     
-    // MARK: - Private Methods
+    private func fallbackDateInterval(
+        referenceDate: Date,
+        calendar: Calendar
+    ) -> DateInterval {
+        let startDate = calendar.startOfDay(for: referenceDate)
+        let endDate = calendar.date(
+            byAdding: .day,
+            value: 1,
+            to: startDate
+        ) ?? referenceDate
+        
+        return DateInterval(
+            start: startDate,
+            end: endDate
+        )
+    }
     
     private func makeDomainModel(
         from entity: WaterEntryEntity

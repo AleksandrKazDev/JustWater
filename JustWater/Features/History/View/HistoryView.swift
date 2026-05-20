@@ -135,8 +135,8 @@ struct HistoryView: View {
     
     private func setupViewModelIfNeeded() {
         guard viewModel == nil else { return }
-        
-        let storageService = WaterStorageService(context: modelContext)
-        viewModel = HistoryViewModel(storageService: storageService)
+        viewModel = AppFactory.makeHistoryViewModel(
+            context: modelContext
+        )
     }
 }
