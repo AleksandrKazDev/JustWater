@@ -84,7 +84,9 @@ struct WaterEntryEditorSheet: View {
                 
                 amountInput
                 
-                drinkTypeSelector
+                DrinkTypeSelector(
+                    selectedDrinkType: $selectedDrinkType
+                )
                 
                 timePicker
                 
@@ -146,65 +148,6 @@ struct WaterEntryEditorSheet: View {
                     .stroke(AppColors.border, lineWidth: 1)
             }
         }
-    }
-    
-    private var drinkTypeSelector: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            Text("Drink Type")
-                .font(AppTypography.headline)
-                .foregroundStyle(AppColors.primaryText)
-            
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppSpacing.sm) {
-                    ForEach(DrinkType.allCases) { drinkType in
-                        drinkTypeButton(drinkType)
-                    }
-                }
-                .padding(.horizontal, 1)
-            }
-        }
-    }
-    
-    private func drinkTypeButton(
-        _ drinkType: DrinkType
-    ) -> some View {
-        Button {
-            selectedDrinkType = drinkType
-            HapticService.selection()
-        } label: {
-            HStack(spacing: AppSpacing.xs) {
-                Image(systemName: drinkType.systemImage)
-                    .font(.system(size: 14, weight: .semibold))
-                
-                Text(drinkType.title)
-                    .font(AppTypography.caption)
-            }
-            .foregroundStyle(
-                selectedDrinkType == drinkType
-                ? .white
-                : AppColors.primaryText
-            )
-            .padding(.horizontal, AppSpacing.md)
-            .frame(height: 38)
-            .background {
-                Capsule()
-                    .fill(
-                        selectedDrinkType == drinkType
-                        ? AppColors.primaryBlue
-                        : AppColors.cardBackground
-                    )
-            }
-            .overlay {
-                Capsule()
-                    .stroke(
-                        selectedDrinkType == drinkType
-                        ? AppColors.primaryBlue.opacity(0)
-                        : AppColors.border,
-                        lineWidth: 1
-                    )
-            }
-        }
-        .buttonStyle(.plain)
     }
     
     private var timePicker: some View {
