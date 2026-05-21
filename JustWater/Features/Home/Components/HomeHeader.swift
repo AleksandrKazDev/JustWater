@@ -75,14 +75,19 @@ struct HomeHeader: View {
             
             Divider()
             
-            Button(role: .destructive) {
-                onResetOnboarding()
-            } label: {
-                Label(
-                    "Reset Onboarding",
-                    systemImage: "arrow.counterclockwise"
-                )
-            }
+#if DEBUG
+Divider()
+
+Button(role: .destructive) {
+    onResetOnboarding()
+} label: {
+    Label(
+        "Reset Onboarding",
+        systemImage: "arrow.counterclockwise"
+    )
+}
+#endif
+            
         } label: {
             Image(systemName: "ellipsis")
                 .font(.system(size: 20, weight: .semibold))

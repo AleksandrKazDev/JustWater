@@ -17,7 +17,12 @@ enum AppSettingsStorage {
         static let isHapticsEnabled = "isHapticsEnabled"
         static let appearanceMode = "appearanceMode"
         static let measurementUnit = "measurementUnit"
+        static let areRemindersEnabled = "areRemindersEnabled"
+        static let reminderStartHour = "reminderStartHour"
+        static let reminderEndHour = "reminderEndHour"
+        static let reminderFrequency = "reminderFrequency"
     }
+    
     
     // MARK: - Onboarding
     
@@ -117,6 +122,70 @@ enum AppSettingsStorage {
             UserDefaults.standard.set(
                 newValue.rawValue,
                 forKey: Keys.measurementUnit
+            )
+        }
+    }
+    
+    // MARK: - Reminders
+
+    static var areRemindersEnabled: Bool {
+        get {
+            UserDefaults.standard.bool(
+                forKey: Keys.areRemindersEnabled
+            )
+        }
+        set {
+            UserDefaults.standard.set(
+                newValue,
+                forKey: Keys.areRemindersEnabled
+            )
+        }
+    }
+
+    static var reminderStartHour: Int {
+        get {
+            let value = UserDefaults.standard.integer(
+                forKey: Keys.reminderStartHour
+            )
+            
+            return value == 0 ? 9 : value
+        }
+        set {
+            UserDefaults.standard.set(
+                newValue,
+                forKey: Keys.reminderStartHour
+            )
+        }
+    }
+
+    static var reminderEndHour: Int {
+        get {
+            let value = UserDefaults.standard.integer(
+                forKey: Keys.reminderEndHour
+            )
+            
+            return value == 0 ? 22 : value
+        }
+        set {
+            UserDefaults.standard.set(
+                newValue,
+                forKey: Keys.reminderEndHour
+            )
+        }
+    }
+
+    static var reminderFrequency: ReminderFrequency {
+        get {
+            let rawValue = UserDefaults.standard.integer(
+                forKey: Keys.reminderFrequency
+            )
+            
+            return ReminderFrequency(rawValue: rawValue) ?? .twoHours
+        }
+        set {
+            UserDefaults.standard.set(
+                newValue.rawValue,
+                forKey: Keys.reminderFrequency
             )
         }
     }
