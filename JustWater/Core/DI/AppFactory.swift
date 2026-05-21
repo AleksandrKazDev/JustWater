@@ -34,6 +34,10 @@ enum AppFactory {
         )
     }
     
+    static func makeSettingsViewModel() -> SettingsViewModel {
+        SettingsViewModel()
+    }
+    
     private static func makeWaterStorageService(
         context: ModelContext
     ) -> WaterStorageService {

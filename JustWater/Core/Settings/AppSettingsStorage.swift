@@ -12,10 +12,27 @@ enum AppSettingsStorage {
     // MARK: - Keys
     
     private enum Keys {
+        static let hasCompletedOnboarding = "hasCompletedOnboarding"
         static let dailyGoal = "dailyGoal"
         static let isHapticsEnabled = "isHapticsEnabled"
         static let appearanceMode = "appearanceMode"
         static let measurementUnit = "measurementUnit"
+    }
+    
+    // MARK: - Onboarding
+    
+    static var hasCompletedOnboarding: Bool {
+        get {
+            UserDefaults.standard.bool(
+                forKey: Keys.hasCompletedOnboarding
+            )
+        }
+        set {
+            UserDefaults.standard.set(
+                newValue,
+                forKey: Keys.hasCompletedOnboarding
+            )
+        }
     }
     
     // MARK: - Daily Goal
