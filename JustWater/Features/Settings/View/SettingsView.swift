@@ -61,7 +61,7 @@ struct SettingsView: View {
     private var dailyGoalSection: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                sectionTitle("Daily Goal")
+                SettingsSectionTitle(title: "Daily Goal")
                 
                 HStack {
                     VStack(alignment: .leading, spacing: AppSpacing.xs) {
@@ -81,7 +81,7 @@ struct SettingsView: View {
                             viewModel.updateDailyGoal(goal)
                         }
                     } label: {
-                        pillButtonTitle("Change")
+                        SettingsPillButton(title: "Change")
                     }
                     .buttonStyle(.plain)
                 }
@@ -92,7 +92,7 @@ struct SettingsView: View {
     private var appearanceSection: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                sectionTitle("Appearance")
+                SettingsSectionTitle(title: "Appearance")
                 
                 Picker(
                     "Appearance",
@@ -118,7 +118,7 @@ struct SettingsView: View {
     private var preferencesSection: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                sectionTitle("Preferences")
+                SettingsSectionTitle(title: "Preferences")
                 
                 Toggle(
                     isOn: Binding(
@@ -130,7 +130,7 @@ struct SettingsView: View {
                         }
                     )
                 ) {
-                    settingsLabel(
+                    SettingsLabel(
                         title: "Haptics",
                         subtitle: "Tactile feedback for actions.",
                         systemImage: "waveform"
@@ -141,7 +141,7 @@ struct SettingsView: View {
                 Divider()
                     .opacity(0.35)
                 
-                settingsRow(
+                SettingsRow(
                     title: "Units",
                     value: viewModel.measurementUnit.title,
                     systemImage: "ruler"
@@ -153,9 +153,9 @@ struct SettingsView: View {
     private var remindersSection: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                sectionTitle("Reminders")
+                SettingsSectionTitle(title: "Reminders")
                 
-                settingsRow(
+                SettingsRow(
                     title: "Hydration Reminders",
                     value: "Coming soon",
                     systemImage: "bell"
@@ -167,9 +167,9 @@ struct SettingsView: View {
     private var appInfoSection: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                sectionTitle("App")
+                SettingsSectionTitle(title: "App")
                 
-                settingsRow(
+                SettingsRow(
                     title: "About",
                     value: "JustWater",
                     systemImage: "drop"
@@ -184,80 +184,5 @@ struct SettingsView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-    }
-    
-    private func sectionTitle(
-        _ title: String
-    ) -> some View {
-        Text(title)
-            .font(AppTypography.headline)
-            .foregroundStyle(AppColors.primaryText)
-    }
-    
-    private func pillButtonTitle(
-        _ title: String
-    ) -> some View {
-        Text(title)
-            .font(AppTypography.caption)
-            .foregroundStyle(AppColors.primaryBlue)
-            .padding(.horizontal, AppSpacing.md)
-            .frame(height: 34)
-            .background {
-                Capsule()
-                    .fill(AppColors.lightBlue.opacity(0.28))
-            }
-    }
-    
-    private func settingsRow(
-        title: String,
-        value: String,
-        systemImage: String
-    ) -> some View {
-        HStack(spacing: AppSpacing.sm) {
-            settingsIcon(systemImage)
-            
-            Text(title)
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.primaryText)
-            
-            Spacer()
-            
-            Text(value)
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.secondaryText)
-        }
-    }
-    
-    private func settingsLabel(
-        title: String,
-        subtitle: String,
-        systemImage: String
-    ) -> some View {
-        HStack(spacing: AppSpacing.sm) {
-            settingsIcon(systemImage)
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(AppTypography.body)
-                    .foregroundStyle(AppColors.primaryText)
-                
-                Text(subtitle)
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.secondaryText)
-            }
-        }
-    }
-    
-    private func settingsIcon(
-        _ systemImage: String
-    ) -> some View {
-        Image(systemName: systemImage)
-            .font(.system(size: 14, weight: .semibold))
-            .foregroundStyle(AppColors.primaryBlue)
-            .frame(width: 32, height: 32)
-            .background {
-                Circle()
-                    .fill(AppColors.lightBlue.opacity(0.28))
-            }
     }
 }
