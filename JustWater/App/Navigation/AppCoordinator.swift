@@ -34,6 +34,10 @@ final class AppCoordinator {
         flow = .onboarding
     }
     
+    func showBenefitsStep() {
+        onboardingStep = .benefits
+    }
+    
     func showCalculatorStep() {
         onboardingStep = .calculator
     }

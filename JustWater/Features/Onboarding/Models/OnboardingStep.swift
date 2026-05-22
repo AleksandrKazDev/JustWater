@@ -9,6 +9,7 @@ import Foundation
 
 enum OnboardingStep {
     case welcome
+    case benefits
     case calculator
     case result
 }

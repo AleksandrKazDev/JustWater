@@ -16,51 +16,77 @@ struct CalculatorView: View {
     // MARK: - State
     
     @State private var viewModel = CalculatorViewModel()
-    
     @State private var selectedActivityInfo: ActivityLevel?
     
-    @State private var isRecommendationAlertPresented = false
+    // MARK: - Focus
+    
+    @FocusState private var focusedField: FocusedField?
     
     // MARK: - Actions
     
     let onComplete: (Int) -> Void
     
+    // MARK: - Types
+    
+    private enum FocusedField {
+        case weight
+        case customGoal
+    }
+    
+    private enum FieldID {
+        case weight
+        case customGoal
+    }
+    
     // MARK: - Body
     
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: AppSpacing.xl) {
-                header
-                
-                weightInput
-                
-                genderPicker
-                
-                activityPicker
-                
-                calculateButton
-                
-                if let recommendedGoal = viewModel.recommendedGoal {
-                    recommendedGoalSection(goal: recommendedGoal)
+        ScrollViewReader { proxy in
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: AppSpacing.xl) {
+                    header
+                    
+                    weightInput
+                        .id(FieldID.weight)
+                    
+                    genderPicker
+                    
+                    activityPicker
+                    
+                    calculateButton
+                    
+                    if let recommendedGoal = viewModel.recommendedGoal {
+                        recommendedGoalSection(goal: recommendedGoal)
+                    }
+                    
+                    customGoalSection
+                        .id(FieldID.customGoal)
                 }
-                
-                customGoalSection
+                .padding(AppSpacing.lg)
+                .padding(.bottom, AppSpacing.xl)
             }
-            .padding(AppSpacing.lg)
+            .scrollDismissesKeyboard(.interactively)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                focusedField = nil
+            }
+            .onChange(of: focusedField) { _, newValue in
+                guard let newValue else { return }
+                
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    switch newValue {
+                    case .weight:
+                        proxy.scrollTo(FieldID.weight, anchor: .center)
+                        
+                    case .customGoal:
+                        proxy.scrollTo(FieldID.customGoal, anchor: .center)
+                    }
+                }
+            }
         }
         .background(AppColors.background)
         .sheet(item: $selectedActivityInfo) { level in
             activityInfoSheet(level)
-        }
-        .alert(
-            "Recommended Goal",
-            isPresented: $isRecommendationAlertPresented
-        ) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            if let recommendedGoal = viewModel.recommendedGoal {
-                Text("\(recommendedGoal) ml per day")
-            }
         }
         .navigationTitle("Water Goal")
         .navigationBarTitleDisplayMode(.inline)
@@ -74,12 +100,10 @@ struct CalculatorView: View {
                 .font(AppTypography.title)
                 .foregroundStyle(AppColors.primaryText)
             
-            Text(
-                "Get a personalized daily hydration recommendation."
-            )
-            .font(AppTypography.body)
-            .foregroundStyle(AppColors.secondaryText)
-            .multilineTextAlignment(.center)
+            Text("Get a personalized daily hydration recommendation.")
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.secondaryText)
+                .multilineTextAlignment(.center)
         }
     }
     
@@ -93,7 +117,10 @@ struct CalculatorView: View {
                 "Enter your weight",
                 text: $viewModel.weightText
             )
+            .focused($focusedField, equals: .weight)
             .keyboardType(.numberPad)
+            .font(AppTypography.body)
+            .foregroundStyle(AppColors.primaryText)
             .padding(AppSpacing.md)
             .background {
                 RoundedRectangle(cornerRadius: 20)
@@ -116,6 +143,7 @@ struct CalculatorView: View {
             HStack(spacing: AppSpacing.sm) {
                 ForEach(Gender.allCases) { gender in
                     Button {
+                        HapticService.selection()
                         viewModel.selectGender(gender)
                     } label: {
                         Text(gender.title)
@@ -163,6 +191,7 @@ struct CalculatorView: View {
     ) -> some View {
         HStack(spacing: AppSpacing.sm) {
             Button {
+                HapticService.selection()
                 viewModel.selectActivityLevel(level)
             } label: {
                 HStack {
@@ -205,11 +234,9 @@ struct CalculatorView: View {
             title: "Calculate Recommendation",
             systemImage: "function"
         ) {
+            focusedField = nil
+            HapticService.selection()
             viewModel.calculateGoal()
-            
-            if viewModel.recommendedGoal != nil {
-                isRecommendationAlertPresented = true
-            }
         }
     }
     
@@ -230,6 +257,7 @@ struct CalculatorView: View {
                     title: "Use Recommended Goal",
                     systemImage: "checkmark"
                 ) {
+                    HapticService.success()
                     onComplete(goal)
                     dismiss()
                 }
@@ -243,39 +271,64 @@ struct CalculatorView: View {
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.primaryText)
             
-            HStack(spacing: AppSpacing.sm) {
-                TextField(
-                    "1 - 10000",
-                    text: $viewModel.customGoalText
-                )
-                .keyboardType(.numberPad)
-                .onChange(
-                    of: viewModel.customGoalText
-                ) { _, newValue in
-                    viewModel.updateCustomGoalText(newValue)
+            VStack(spacing: AppSpacing.md) {
+                HStack(spacing: AppSpacing.sm) {
+                    TextField(
+                        "1 - 10000",
+                        text: $viewModel.customGoalText
+                    )
+                    .focused($focusedField, equals: .customGoal)
+                    .keyboardType(.numberPad)
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.primaryText)
+                    .onChange(of: viewModel.customGoalText) { _, newValue in
+                        viewModel.updateCustomGoalText(newValue)
+                    }
+                    
+                    Text("ml")
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.secondaryText)
                 }
                 
-                Text("ml")
-                    .font(AppTypography.body)
-                    .foregroundStyle(
-                        AppColors.secondaryText
+                if let customGoal = viewModel.customGoal {
+                    Button {
+                        focusedField = nil
+                        HapticService.success()
+                        onComplete(customGoal)
+                        dismiss()
+                    } label: {
+                        HStack(spacing: AppSpacing.xs) {
+                            Image(systemName: "slider.horizontal.3")
+                                .font(.system(size: 14, weight: .semibold))
+                            
+                            Text("Use Custom Goal")
+                                .font(AppTypography.body)
+                        }
+                        .foregroundStyle(AppColors.primaryBlue)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 48)
+                        .background {
+                            Capsule()
+                                .fill(AppColors.lightBlue.opacity(0.28))
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .transition(
+                        .opacity.combined(
+                            with: .move(edge: .top)
+                        )
                     )
+                }
             }
             .padding(AppSpacing.md)
             .background {
                 RoundedRectangle(cornerRadius: 20)
                     .fill(AppColors.cardBackground)
             }
-            
-            if let customGoal = viewModel.customGoal {
-                PrimaryButton(
-                    title: "Use Custom Goal",
-                    systemImage: "slider.horizontal.3"
-                ) {
-                    onComplete(customGoal)
-                    dismiss()
-                }
-            }
+            .animation(
+                .spring(response: 0.35, dampingFraction: 0.9),
+                value: viewModel.customGoal
+            )
         }
     }
     
