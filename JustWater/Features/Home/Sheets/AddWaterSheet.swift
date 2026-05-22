@@ -89,12 +89,17 @@ struct AddWaterSheet: View {
     private var presetSection: some View {
         HStack(spacing: AppSpacing.sm) {
             ForEach(presets, id: \.self) { amount in
-                QuickAddButton(amount: amount) {
+                QuickAddButton(
+                    amount: amount,
+                    size: .compact
+                ) {
                     addPresetAmount(amount)
                 }
+                .frame(maxWidth: .infinity)
             }
         }
     }
+
     
     private var customInputSection: some View {
         GlassCard {

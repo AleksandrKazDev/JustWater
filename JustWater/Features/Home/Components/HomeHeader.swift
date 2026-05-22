@@ -15,6 +15,10 @@ struct HomeHeader: View {
     let onResetOnboarding: () -> Void
     let onGoalUpdated: () -> Void
     
+    // MARK: - State
+    
+    @GestureState private var isMenuPressed = false
+    
     // MARK: - Body
     
     var body: some View {
@@ -76,28 +80,65 @@ struct HomeHeader: View {
             Divider()
             
 #if DEBUG
-Divider()
-
-Button(role: .destructive) {
-    onResetOnboarding()
-} label: {
-    Label(
-        "Reset Onboarding",
-        systemImage: "arrow.counterclockwise"
-    )
-}
+            Divider()
+            
+            Button(role: .destructive) {
+                onResetOnboarding()
+            } label: {
+                Label(
+                    "Reset Onboarding",
+                    systemImage: "arrow.counterclockwise"
+                )
+            }
 #endif
             
         } label: {
             Image(systemName: "ellipsis")
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(AppColors.secondaryText)
-                .frame(width: 44, height: 44)
+                .frame(width: 46, height: 46)
                 .background {
                     Circle()
-                        .fill(AppColors.cardBackground)
+                        .fill(AppColors.glassFill)
+                        .background {
+                            Circle()
+                                .fill(.ultraThinMaterial)
+                                .opacity(0.35)
+                        }
                 }
+                .overlay {
+                    Circle()
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    AppColors.glassHighlight.opacity(0.55),
+                                    AppColors.glassStroke.opacity(0.18)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                }
+                .shadow(
+                    color: AppColors.blueGlow.opacity(0.06),
+                    radius: 12,
+                    x: 0,
+                    y: 6
+                )
+                .scaleEffect(isMenuPressed ? 0.94 : 1)
+                .brightness(isMenuPressed ? -0.03 : 0)
+                .animation(
+                    .spring(response: 0.22, dampingFraction: 0.82),
+                    value: isMenuPressed
+                )
         }
         .buttonStyle(.plain)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .updating($isMenuPressed) { _, state, _ in
+                    state = true
+                }
+        )
     }
 }

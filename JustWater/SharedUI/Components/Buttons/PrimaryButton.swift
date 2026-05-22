@@ -9,9 +9,17 @@ import SwiftUI
 
 struct PrimaryButton: View {
     
+    // MARK: - Properties
+    
     let title: String
     let systemImage: String?
     let action: () -> Void
+    
+    // MARK: - Environment
+    
+    @Environment(\.isEnabled) private var isEnabled
+    
+    // MARK: - Initializer
     
     init(
         title: String,
@@ -23,12 +31,17 @@ struct PrimaryButton: View {
         self.action = action
     }
     
+    // MARK: - Body
+    
     var body: some View {
-        Button(action: action) {
+        Button {
+            HapticService.selection()
+            action()
+        } label: {
             HStack(spacing: AppSpacing.sm) {
                 if let systemImage {
                     Image(systemName: systemImage)
-                        .font(.system(size: 17, weight: .semibold))
+                        .font(.system(size: 18, weight: .semibold))
                 }
                 
                 Text(title)
@@ -36,39 +49,91 @@ struct PrimaryButton: View {
             }
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .frame(height: 56)
+            .frame(height: 58)
             .background {
-                RoundedRectangle(cornerRadius: AppRadius.pill, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                AppColors.primaryBlue,
-                                AppColors.deepBlue
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                Capsule()
+                    .fill(baseGradient)
+            }
+            .overlay {
+                Capsule()
+                    .fill(.ultraThinMaterial)
+                    .opacity(isEnabled ? 0.16 : 0.06)
+            }
+            .overlay {
+                Capsule()
+                    .fill(glassHighlight)
+                    .blendMode(.screen)
+                    .opacity(isEnabled ? 0.35 : 0.12)
+            }
+            .overlay {
+                Capsule()
+                    .stroke(borderGradient, lineWidth: 1)
             }
             .shadow(
-                color: AppColors.primaryBlue.opacity(0.28),
-                radius: 16,
+                color: AppColors.blueGlow.opacity(isEnabled ? 0.18 : 0),
+                radius: 18,
                 x: 0,
                 y: 10
             )
+            .opacity(isEnabled ? 1 : 0.45)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(
+            PressableScaleButtonStyle(
+                scale: 0.98,
+                pressedBrightness: -0.025))
+    }
+    
+    // MARK: - Gradients
+    
+    private var baseGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                AppColors.primaryBlue,
+                AppColors.deepBlue
+            ],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+    }
+    
+    private var glassHighlight: LinearGradient {
+        LinearGradient(
+            colors: [
+                .white.opacity(0.28),
+                .white.opacity(0.06),
+                .clear
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+    
+    private var borderGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                .white.opacity(isEnabled ? 0.34 : 0.10),
+                .white.opacity(isEnabled ? 0.10 : 0.04),
+                .white.opacity(isEnabled ? 0.18 : 0.06)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
     }
 }
 
-#Preview {
-    ZStack {
-        AppColors.background.ignoresSafeArea()
-        
-        PrimaryButton(
-            title: "Add Water",
-            systemImage: "plus"
-        ) {}
-        .padding(AppSpacing.lg)
-    }
-}
+// MARK: - Button Style
+
+//private struct PrimaryButtonScaleStyle: ButtonStyle {
+//    
+//    func makeBody(
+//        configuration: Configuration
+//    ) -> some View {
+//        configuration.label
+//            .scaleEffect(configuration.isPressed ? 0.98 : 1)
+//            .brightness(configuration.isPressed ? -0.025 : 0)
+//            .animation(
+//                .spring(response: 0.24, dampingFraction: 0.82),
+//                value: configuration.isPressed
+//            )
+//    }
+//}

@@ -126,7 +126,7 @@ struct WaterProgressView: View {
         VStack(spacing: AppSpacing.xs) {
             Text("\(percentage)%")
                 .font(.system(size: 48, weight: .bold))
-                .foregroundStyle(AppColors.deepBlue)
+                .foregroundStyle(AppColors.progressText)
             
             Text("hydrated")
                 .font(AppTypography.caption)

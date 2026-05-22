@@ -9,42 +9,55 @@ import SwiftUI
 
 struct GlassCard<Content: View>: View {
     
+    // MARK: - Properties
+    
     private let content: Content
     
-    init(@ViewBuilder content: () -> Content) {
+    // MARK: - Initializer
+    
+    init(
+        @ViewBuilder content: () -> Content
+    ) {
         self.content = content()
     }
     
+    // MARK: - Body
+    
     var body: some View {
         content
-            .padding(AppSpacing.lg)
+            .padding(AppSpacing.md)
             .background {
-                RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous)
-                    .fill(AppColors.cardBackground)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: AppRadius.xl, style: .continuous)
-                            .stroke(AppColors.border, lineWidth: 1)
+                RoundedRectangle(cornerRadius: AppRadius.xl)
+                    .fill(AppColors.glassFill)
+                    .background {
+                        RoundedRectangle(cornerRadius: AppRadius.xl)
+                            .fill(.ultraThinMaterial)
+                            .opacity(0.45)
                     }
-                    .shadow(color: .black.opacity(0.08), radius: 20, x: 0, y: 12)
             }
-    }
-}
-
-#Preview {
-    ZStack {
-        AppColors.background.ignoresSafeArea()
-        
-        GlassCard {
-            VStack(spacing: AppSpacing.sm) {
-                Text("JustWater")
-                    .font(AppTypography.title)
-                    .foregroundStyle(AppColors.primaryText)
-                
-                Text("Glass card preview")
-                    .font(AppTypography.body)
-                    .foregroundStyle(AppColors.secondaryText)
+            .overlay {
+                RoundedRectangle(cornerRadius: AppRadius.xl)
+                    .stroke(AppColors.glassStroke, lineWidth: 1)
             }
-        }
-        .padding(AppSpacing.lg)
+            .overlay(alignment: .topLeading) {
+                RoundedRectangle(cornerRadius: AppRadius.xl)
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                AppColors.glassHighlight.opacity(0.70),
+                                AppColors.glassHighlight.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            }
+            .shadow(
+                color: AppColors.blueGlow.opacity(0.08),
+                radius: 22,
+                x: 0,
+                y: 12
+            )
     }
 }

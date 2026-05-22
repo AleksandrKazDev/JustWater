@@ -44,8 +44,9 @@ struct HomeView: View {
     
     var body: some View {
         ZStack {
-            AppColors.background
-                .ignoresSafeArea()
+//            AppColors.background
+//                .ignoresSafeArea()
+            AppBackground()
             
             ScrollView(showsIndicators: false) {
                 if let viewModel {
