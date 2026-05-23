@@ -24,12 +24,16 @@ struct SettingsRow: View {
             Text(title)
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.primaryText)
+                .lineLimit(1)
+                .minimumScaleFactor(0.82)
             
-            Spacer()
+            Spacer(minLength: AppSpacing.sm)
             
             Text(value)
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.secondaryText)
+                .lineLimit(1)
+                .minimumScaleFactor(0.78)
         }
     }
 }

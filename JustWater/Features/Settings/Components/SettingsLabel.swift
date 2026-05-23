@@ -25,10 +25,12 @@ struct SettingsLabel: View {
                 Text(title)
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.primaryText)
+                    .lineLimit(1)
                 
                 Text(subtitle)
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }

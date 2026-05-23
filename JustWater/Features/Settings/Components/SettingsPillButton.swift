@@ -19,11 +19,24 @@ struct SettingsPillButton: View {
         Text(title)
             .font(AppTypography.caption)
             .foregroundStyle(AppColors.primaryBlue)
-            .padding(.horizontal, AppSpacing.md)
-            .frame(height: 34)
+            .lineLimit(1)
+            .padding(.horizontal, AppSpacing.lg)
+            .frame(height: 38)
             .background {
                 Capsule()
-                    .fill(AppColors.lightBlue.opacity(0.28))
+                    .fill(AppColors.glassFill)
+                    .background {
+                        Capsule()
+                            .fill(.ultraThinMaterial)
+                            .opacity(0.28)
+                    }
+            }
+            .overlay {
+                Capsule()
+                    .stroke(
+                        AppColors.glassStroke.opacity(0.20),
+                        lineWidth: 1
+                    )
             }
     }
 }

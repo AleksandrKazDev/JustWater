@@ -17,8 +17,7 @@ struct SettingsView: View {
     
     var body: some View {
         ZStack {
-            AppColors.background
-                .ignoresSafeArea()
+            AppBackground()
             
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: AppSpacing.lg) {
@@ -63,18 +62,20 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
                 SettingsSectionTitle(title: "Daily Goal")
                 
-                HStack {
-                    VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                        Text("\(viewModel.dailyGoal) ml")
-                            .font(AppTypography.headline)
-                            .foregroundStyle(AppColors.primaryText)
-                        
-                        Text("Your current daily hydration target.")
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColors.secondaryText)
-                    }
+                Text("\(viewModel.dailyGoal) ml")
+                    .font(.system(size: 34, weight: .semibold, design: .rounded))
+                    .foregroundStyle(AppColors.primaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+                
+                HStack(alignment: .center, spacing: AppSpacing.md) {
+                    Text("Your daily hydration target.")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.secondaryText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.82)
                     
-                    Spacer()
+                    Spacer(minLength: AppSpacing.sm)
                     
                     NavigationLink {
                         CalculatorView { goal in
@@ -82,8 +83,14 @@ struct SettingsView: View {
                         }
                     } label: {
                         SettingsPillButton(title: "Change")
+                            .frame(minWidth: 108)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(
+                        PressableScaleButtonStyle(
+                            scale: 0.96,
+                            pressedBrightness: -0.02
+                        )
+                    )
                 }
             }
         }
@@ -101,6 +108,7 @@ struct SettingsView: View {
                             viewModel.appearanceMode
                         },
                         set: { mode in
+                            HapticService.selection()
                             viewModel.updateAppearanceMode(mode)
                         }
                     )
@@ -184,23 +192,28 @@ struct SettingsView: View {
                     .disabled(!viewModel.areRemindersEnabled)
                     .opacity(viewModel.areRemindersEnabled ? 1 : 0.45)
                 
-#if DEBUG
-Divider()
-    .opacity(0.35)
-
-Button {
-    Task {
-        await NotificationService.scheduleTestNotificationInFiveSeconds()
-    }
-} label: {
-    SettingsRow(
-        title: "Test Notification",
-        value: "5 seconds",
-        systemImage: "bell.badge"
-    )
-}
-.buttonStyle(.plain)
-#endif
+                #if DEBUG
+                Divider()
+                    .opacity(0.35)
+                
+                Button {
+                    Task {
+                        await NotificationService.scheduleTestNotificationInFiveSeconds()
+                    }
+                } label: {
+                    SettingsRow(
+                        title: "Test Notification",
+                        value: "5 seconds",
+                        systemImage: "bell.badge"
+                    )
+                }
+                .buttonStyle(
+                    PressableScaleButtonStyle(
+                        scale: 0.985,
+                        pressedBrightness: -0.015
+                    )
+                )
+                #endif
             }
         }
     }
@@ -217,12 +230,29 @@ Button {
             } label: {
                 SettingsPillButton(title: "Open Settings")
             }
-            .buttonStyle(.plain)
+            .buttonStyle(
+                PressableScaleButtonStyle(
+                    scale: 0.96,
+                    pressedBrightness: -0.02
+                )
+            )
         }
         .padding(AppSpacing.md)
         .background {
-            RoundedRectangle(cornerRadius: 18)
-                .fill(AppColors.cardBackground)
+            RoundedRectangle(cornerRadius: AppRadius.md)
+                .fill(AppColors.glassFill)
+                .background {
+                    RoundedRectangle(cornerRadius: AppRadius.md)
+                        .fill(.ultraThinMaterial)
+                        .opacity(0.26)
+                }
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: AppRadius.md)
+                .stroke(
+                    AppColors.glassStroke.opacity(0.18),
+                    lineWidth: 1
+                )
         }
     }
     
@@ -331,7 +361,9 @@ Button {
             }
         }
     }
-  // MARK: - Helpers
+    
+    // MARK: - Helpers
+    
     private func formattedHour(
         _ hour: Int
     ) -> String {
