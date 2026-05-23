@@ -46,15 +46,10 @@ struct SettingsView: View {
     // MARK: - Components
     
     private var header: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xs) {
-            Text("Settings")
-                .font(AppTypography.title)
-                .foregroundStyle(AppColors.primaryText)
-            
-            Text("Manage your hydration preferences.")
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.secondaryText)
-        }
+        Text("Manage your hydration preferences.")
+            .font(AppTypography.body)
+            .foregroundStyle(AppColors.secondaryText)
+            .fixedSize(horizontal: false, vertical: true)
     }
     
     private var dailyGoalSection: some View {

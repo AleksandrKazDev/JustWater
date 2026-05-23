@@ -150,11 +150,14 @@ struct OnboardingView: View {
     }
     
     private var calculatorStep: some View {
-        CalculatorView { goal in
+        CalculatorView(
+            showsHeaderTitle: true
+        ) { goal in
             AppSettingsStorage.dailyGoal = goal
             coordinator.showResultStep()
         }
     }
+
     
     private var resultStep: some View {
         VStack(spacing: AppSpacing.xl) {
