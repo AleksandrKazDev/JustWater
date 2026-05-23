@@ -25,13 +25,21 @@ struct OnboardingBenefitRow: View {
                 .frame(width: 38, height: 38)
                 .background {
                     Circle()
-                        .fill(AppColors.lightBlue.opacity(0.28))
+                        .fill(AppColors.lightBlue.opacity(0.22))
+                }
+                .overlay {
+                    Circle()
+                        .stroke(
+                            AppColors.glassStroke.opacity(0.14),
+                            lineWidth: 1
+                        )
                 }
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.primaryText)
+                    .lineLimit(1)
                 
                 Text(subtitle)
                     .font(AppTypography.caption)
@@ -39,7 +47,7 @@ struct OnboardingBenefitRow: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             
-            Spacer()
+            Spacer(minLength: AppSpacing.sm)
         }
     }
 }

@@ -12,24 +12,21 @@ struct OnboardingView: View {
     // MARK: - Environment
     
     @Environment(AppCoordinator.self) private var coordinator
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     // MARK: - Body
     
     var body: some View {
         ZStack {
-            AppColors.background
-                .ignoresSafeArea()
+            AppBackground()
             
             currentStep
-                .transition(
-                    .asymmetric(
-                        insertion: .opacity.combined(with: .move(edge: .trailing)),
-                        removal: .opacity.combined(with: .move(edge: .leading))
-                    )
-                )
+                .transition(stepTransition)
         }
         .animation(
-            .spring(response: 0.45, dampingFraction: 0.9),
+            reduceMotion
+            ? nil
+            : .spring(response: 0.45, dampingFraction: 0.9),
             value: coordinator.onboardingStep
         )
     }
@@ -55,14 +52,15 @@ struct OnboardingView: View {
     
     private var welcomeStep: some View {
         VStack(spacing: AppSpacing.xl) {
-            Spacer()
+            Spacer(minLength: AppSpacing.lg)
             
-            OnboardingHeroDrop()
+            OnboardingHeroMark(style: .drop)
             
             VStack(spacing: AppSpacing.sm) {
                 Text("JustWater")
                     .font(AppTypography.largeTitle)
                     .foregroundStyle(AppColors.primaryText)
+                    .multilineTextAlignment(.center)
                 
                 Text("Build a calmer hydration habit.")
                     .font(AppTypography.headline)
@@ -76,12 +74,9 @@ struct OnboardingView: View {
                     .padding(.horizontal, AppSpacing.md)
             }
             
-            OnboardingStepIndicator(
-                currentIndex: 0,
-                totalCount: 3
-            )
+            stepIndicator
             
-            Spacer()
+            Spacer(minLength: AppSpacing.lg)
             
             PrimaryButton(
                 title: "Get Started",
@@ -95,7 +90,7 @@ struct OnboardingView: View {
     
     private var benefitsStep: some View {
         VStack(spacing: AppSpacing.xl) {
-            Spacer()
+            Spacer(minLength: AppSpacing.lg)
             
             VStack(spacing: AppSpacing.sm) {
                 Text("Simple by design")
@@ -132,12 +127,9 @@ struct OnboardingView: View {
                 }
             }
             
-            OnboardingStepIndicator(
-                currentIndex: 1,
-                totalCount: 3
-            )
+            stepIndicator
             
-            Spacer()
+            Spacer(minLength: AppSpacing.lg)
             
             PrimaryButton(
                 title: "Continue",
@@ -157,43 +149,35 @@ struct OnboardingView: View {
             coordinator.showResultStep()
         }
     }
-
     
     private var resultStep: some View {
         VStack(spacing: AppSpacing.xl) {
-            Spacer()
+            Spacer(minLength: AppSpacing.lg)
             
-            ZStack {
-                Circle()
-                    .fill(AppColors.lightBlue.opacity(0.22))
-                    .frame(width: 150, height: 150)
-                
-                Image(systemName: "checkmark")
-                    .font(.system(size: 46, weight: .bold))
-                    .foregroundStyle(AppColors.primaryBlue)
-            }
+            OnboardingHeroMark(style: .success)
             
             VStack(spacing: AppSpacing.sm) {
                 Text("\(AppSettingsStorage.dailyGoal) ml")
                     .font(AppTypography.largeTitle)
                     .foregroundStyle(AppColors.primaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.78)
                 
                 Text("Your daily goal is ready.")
                     .font(AppTypography.headline)
                     .foregroundStyle(AppColors.primaryText)
+                    .multilineTextAlignment(.center)
                 
                 Text("You can always adjust it later in Settings.")
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.secondaryText)
                     .multilineTextAlignment(.center)
+                    .padding(.horizontal, AppSpacing.md)
             }
             
-            OnboardingStepIndicator(
-                currentIndex: 2,
-                totalCount: 3
-            )
+            stepIndicator
             
-            Spacer()
+            Spacer(minLength: AppSpacing.lg)
             
             PrimaryButton(
                 title: "Start Tracking",
@@ -203,5 +187,69 @@ struct OnboardingView: View {
             }
         }
         .padding(AppSpacing.lg)
+    }
+    
+    private var resultHero: some View {
+        ZStack {
+            Circle()
+                .fill(AppColors.cardBackground.opacity(0.78))
+                .frame(width: 132, height: 132)
+                .overlay {
+                    Circle()
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    AppColors.glassHighlight.opacity(0.26),
+                                    AppColors.glassStroke.opacity(0.12)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                }
+            
+            Circle()
+                .trim(from: 0.10, to: 0.86)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            AppColors.lightBlue.opacity(0.44),
+                            AppColors.primaryBlue.opacity(0.60)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    style: StrokeStyle(
+                        lineWidth: 6,
+                        lineCap: .round
+                    )
+                )
+                .frame(width: 154, height: 154)
+                .rotationEffect(.degrees(-90))
+                .opacity(0.72)
+            
+            Image(systemName: "checkmark")
+                .font(.system(size: 42, weight: .bold))
+                .foregroundStyle(AppColors.primaryBlue)
+        }
+        .frame(height: 180)
+    }
+    private var stepIndicator: some View {
+        OnboardingStepIndicator(
+            currentIndex: coordinator.onboardingStep.index,
+            totalCount: OnboardingStep.totalCount
+        )
+    }
+    
+    private var stepTransition: AnyTransition {
+        guard !reduceMotion else {
+            return .opacity
+        }
+        
+        return .asymmetric(
+            insertion: .opacity.combined(with: .move(edge: .trailing)),
+            removal: .opacity.combined(with: .move(edge: .leading))
+        )
     }
 }

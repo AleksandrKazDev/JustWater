@@ -22,12 +22,12 @@ struct OnboardingStepIndicator: View {
                 Capsule()
                     .fill(
                         index == currentIndex
-                        ? AppColors.primaryBlue
-                        : AppColors.secondaryText.opacity(0.22)
+                        ? AppColors.primaryBlue.opacity(0.92)
+                        : AppColors.secondaryText.opacity(0.16)
                     )
                     .frame(
-                        width: index == currentIndex ? 30 : 10,
-                        height: 10
+                        width: index == currentIndex ? 26 : 8,
+                        height: 8
                     )
             }
         }
@@ -35,7 +35,19 @@ struct OnboardingStepIndicator: View {
         .padding(.vertical, AppSpacing.xs)
         .background {
             Capsule()
-                .fill(AppColors.cardBackground.opacity(0.65))
+                .fill(AppColors.cardBackground.opacity(0.62))
+                .background {
+                    Capsule()
+                        .fill(.ultraThinMaterial)
+                        .opacity(0.22)
+                }
+        }
+        .overlay {
+            Capsule()
+                .stroke(
+                    AppColors.glassStroke.opacity(0.16),
+                    lineWidth: 1
+                )
         }
         .animation(
             .spring(response: 0.35, dampingFraction: 0.85),
