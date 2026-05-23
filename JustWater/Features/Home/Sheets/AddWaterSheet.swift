@@ -28,6 +28,10 @@ struct AddWaterSheet: View {
     @State private var customAmountText = ""
     @State private var selectedDrinkType: DrinkType = .water
     
+    // MARK: - Focus
+    
+    @FocusState private var isCustomAmountFocused: Bool
+    
     // MARK: - Computed Properties
     
     private var customAmount: Int? {
@@ -40,42 +44,45 @@ struct AddWaterSheet: View {
         return amount
     }
     
+    private var isCustomAmountValid: Bool {
+        customAmount != nil
+    }
+    
     // MARK: - Body
     
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: AppSpacing.lg) {
-                header
-                
-                DrinkTypeSelector(
-                    selectedDrinkType: $selectedDrinkType
-                )
-                
-                presetSection
-                
-                customInputSection
-                
-                PrimaryButton(
-                    title: "Add Water",
-                    systemImage: "plus"
-                ) {
-                    addCustomAmount()
+        ZStack {
+            AppBackground()
+            
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: AppSpacing.lg) {
+                    header
+                    
+                    DrinkTypeSelector(
+                        selectedDrinkType: $selectedDrinkType
+                    )
+                    
+                    presetSection
+                    
+                    customInputSection
+                    
+                    addButton
                 }
-                .opacity(customAmount == nil ? 0.45 : 1)
-                .disabled(customAmount == nil)
+                .padding(AppSpacing.lg)
+                .padding(.bottom, AppSpacing.md)
             }
-            .padding(AppSpacing.lg)
+            .scrollDismissesKeyboard(.interactively)
         }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
-        .background(AppColors.background)
+        .presentationBackground(AppColors.background)
     }
     
     // MARK: - Components
     
     private var header: some View {
         VStack(spacing: AppSpacing.xs) {
-            Text("Add Water")
+            Text("Add Drink")
                 .font(AppTypography.title)
                 .foregroundStyle(AppColors.primaryText)
             
@@ -99,7 +106,6 @@ struct AddWaterSheet: View {
             }
         }
     }
-
     
     private var customInputSection: some View {
         GlassCard {
@@ -108,6 +114,7 @@ struct AddWaterSheet: View {
                     "Custom amount",
                     text: $customAmountText
                 )
+                .focused($isCustomAmountFocused)
                 .keyboardType(.numberPad)
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.primaryText)
@@ -120,6 +127,17 @@ struct AddWaterSheet: View {
                     .foregroundStyle(AppColors.secondaryText)
             }
         }
+    }
+    
+    private var addButton: some View {
+        PrimaryButton(
+            title: "Add Drink",
+            systemImage: "plus"
+        ) {
+            addCustomAmount()
+        }
+        .opacity(isCustomAmountValid ? 1 : 0.45)
+        .disabled(!isCustomAmountValid)
     }
     
     // MARK: - Actions
@@ -140,7 +158,7 @@ struct AddWaterSheet: View {
     private func addCustomAmount() {
         guard let amount = customAmount else { return }
         
-        HapticService.selection()
+        isCustomAmountFocused = false
         
         onAdd(
             amount,
@@ -169,12 +187,3 @@ struct AddWaterSheet: View {
         }
     }
 }
-
-// MARK: - Preview
-
-//#Preview {
-//    AddWaterSheet(
-//        presets: [100, 200, 300, 500],
-//        onAdd: { _, _ in }
-//    )
-//}

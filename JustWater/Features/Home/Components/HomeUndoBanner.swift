@@ -11,6 +11,7 @@ struct HomeUndoBanner: View {
     
     // MARK: - Properties
     
+    let message: String
     let isVisible: Bool
     let onUndo: () -> Void
     
@@ -21,13 +22,15 @@ struct HomeUndoBanner: View {
             Spacer()
             
             HStack {
-                Text("Water added")
+                Text(message)
                     .font(AppTypography.body)
                     .foregroundStyle(.white)
+                    .lineLimit(1)
                 
                 Spacer()
                 
                 Button("Undo") {
+                    HapticService.selection()
                     onUndo()
                 }
                 .font(AppTypography.body)

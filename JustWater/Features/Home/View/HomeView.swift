@@ -23,6 +23,7 @@ struct HomeView: View {
     @State private var isUndoBannerPresented = false
     @State private var isUndoBannerVisible = false
     @State private var isHistoryPresented = false
+    @State private var undoBannerMessage = "Water added"
     @State private var undoBannerDismissTask: Task<Void, Never>?
     
     // MARK: - Constants
@@ -44,14 +45,11 @@ struct HomeView: View {
     
     var body: some View {
         ZStack {
-//            AppColors.background
-//                .ignoresSafeArea()
             AppBackground()
             
             ScrollView(showsIndicators: false) {
                 if let viewModel {
                     VStack(spacing: AppSpacing.xl) {
-                        
                         HomeHeader(
                             todayTitle: todayTitle,
                             onResetOnboarding: coordinator.resetOnboarding,
@@ -75,7 +73,7 @@ struct HomeView: View {
                             amounts: quickAddAmounts,
                             onAdd: { amount in
                                 viewModel.addWater(amount)
-                                showUndoBanner()
+                                showUndoBanner(message: "Water added")
                             }
                         )
                         
@@ -94,12 +92,13 @@ struct HomeView: View {
                 }
             }
             
-            if isUndoBannerPresented, let viewModel {
+            if isUndoBannerPresented {
                 HomeUndoBanner(
+                    message: undoBannerMessage,
                     isVisible: isUndoBannerVisible,
                     onUndo: {
                         undoBannerDismissTask?.cancel()
-                        viewModel.undoLastAdd()
+                        viewModel?.undoLastAdd()
                         
                         Task {
                             await hideUndoBanner()
@@ -117,7 +116,10 @@ struct HomeView: View {
                             amount,
                             drinkType: drinkType
                         )
-                        showUndoBanner()
+                        
+                        showUndoBanner(
+                            message: "\(drinkType.title) added"
+                        )
                     }
                 )
             }
@@ -148,9 +150,12 @@ struct HomeView: View {
     
     // MARK: - Actions
     
-    private func showUndoBanner() {
+    private func showUndoBanner(
+        message: String
+    ) {
         undoBannerDismissTask?.cancel()
         
+        undoBannerMessage = message
         isUndoBannerPresented = true
         isUndoBannerVisible = false
         
@@ -180,9 +185,3 @@ struct HomeView: View {
         }
     }
 }
-// MARK: - Preview
-
-//#Preview {
-//    HomeView()
-//        .modelContainer(PreviewContainer.shared)
-//}

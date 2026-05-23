@@ -56,7 +56,6 @@ struct QuickAddButton: View {
     
     var body: some View {
         Button {
-            HapticService.selection()
             action()
         } label: {
             Text("+\(amount) ml")
@@ -106,20 +105,3 @@ struct QuickAddButton: View {
         )
     }
 }
-
-// MARK: - Button Style
-
-//private struct QuickAddButtonScaleStyle: ButtonStyle {
-//    
-//    func makeBody(
-//        configuration: Configuration
-//    ) -> some View {
-//        configuration.label
-//            .scaleEffect(configuration.isPressed ? 0.96 : 1)
-//            .brightness(configuration.isPressed ? -0.02 : 0)
-//            .animation(
-//                .spring(response: 0.22, dampingFraction: 0.82),
-//                value: configuration.isPressed
-//            )
-//    }
-//}
