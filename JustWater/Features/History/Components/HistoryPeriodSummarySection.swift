@@ -36,16 +36,22 @@ struct HistoryPeriodSummarySection: View {
     // MARK: - Components
     
     private var emptyState: some View {
-        Text("No data for selected period")
-            .font(AppTypography.body)
-            .foregroundStyle(AppColors.secondaryText)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, AppSpacing.md)
+        VStack(spacing: AppSpacing.sm) {
+            Image(systemName: "chart.bar")
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundStyle(AppColors.secondaryText.opacity(0.7))
+            
+            Text("No data for selected period")
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.secondaryText)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, AppSpacing.lg)
     }
     
     private var pointsList: some View {
-        VStack(spacing: AppSpacing.md) {
-            ForEach(points) { point in
+        VStack(spacing: 0) {
+            ForEach(Array(points.enumerated()), id: \.element.id) { index, point in
                 HStack {
                     Text(labelProvider(point))
                         .font(AppTypography.body)
@@ -56,6 +62,12 @@ struct HistoryPeriodSummarySection: View {
                     Text("\(point.amount) ml")
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.secondaryText)
+                }
+                .padding(.vertical, AppSpacing.sm)
+                
+                if index < points.count - 1 {
+                    Divider()
+                        .opacity(0.28)
                 }
             }
         }

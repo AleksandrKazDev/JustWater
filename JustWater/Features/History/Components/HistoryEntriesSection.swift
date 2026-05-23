@@ -43,38 +43,63 @@ struct HistoryEntriesSection: View {
             Spacer()
             
             Button {
+                HapticService.selection()
                 onAdd()
             } label: {
                 Label("Add", systemImage: "plus")
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.primaryBlue)
-                    .padding(.horizontal, AppSpacing.sm)
-                    .padding(.vertical, AppSpacing.xs)
+                    .padding(.horizontal, AppSpacing.md)
+                    .frame(height: 34)
                     .background {
                         Capsule()
-                            .fill(AppColors.lightBlue.opacity(0.28))
+                            .fill(AppColors.glassFill)
+                            .background {
+                                Capsule()
+                                    .fill(.ultraThinMaterial)
+                                    .opacity(0.30)
+                            }
+                    }
+                    .overlay {
+                        Capsule()
+                            .stroke(
+                                AppColors.glassStroke.opacity(0.20),
+                                lineWidth: 1
+                            )
                     }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(
+                PressableScaleButtonStyle(
+                    scale: 0.96,
+                    pressedBrightness: -0.02
+                )
+            )
         }
     }
     
     private var emptyState: some View {
-        Text("No entries yet")
-            .font(AppTypography.body)
-            .foregroundStyle(AppColors.secondaryText)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, AppSpacing.md)
+        VStack(spacing: AppSpacing.sm) {
+            Image(systemName: "drop")
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundStyle(AppColors.secondaryText.opacity(0.7))
+            
+            Text("No entries yet")
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.secondaryText)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, AppSpacing.lg)
     }
     
     private var entriesList: some View {
-        VStack(spacing: AppSpacing.md) {
-            ForEach(entries) { entry in
+        VStack(spacing: 0) {
+            ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
                 HistoryEntryRow(
                     entry: entry,
                     onEdit: onEdit,
                     onDelete: onDelete
                 )
+                .padding(.vertical, AppSpacing.sm)
                 .transition(
                     .asymmetric(
                         insertion: .opacity,
@@ -83,6 +108,11 @@ struct HistoryEntriesSection: View {
                         )
                     )
                 )
+                
+                if index < entries.count - 1 {
+                    Divider()
+                        .opacity(0.28)
+                }
             }
         }
         .animation(

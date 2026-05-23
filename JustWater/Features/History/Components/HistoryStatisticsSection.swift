@@ -116,16 +116,19 @@ private struct HistoryStatisticCard: View {
     
     var body: some View {
         GlassCard {
-            VStack(alignment: .leading, spacing: AppSpacing.xs) {
+            VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 Text(title)
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.secondaryText)
                 
                 Text(value)
-                    .font(AppTypography.headline)
+                    .font(.system(size: 24, weight: .semibold, design: .rounded))
                     .foregroundStyle(AppColors.primaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.78)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(minHeight: 68, alignment: .center)
         }
     }
 }

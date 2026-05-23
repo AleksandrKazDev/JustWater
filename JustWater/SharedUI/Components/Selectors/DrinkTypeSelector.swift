@@ -41,8 +41,9 @@ struct DrinkTypeSelector: View {
                         drinkTypeButton(drinkType)
                     }
                 }
-                .padding(.horizontal, 1)
+                .padding(.horizontal, AppSpacing.lg)
             }
+            .padding(.horizontal, -AppSpacing.lg)
         }
     }
     
@@ -52,8 +53,8 @@ struct DrinkTypeSelector: View {
         _ drinkType: DrinkType
     ) -> some View {
         Button {
-            selectedDrinkType = drinkType
             HapticService.selection()
+            selectedDrinkType = drinkType
         } label: {
             HStack(spacing: AppSpacing.xs) {
                 Image(systemName: drinkType.systemImage)
@@ -61,6 +62,7 @@ struct DrinkTypeSelector: View {
                 
                 Text(drinkType.title)
                     .font(AppTypography.caption)
+                    .lineLimit(1)
             }
             .foregroundStyle(
                 selectedDrinkType == drinkType

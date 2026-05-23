@@ -29,6 +29,7 @@ struct HistoryEntryRow: View {
     
     private var editButton: some View {
         Button {
+            HapticService.selection()
             onEdit(entry)
         } label: {
             HStack(spacing: AppSpacing.sm) {
@@ -38,21 +39,29 @@ struct HistoryEntryRow: View {
                     Text("\(entry.amount) ml")
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.primaryText)
+                        .lineLimit(1)
                     
                     Text(entry.drinkType.title)
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.secondaryText)
+                        .lineLimit(1)
                 }
                 
-                Spacer()
+                Spacer(minLength: AppSpacing.sm)
                 
                 Text(entry.date, style: .time)
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.secondaryText)
+                    .lineLimit(1)
             }
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(
+            PressableScaleButtonStyle(
+                scale: 0.985,
+                pressedBrightness: -0.015
+            )
+        )
     }
     
     private var drinkIcon: some View {
@@ -61,6 +70,8 @@ struct HistoryEntryRow: View {
     
     private var deleteButton: some View {
         Button {
+            HapticService.selection()
+            
             withAnimation(
                 .spring(
                     response: 0.45,
@@ -71,10 +82,27 @@ struct HistoryEntryRow: View {
             }
         } label: {
             Image(systemName: "trash")
-                .font(.system(size: 14, weight: .semibold))
+                .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(AppColors.secondaryText)
-                .frame(width: 32, height: 32)
+                .frame(width: 36, height: 36)
+                .background {
+                    Circle()
+                        .fill(AppColors.glassFill.opacity(0.45))
+                }
+                .overlay {
+                    Circle()
+                        .stroke(
+                            AppColors.glassStroke.opacity(0.18),
+                            lineWidth: 1
+                        )
+                }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(
+            PressableScaleButtonStyle(
+                scale: 0.94,
+                pressedBrightness: -0.02
+            )
+        )
+        .accessibilityLabel("Delete entry")
     }
 }

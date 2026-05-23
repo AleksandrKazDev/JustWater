@@ -24,7 +24,7 @@ struct HistoryChartSection: View {
                     .font(AppTypography.headline)
                     .foregroundStyle(AppColors.primaryText)
                 
-                if analytics.period != .day {
+                if shouldShowGoalReference {
                     goalLegend
                 }
                 
@@ -52,10 +52,16 @@ struct HistoryChartSection: View {
     }
     
     private var emptyState: some View {
-        Text("No data for selected period")
-            .font(AppTypography.body)
-            .foregroundStyle(AppColors.secondaryText)
-            .frame(maxWidth: .infinity, minHeight: 160)
+        VStack(spacing: AppSpacing.sm) {
+            Image(systemName: "chart.xyaxis.line")
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundStyle(AppColors.secondaryText.opacity(0.7))
+            
+            Text("No data for selected period")
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.secondaryText)
+        }
+        .frame(maxWidth: .infinity, minHeight: 160)
     }
     
     private var chart: some View {
@@ -67,8 +73,8 @@ struct HistoryChartSection: View {
                         x: .value("Period", point.label),
                         y: .value("Water", point.amount)
                     )
-                    .foregroundStyle(AppColors.primaryBlue.gradient)
-                    .cornerRadius(6)
+                    .foregroundStyle(barGradient)
+                    .cornerRadius(5)
                     
                 case .week, .month:
                     LineMark(
@@ -88,20 +94,11 @@ struct HistoryChartSection: View {
                         x: .value("Period", point.label),
                         y: .value("Water", point.amount)
                     )
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [
-                                AppColors.primaryBlue.opacity(0.22),
-                                AppColors.primaryBlue.opacity(0.02)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
+                    .foregroundStyle(areaGradient)
                 }
             }
             
-            if analytics.period != .day {
+            if shouldShowGoalReference {
                 RuleMark(
                     y: .value(
                         "Goal",
@@ -120,11 +117,53 @@ struct HistoryChartSection: View {
         .frame(height: 180)
         .chartYScale(domain: chartYDomain)
         .chartYAxis {
-            AxisMarks(position: .leading)
+            AxisMarks(position: .leading) { _ in
+                AxisGridLine()
+                    .foregroundStyle(chartGridColor)
+                
+                AxisTick()
+                    .foregroundStyle(chartGridColor)
+                
+                AxisValueLabel()
+                    .foregroundStyle(chartAxisLabelColor)
+            }
         }
         .chartXAxis {
             chartXAxis
         }
+    }
+    
+    // MARK: - Styling
+    
+    private var barGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                AppColors.primaryBlue.opacity(0.72),
+                AppColors.primaryBlue.opacity(0.92),
+                AppColors.deepBlue.opacity(0.90)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
+    
+    private var areaGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                AppColors.primaryBlue.opacity(0.22),
+                AppColors.primaryBlue.opacity(0.02)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
+    
+    private var chartGridColor: Color {
+        AppColors.secondaryText.opacity(0.18)
+    }
+    
+    private var chartAxisLabelColor: Color {
+        AppColors.secondaryText.opacity(0.86)
     }
     
     // MARK: - Helpers
@@ -139,6 +178,16 @@ struct HistoryChartSection: View {
         }
     }
     
+    private var shouldShowGoalReference: Bool {
+        switch analytics.period {
+        case .week, .month:
+            return true
+            
+        case .day, .year:
+            return false
+        }
+    }
+    
     @AxisContentBuilder
     private var chartXAxis: some AxisContent {
         switch analytics.period {
@@ -147,13 +196,13 @@ struct HistoryChartSection: View {
                 values: monthAxisLabels
             ) { _ in
                 AxisValueLabel()
-                    .foregroundStyle(AppColors.secondaryText)
+                    .foregroundStyle(chartAxisLabelColor)
             }
             
         default:
             AxisMarks(values: .automatic) { _ in
                 AxisValueLabel()
-                    .foregroundStyle(AppColors.secondaryText)
+                    .foregroundStyle(chartAxisLabelColor)
             }
         }
     }
@@ -188,9 +237,17 @@ struct HistoryChartSection: View {
             
             return 0...upperBound
             
-        case .week, .month, .year:
+        case .week, .month:
             let upperBound = max(
                 dailyGoal,
+                roundedChartUpperBound(maxAmount)
+            )
+            
+            return 0...upperBound
+            
+        case .year:
+            let upperBound = max(
+                500,
                 roundedChartUpperBound(maxAmount)
             )
             

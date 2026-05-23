@@ -19,6 +19,10 @@ struct WaterEntryEditorSheet: View {
     @State private var selectedTime: Date
     @State private var selectedDrinkType: DrinkType
     
+    // MARK: - Focus
+    
+    @FocusState private var isAmountFocused: Bool
+    
     // MARK: - Properties
     
     private let mode: WaterEntryEditorMode
@@ -78,27 +82,41 @@ struct WaterEntryEditorSheet: View {
     // MARK: - Body
     
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: AppSpacing.lg) {
-                header
-                
-                amountInput
-                
-                DrinkTypeSelector(
-                    selectedDrinkType: $selectedDrinkType
-                )
-                
-                timePicker
-                
-                saveButton
+        ZStack {
+            AppBackground()
+            
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: AppSpacing.lg) {
+                    header
+                    
+                    amountInput
+                    
+                    DrinkTypeSelector(
+                        selectedDrinkType: $selectedDrinkType
+                    )
+                    
+                    timePicker
+                    
+                    saveButton
+                }
+                .padding(.horizontal, AppSpacing.lg)
+                .padding(.top, AppSpacing.lg)
+                .padding(.bottom, AppSpacing.xl)
             }
-            .padding(.horizontal, AppSpacing.lg)
-            .padding(.top, AppSpacing.lg)
-            .padding(.bottom, AppSpacing.xl)
+            .scrollDismissesKeyboard(.interactively)
         }
-        .background(AppColors.background)
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
+        .presentationBackground(AppColors.background)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                
+                Button("Done") {
+                    isAmountFocused = false
+                }
+            }
+        }
     }
     
     // MARK: - Components
@@ -127,6 +145,7 @@ struct WaterEntryEditorSheet: View {
                     "1 - 10000",
                     text: $amountText
                 )
+                .focused($isAmountFocused)
                 .keyboardType(.numberPad)
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.primaryText)
@@ -140,12 +159,27 @@ struct WaterEntryEditorSheet: View {
             }
             .padding(AppSpacing.md)
             .background {
-                RoundedRectangle(cornerRadius: 22)
-                    .fill(AppColors.cardBackground)
+                RoundedRectangle(cornerRadius: AppRadius.lg)
+                    .fill(AppColors.glassFill)
+                    .background {
+                        RoundedRectangle(cornerRadius: AppRadius.lg)
+                            .fill(.ultraThinMaterial)
+                            .opacity(0.34)
+                    }
             }
             .overlay {
-                RoundedRectangle(cornerRadius: 22)
-                    .stroke(AppColors.border, lineWidth: 1)
+                RoundedRectangle(cornerRadius: AppRadius.lg)
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                AppColors.glassHighlight.opacity(0.52),
+                                AppColors.glassStroke.opacity(0.16)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
             }
         }
     }
@@ -165,15 +199,31 @@ struct WaterEntryEditorSheet: View {
             )
             .datePickerStyle(.compact)
             .labelsHidden()
+            .tint(AppColors.primaryBlue)
         }
         .padding(AppSpacing.md)
         .background {
-            RoundedRectangle(cornerRadius: 22)
-                .fill(AppColors.cardBackground)
+            RoundedRectangle(cornerRadius: AppRadius.lg)
+                .fill(AppColors.glassFill)
+                .background {
+                    RoundedRectangle(cornerRadius: AppRadius.lg)
+                        .fill(.ultraThinMaterial)
+                        .opacity(0.34)
+                }
         }
         .overlay {
-            RoundedRectangle(cornerRadius: 22)
-                .stroke(AppColors.border, lineWidth: 1)
+            RoundedRectangle(cornerRadius: AppRadius.lg)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            AppColors.glassHighlight.opacity(0.52),
+                            AppColors.glassStroke.opacity(0.16)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
         }
     }
     
@@ -192,6 +242,9 @@ struct WaterEntryEditorSheet: View {
     
     private func saveEntry() {
         guard let amount else { return }
+        
+        isAmountFocused = false
+        HapticService.success()
         
         let entryDate = mergedDate(
             mode.selectedDate,
@@ -252,25 +305,3 @@ struct WaterEntryEditorSheet: View {
         return calendar.date(from: components) ?? date
     }
 }
-
-// MARK: - Preview
-
-//#Preview("Add") {
-//    WaterEntryEditorSheet(
-//        mode: .add(date: Date()),
-//        onSave: { _, _, _ in }
-//    )
-//}
-
-//#Preview("Edit") {
-//    WaterEntryEditorSheet(
-//        mode: .edit(
-//            entry: WaterEntry(
-//                amount: 350,
-//                date: Date(),
-//                drinkType: .tea
-//            )
-//        ),
-//        onSave: { _, _, _ in }
-//    )
-//}

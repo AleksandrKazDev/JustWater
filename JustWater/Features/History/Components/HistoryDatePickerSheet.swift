@@ -19,8 +19,9 @@ struct HistoryDatePickerSheet: View {
     var body: some View {
         VStack(spacing: AppSpacing.md) {
             Text("Select Date")
-                .font(AppTypography.title)
+                .font(AppTypography.headline)
                 .foregroundStyle(AppColors.primaryText)
+                .padding(.top, AppSpacing.sm)
             
             DatePicker(
                 "Date",
@@ -29,6 +30,7 @@ struct HistoryDatePickerSheet: View {
                         selectedDate
                     },
                     set: { newDate in
+                        HapticService.selection()
                         onSelectDate(newDate)
                     }
                 ),
@@ -36,9 +38,16 @@ struct HistoryDatePickerSheet: View {
             )
             .datePickerStyle(.graphical)
             .labelsHidden()
+            .tint(AppColors.primaryBlue)
         }
-        .padding(AppSpacing.lg)
+        .padding(.horizontal, AppSpacing.lg)
+        .padding(.bottom, AppSpacing.md)
+        .background {
+            AppColors.background
+                .ignoresSafeArea()
+        }
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
+        .presentationBackground(AppColors.background)
     }
 }

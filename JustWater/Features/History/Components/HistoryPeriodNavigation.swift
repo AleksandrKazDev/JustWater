@@ -19,33 +19,54 @@ struct HistoryPeriodNavigation: View {
     // MARK: - Body
     
     var body: some View {
-        HStack {
+        HStack(spacing: AppSpacing.md) {
             Button {
+                HapticService.selection()
                 onPrevious()
             } label: {
                 navigationIcon("chevron.left")
             }
-            .buttonStyle(.plain)
+            .buttonStyle(
+                PressableScaleButtonStyle(
+                    scale: 0.94,
+                    pressedBrightness: -0.02
+                )
+            )
             
             Spacer()
             
             Button {
+                HapticService.selection()
                 onTapTitle()
             } label: {
                 Text(title)
-                    .font(AppTypography.headline)
+                    .font(AppTypography.title)
                     .foregroundStyle(AppColors.primaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.82)
+                    .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(
+                PressableScaleButtonStyle(
+                    scale: 0.98,
+                    pressedBrightness: -0.015
+                )
+            )
             
             Spacer()
             
             Button {
+                HapticService.selection()
                 onNext()
             } label: {
                 navigationIcon("chevron.right")
             }
-            .buttonStyle(.plain)
+            .buttonStyle(
+                PressableScaleButtonStyle(
+                    scale: 0.94,
+                    pressedBrightness: -0.02
+                )
+            )
         }
     }
     
@@ -57,10 +78,35 @@ struct HistoryPeriodNavigation: View {
         Image(systemName: systemImage)
             .font(.system(size: 16, weight: .semibold))
             .foregroundStyle(AppColors.primaryText)
-            .frame(width: 40, height: 40)
+            .frame(width: 46, height: 46)
             .background {
                 Circle()
-                    .fill(AppColors.cardBackground)
+                    .fill(AppColors.glassFill)
+                    .background {
+                        Circle()
+                            .fill(.ultraThinMaterial)
+                            .opacity(0.32)
+                    }
             }
+            .overlay {
+                Circle()
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                AppColors.glassHighlight.opacity(0.52),
+                                AppColors.glassStroke.opacity(0.16)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            }
+            .shadow(
+                color: AppColors.blueGlow.opacity(0.05),
+                radius: 10,
+                x: 0,
+                y: 5
+            )
     }
 }
