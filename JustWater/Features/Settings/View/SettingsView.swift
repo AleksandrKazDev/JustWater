@@ -130,6 +130,10 @@ struct SettingsView: View {
                         },
                         set: { isEnabled in
                             viewModel.updateHapticsEnabled(isEnabled)
+                            
+                            if isEnabled {
+                                HapticService.selection()
+                            }
                         }
                     )
                 ) {
