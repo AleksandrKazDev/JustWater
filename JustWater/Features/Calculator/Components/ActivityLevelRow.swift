@@ -28,7 +28,7 @@ struct ActivityLevelRow: View {
         .padding(.trailing, AppSpacing.sm)
         .padding(.vertical, AppSpacing.xs)
         .background {
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: AppRadius.lgs)
                 .fill(AppColors.cardBackground)
         }
     }

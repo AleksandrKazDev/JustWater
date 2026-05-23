@@ -36,11 +36,19 @@ struct WeightInputSection: View {
             .foregroundStyle(AppColors.primaryText)
             .padding(AppSpacing.md)
             .background {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(AppColors.cardBackground)
-            }
-            .onChange(of: weightText) { _, newValue in
-                onChange(newValue)
+                RoundedRectangle(cornerRadius: AppRadius.lgs)
+                    .fill(AppColors.glassFill)
+                    .background {
+                        RoundedRectangle(cornerRadius: AppRadius.lgs)
+                            .fill(AppColors.cardBackground)
+                    }
+                    .overlay {
+                        RoundedRectangle(cornerRadius: AppRadius.lgs)
+                            .stroke(AppColors.border, lineWidth: 1)
+                    }
+                    .onChange(of: weightText) { _, newValue in
+                        onChange(newValue)
+                    }
             }
         }
     }

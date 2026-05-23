@@ -48,7 +48,12 @@ struct GenderPickerSection: View {
                                 )
                             }
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(
+                        PressableScaleButtonStyle(
+                            scale: 0.97,
+                            pressedBrightness: -0.02
+                        )
+                    )
                 }
             }
         }

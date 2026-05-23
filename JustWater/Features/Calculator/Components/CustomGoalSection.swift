@@ -37,7 +37,7 @@ struct CustomGoalSection: View {
             }
             .padding(AppSpacing.md)
             .background {
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: AppRadius.lgs)
                     .fill(AppColors.cardBackground)
             }
             .animation(
