@@ -106,24 +106,33 @@ struct OnboardingView: View {
             }
             
             GlassCard {
-                VStack(spacing: AppSpacing.lg) {
+                VStack(spacing: 0) {
                     OnboardingBenefitRow(
                         title: "Track your progress",
                         subtitle: "See your daily intake at a glance.",
                         systemImage: "drop.fill"
                     )
+                    .padding(.vertical, AppSpacing.sm)
+                    
+                    Divider()
+                        .opacity(0.28)
                     
                     OnboardingBenefitRow(
                         title: "Review your history",
                         subtitle: "Understand your hydration over time.",
                         systemImage: "chart.xyaxis.line"
                     )
+                    .padding(.vertical, AppSpacing.sm)
+                    
+                    Divider()
+                        .opacity(0.28)
                     
                     OnboardingBenefitRow(
                         title: "Gentle reminders",
-                        subtitle: "Set calm notifications when you need them.",
+                        subtitle: "Stay on track with gentle reminders.",
                         systemImage: "bell"
                     )
+                    .padding(.vertical, AppSpacing.sm)
                 }
             }
             
