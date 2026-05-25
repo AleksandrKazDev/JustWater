@@ -14,6 +14,7 @@ final class HistoryViewModel {
     // MARK: - Dependencies
     
     private let storageService: WaterStorageServicing
+    private let goalStorageService: WaterGoalStorageServicing
     
     // MARK: - State
     
@@ -100,8 +101,12 @@ final class HistoryViewModel {
     
     // MARK: - Initializer
     
-    init(storageService: WaterStorageServicing) {
+    init(
+        storageService: WaterStorageServicing,
+        goalStorageService: WaterGoalStorageServicing
+    ) {
         self.storageService = storageService
+        self.goalStorageService = goalStorageService
         loadAnalytics()
     }
     

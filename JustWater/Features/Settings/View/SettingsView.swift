@@ -6,12 +6,17 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct SettingsView: View {
     
+    // MARK: - Environment
+    
+    @Environment(\.modelContext) private var modelContext
+    
     // MARK: - State
     
-    @State private var viewModel = AppFactory.makeSettingsViewModel()
+    @State private var viewModel: SettingsViewModel?
     
     // MARK: - Body
     
@@ -20,26 +25,29 @@ struct SettingsView: View {
             AppBackground()
             
             ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: AppSpacing.lg) {
-                    header
-                    
-                    dailyGoalSection
-                    
-                    appearanceSection
-                    
-                    preferencesSection
-                    
-                    remindersSection
-                    
-                    appInfoSection
+                if let viewModel {
+                    VStack(alignment: .leading, spacing: AppSpacing.lg) {
+                        header
+                        
+                        dailyGoalSection(viewModel)
+                        
+                        appearanceSection(viewModel)
+                        
+                        preferencesSection(viewModel)
+                        
+                        remindersSection(viewModel)
+                        
+                        appInfoSection
+                    }
+                    .padding(AppSpacing.lg)
                 }
-                .padding(AppSpacing.lg)
             }
         }
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            viewModel.reload()
+            setupViewModelIfNeeded()
+            viewModel?.reload()
         }
     }
     
@@ -52,7 +60,9 @@ struct SettingsView: View {
             .fixedSize(horizontal: false, vertical: true)
     }
     
-    private var dailyGoalSection: some View {
+    private func dailyGoalSection(
+        _ viewModel: SettingsViewModel
+    ) -> some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
                 SettingsSectionTitle(title: "Daily Goal")
@@ -91,7 +101,9 @@ struct SettingsView: View {
         }
     }
     
-    private var appearanceSection: some View {
+    private func appearanceSection(
+        _ viewModel: SettingsViewModel
+    ) -> some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
                 SettingsSectionTitle(title: "Appearance")
@@ -118,7 +130,9 @@ struct SettingsView: View {
         }
     }
     
-    private var preferencesSection: some View {
+    private func preferencesSection(
+        _ viewModel: SettingsViewModel
+    ) -> some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
                 SettingsSectionTitle(title: "Preferences")
@@ -139,7 +153,7 @@ struct SettingsView: View {
                 ) {
                     SettingsLabel(
                         title: "Haptics",
-                        subtitle: "Tactile feedback for actions.",
+                        subtitle: "Tactile feedback for app actions.",
                         systemImage: "waveform"
                     )
                 }
@@ -157,7 +171,9 @@ struct SettingsView: View {
         }
     }
     
-    private var remindersSection: some View {
+    private func remindersSection(
+        _ viewModel: SettingsViewModel
+    ) -> some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
                 SettingsSectionTitle(title: "Reminders")
@@ -181,13 +197,13 @@ struct SettingsView: View {
                 .tint(AppColors.primaryBlue)
                 
                 if viewModel.isNotificationPermissionDenied {
-                    permissionDeniedView
+                    permissionDeniedView(viewModel)
                 }
                 
                 Divider()
                     .opacity(0.35)
                 
-                reminderScheduleSection
+                reminderScheduleSection(viewModel)
                     .disabled(!viewModel.areRemindersEnabled)
                     .opacity(viewModel.areRemindersEnabled ? 1 : 0.45)
                 
@@ -217,7 +233,9 @@ struct SettingsView: View {
         }
     }
     
-    private var permissionDeniedView: some View {
+    private func permissionDeniedView(
+        _ viewModel: SettingsViewModel
+    ) -> some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             Text("Notifications are disabled in iPhone Settings.")
                 .font(AppTypography.caption)
@@ -255,7 +273,9 @@ struct SettingsView: View {
         }
     }
     
-    private var reminderScheduleSection: some View {
+    private func reminderScheduleSection(
+        _ viewModel: SettingsViewModel
+    ) -> some View {
         VStack(spacing: AppSpacing.md) {
             reminderHourPicker(
                 title: "Start Time",
@@ -281,7 +301,7 @@ struct SettingsView: View {
                 )
             )
             
-            frequencyPicker
+            frequencyPicker(viewModel)
         }
     }
     
@@ -310,7 +330,9 @@ struct SettingsView: View {
         }
     }
     
-    private var frequencyPicker: some View {
+    private func frequencyPicker(
+        _ viewModel: SettingsViewModel
+    ) -> some View {
         HStack(spacing: AppSpacing.sm) {
             Text("Frequency")
                 .font(AppTypography.body)
@@ -359,6 +381,16 @@ struct SettingsView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
+    }
+    
+    // MARK: - Setup
+    
+    private func setupViewModelIfNeeded() {
+        guard viewModel == nil else { return }
+        
+        viewModel = AppFactory.makeSettingsViewModel(
+            context: modelContext
+        )
     }
     
     // MARK: - Helpers

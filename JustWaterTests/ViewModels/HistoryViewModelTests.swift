@@ -11,26 +11,6 @@ import XCTest
 @MainActor
 final class HistoryViewModelTests: XCTestCase {
     
-    // MARK: - Helpers
-
-    private func makeDate(
-        year: Int,
-        month: Int,
-        day: Int,
-        hour: Int = 12,
-        minute: Int = 0
-    ) -> Date {
-        var components = DateComponents()
-        components.calendar = Calendar.current
-        components.year = year
-        components.month = month
-        components.day = day
-        components.hour = hour
-        components.minute = minute
-        
-        return components.date!
-    }
-    
     // MARK: - Delete
     
     func testDeleteEntry_deletesEntryAndCreatesUndoMessage() {
@@ -46,7 +26,7 @@ final class HistoryViewModelTests: XCTestCase {
             entries: [entry]
         )
         
-        let sut = HistoryViewModel(
+        let sut = makeSUT(
             storageService: storageService
         )
         
@@ -79,7 +59,7 @@ final class HistoryViewModelTests: XCTestCase {
             entries: [entry]
         )
         
-        let sut = HistoryViewModel(
+        let sut = makeSUT(
             storageService: storageService
         )
         
@@ -116,11 +96,11 @@ final class HistoryViewModelTests: XCTestCase {
     }
     
     // MARK: - Period Selection
-
+    
     func testSelectPeriod_updatesSelectedPeriod() {
         // Arrange
         let storageService = TestWaterStorageService()
-        let sut = HistoryViewModel(
+        let sut = makeSUT(
             storageService: storageService
         )
         
@@ -133,11 +113,11 @@ final class HistoryViewModelTests: XCTestCase {
             .month
         )
     }
-
+    
     func testSelectReferenceDate_whenDaySelected_updatesDayReferenceDate() {
         // Arrange
         let storageService = TestWaterStorageService()
-        let sut = HistoryViewModel(
+        let sut = makeSUT(
             storageService: storageService
         )
         
@@ -163,11 +143,11 @@ final class HistoryViewModelTests: XCTestCase {
             selectedDate
         )
     }
-
+    
     func testSelectReferenceDate_whenMonthSelected_updatesMonthReferenceDate() {
         // Arrange
         let storageService = TestWaterStorageService()
-        let sut = HistoryViewModel(
+        let sut = makeSUT(
             storageService: storageService
         )
         
@@ -195,11 +175,11 @@ final class HistoryViewModelTests: XCTestCase {
     }
     
     // MARK: - Period Navigation
-
+    
     func testShowPreviousPeriod_whenDaySelected_movesReferenceDateOneDayBack() {
         // Arrange
         let storageService = TestWaterStorageService()
-        let sut = HistoryViewModel(
+        let sut = makeSUT(
             storageService: storageService
         )
         
@@ -227,11 +207,11 @@ final class HistoryViewModelTests: XCTestCase {
             expectedDate
         )
     }
-
+    
     func testShowNextPeriod_whenWeekSelected_movesReferenceDateOneWeekForward() {
         // Arrange
         let storageService = TestWaterStorageService()
-        let sut = HistoryViewModel(
+        let sut = makeSUT(
             storageService: storageService
         )
         
@@ -259,11 +239,11 @@ final class HistoryViewModelTests: XCTestCase {
             expectedDate
         )
     }
-
+    
     func testShowNextPeriod_whenMonthSelected_movesReferenceDateOneMonthForward() {
         // Arrange
         let storageService = TestWaterStorageService()
-        let sut = HistoryViewModel(
+        let sut = makeSUT(
             storageService: storageService
         )
         
@@ -291,11 +271,11 @@ final class HistoryViewModelTests: XCTestCase {
             expectedDate
         )
     }
-
+    
     func testShowPreviousPeriod_whenYearSelected_movesReferenceDateOneYearBack() {
         // Arrange
         let storageService = TestWaterStorageService()
-        let sut = HistoryViewModel(
+        let sut = makeSUT(
             storageService: storageService
         )
         
@@ -325,11 +305,11 @@ final class HistoryViewModelTests: XCTestCase {
     }
     
     // MARK: - Add Entry
-
+    
     func testAddEntry_savesEntryAndReloadsAnalytics() {
         // Arrange
         let storageService = TestWaterStorageService()
-        let sut = HistoryViewModel(
+        let sut = makeSUT(
             storageService: storageService
         )
         
@@ -372,10 +352,13 @@ final class HistoryViewModelTests: XCTestCase {
             450
         )
     }
-
+    
+    // MARK: - Update Entry
+    
     func testUpdateEntry_updatesEntryAndReloadsAnalytics() {
         // Arrange
         let id = UUID()
+        
         let originalDate = makeDate(
             year: 2026,
             month: 5,
@@ -399,7 +382,7 @@ final class HistoryViewModelTests: XCTestCase {
             entries: [entry]
         )
         
-        let sut = HistoryViewModel(
+        let sut = makeSUT(
             storageService: storageService
         )
         
@@ -441,5 +424,35 @@ final class HistoryViewModelTests: XCTestCase {
             sut.analytics?.statistics.totalAmount,
             700
         )
+    }
+    
+    // MARK: - Helpers
+    
+    private func makeSUT(
+        storageService: TestWaterStorageService,
+        goalStorageService: TestWaterGoalStorageService? = nil
+    ) -> HistoryViewModel {
+        HistoryViewModel(
+            storageService: storageService,
+            goalStorageService: goalStorageService ?? TestWaterGoalStorageService()
+        )
+    }
+    
+    private func makeDate(
+        year: Int,
+        month: Int,
+        day: Int,
+        hour: Int = 12,
+        minute: Int = 0
+    ) -> Date {
+        var components = DateComponents()
+        components.calendar = Calendar.current
+        components.year = year
+        components.month = month
+        components.day = day
+        components.hour = hour
+        components.minute = minute
+        
+        return components.date!
     }
 }

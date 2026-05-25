@@ -29,19 +29,40 @@ enum AppFactory {
             context: context
         )
         
+        let goalStorageService = makeWaterGoalStorageService(
+            context: context
+        )
+        
         return HistoryViewModel(
-            storageService: storageService
+            storageService: storageService,
+            goalStorageService: goalStorageService
         )
     }
     
-    static func makeSettingsViewModel() -> SettingsViewModel {
-        SettingsViewModel()
+    static func makeSettingsViewModel(
+        context: ModelContext
+    ) -> SettingsViewModel {
+        let goalStorageService = makeWaterGoalStorageService(
+            context: context
+        )
+        
+        return SettingsViewModel(
+            goalStorageService: goalStorageService
+        )
     }
     
     private static func makeWaterStorageService(
         context: ModelContext
     ) -> WaterStorageService {
         WaterStorageService(
+            context: context
+        )
+    }
+    
+    private static func makeWaterGoalStorageService(
+        context: ModelContext
+    ) -> WaterGoalStorageService {
+        WaterGoalStorageService(
             context: context
         )
     }

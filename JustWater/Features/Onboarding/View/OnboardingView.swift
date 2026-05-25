@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct OnboardingView: View {
     
@@ -13,6 +14,7 @@ struct OnboardingView: View {
     
     @Environment(AppCoordinator.self) private var coordinator
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.modelContext) private var modelContext
     
     // MARK: - Body
     
@@ -154,7 +156,7 @@ struct OnboardingView: View {
         CalculatorView(
             showsHeaderTitle: true
         ) { goal in
-            AppSettingsStorage.dailyGoal = goal
+            updateDailyGoal(goal)
             coordinator.showResultStep()
         }
     }
@@ -198,52 +200,6 @@ struct OnboardingView: View {
         .padding(AppSpacing.lg)
     }
     
-    private var resultHero: some View {
-        ZStack {
-            Circle()
-                .fill(AppColors.cardBackground.opacity(0.78))
-                .frame(width: 132, height: 132)
-                .overlay {
-                    Circle()
-                        .stroke(
-                            LinearGradient(
-                                colors: [
-                                    AppColors.glassHighlight.opacity(0.26),
-                                    AppColors.glassStroke.opacity(0.12)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1
-                        )
-                }
-            
-            Circle()
-                .trim(from: 0.10, to: 0.86)
-                .stroke(
-                    LinearGradient(
-                        colors: [
-                            AppColors.lightBlue.opacity(0.44),
-                            AppColors.primaryBlue.opacity(0.60)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    style: StrokeStyle(
-                        lineWidth: 6,
-                        lineCap: .round
-                    )
-                )
-                .frame(width: 154, height: 154)
-                .rotationEffect(.degrees(-90))
-                .opacity(0.72)
-            
-            Image(systemName: "checkmark")
-                .font(.system(size: 42, weight: .bold))
-                .foregroundStyle(AppColors.primaryBlue)
-        }
-        .frame(height: 180)
-    }
     private var stepIndicator: some View {
         OnboardingStepIndicator(
             currentIndex: coordinator.onboardingStep.index,
@@ -260,5 +216,27 @@ struct OnboardingView: View {
             insertion: .opacity.combined(with: .move(edge: .trailing)),
             removal: .opacity.combined(with: .move(edge: .leading))
         )
+    }
+    
+    // MARK: - Actions
+    
+    @MainActor
+    private func updateDailyGoal(
+        _ goal: Int
+    ) {
+        do {
+            let goalStorageService = WaterGoalStorageService(
+                context: modelContext
+            )
+            
+            try goalStorageService.updateGoal(
+                goal,
+                effectiveDate: Date.now
+            )
+            
+            AppSettingsStorage.dailyGoal = goal
+        } catch {
+            print("Failed to update daily goal from OnboardingView: \(error)")
+        }
     }
 }

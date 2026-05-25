@@ -6,8 +6,13 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct HomeHeader: View {
+    
+    // MARK: - Environment
+    
+    @Environment(\.modelContext) private var modelContext
     
     // MARK: - Properties
     
@@ -58,12 +63,11 @@ struct HomeHeader: View {
             
             NavigationLink {
                 CalculatorView { goal in
-                    AppSettingsStorage.dailyGoal = goal
-                    onGoalUpdated()
+                    updateDailyGoal(goal)
                 }
             } label: {
                 Label(
-                    "Water Goal",
+                    "Goal Calculator",
                     systemImage: "target"
                 )
             }
@@ -77,9 +81,7 @@ struct HomeHeader: View {
                 )
             }
             
-            Divider()
-            
-#if DEBUG
+            #if DEBUG
             Divider()
             
             Button(role: .destructive) {
@@ -90,7 +92,7 @@ struct HomeHeader: View {
                     systemImage: "arrow.counterclockwise"
                 )
             }
-#endif
+            #endif
             
         } label: {
             Image(systemName: "ellipsis")
@@ -140,5 +142,28 @@ struct HomeHeader: View {
                     state = true
                 }
         )
+    }
+    
+    // MARK: - Actions
+    
+    @MainActor
+    private func updateDailyGoal(
+        _ goal: Int
+    ) {
+        do {
+            let goalStorageService = WaterGoalStorageService(
+                context: modelContext
+            )
+            
+            try goalStorageService.updateGoal(
+                goal,
+                effectiveDate: Date.now
+            )
+            
+            AppSettingsStorage.dailyGoal = goal
+            onGoalUpdated()
+        } catch {
+            print("Failed to update daily goal from HomeHeader: \(error)")
+        }
     }
 }

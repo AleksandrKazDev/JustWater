@@ -12,6 +12,10 @@ import UserNotifications
 @Observable
 final class SettingsViewModel {
     
+    // MARK: - Dependencies
+    
+    private let goalStorageService: WaterGoalStorageServicing
+    
     // MARK: - Properties
     
     var dailyGoal: Int
@@ -37,7 +41,11 @@ final class SettingsViewModel {
     
     // MARK: - Initializer
     
-    init() {
+    init(
+        goalStorageService: WaterGoalStorageServicing
+    ) {
+        self.goalStorageService = goalStorageService
+        
         self.dailyGoal = AppSettingsStorage.dailyGoal
         self.isHapticsEnabled = AppSettingsStorage.isHapticsEnabled
         self.appearanceMode = AppSettingsStorage.appearanceMode
@@ -48,6 +56,8 @@ final class SettingsViewModel {
         self.reminderEndHour = AppSettingsStorage.reminderEndHour
         self.reminderFrequency = AppSettingsStorage.reminderFrequency
         self.notificationAuthorizationStatus = .notDetermined
+        
+        syncCurrentGoal()
     }
     
     // MARK: - Public Methods
@@ -55,8 +65,17 @@ final class SettingsViewModel {
     func updateDailyGoal(
         _ goal: Int
     ) {
-        AppSettingsStorage.dailyGoal = goal
-        dailyGoal = goal
+        do {
+            try goalStorageService.updateGoal(
+                goal,
+                effectiveDate: Date.now
+            )
+            
+            AppSettingsStorage.dailyGoal = goal
+            dailyGoal = goal
+        } catch {
+            print("Failed to update daily goal: \(error)")
+        }
     }
     
     func updateHapticsEnabled(
@@ -143,7 +162,7 @@ final class SettingsViewModel {
     }
     
     func reload() {
-        dailyGoal = AppSettingsStorage.dailyGoal
+        syncCurrentGoal()
         isHapticsEnabled = AppSettingsStorage.isHapticsEnabled
         appearanceMode = AppSettingsStorage.appearanceMode
         measurementUnit = AppSettingsStorage.measurementUnit
@@ -220,5 +239,16 @@ final class SettingsViewModel {
         _ hour: Int
     ) -> String {
         String(format: "%02d:00", hour)
+    }
+    
+    private func syncCurrentGoal() {
+        do {
+            let currentGoal = try goalStorageService.currentGoal()
+            
+            AppSettingsStorage.dailyGoal = currentGoal
+            dailyGoal = currentGoal
+        } catch {
+            print("Failed to sync current goal: \(error)")
+        }
     }
 }
