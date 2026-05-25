@@ -15,6 +15,11 @@ struct JustWaterApp: App {
         WindowGroup {
             RootView()
         }
-        .modelContainer(for: WaterEntryEntity.self)
+        .modelContainer(
+            for: [
+                WaterEntryEntity.self,
+                WaterGoalEntity.self
+            ]
+        )
     }
 }
