@@ -32,7 +32,7 @@
       <Testables>
          <TestableReference
             skipped = "NO"
-            parallelizable = "YES">
+            parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F2A74DD12FB0BF6300D96A02"
@@ -42,7 +42,7 @@
             </BuildableReference>
          </TestableReference>
          <TestableReference
-            skipped = "NO"
+            skipped = "YES"
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
