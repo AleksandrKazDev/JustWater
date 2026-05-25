@@ -18,7 +18,11 @@ final class HomeViewModel {
         entries: []
     )
     
-    private(set) var lastAddedEntry: WaterEntry?
+    private(set) var pendingUndoAction: WaterEntryUndoAction?
+    
+    var undoBannerMessage: String {
+        pendingUndoAction?.message ?? ""
+    }
     
     init(storageService: WaterStorageService) {
         self.storageService = storageService
@@ -41,14 +45,17 @@ final class HomeViewModel {
         drinkType: DrinkType = .water
     ) {
         do {
-            try storageService.saveEntry(
+            let entry = try storageService.saveEntry(
                 amount: amount,
                 date: Date(),
                 drinkType: drinkType
             )
             
+            pendingUndoAction = .added(
+                WaterEntrySnapshot(entry: entry)
+            )
+            
             loadEntries()
-            lastAddedEntry = hydrationState.entries.first
             HapticService.success()
         } catch {
             print("Failed to save water entry: \(error)")
@@ -57,7 +64,12 @@ final class HomeViewModel {
     
     func deleteEntry(_ entry: WaterEntry) {
         do {
+            let snapshot = WaterEntrySnapshot(entry: entry)
+            
             try storageService.deleteEntry(id: entry.id)
+            
+            pendingUndoAction = .deleted(snapshot)
+            
             loadEntries()
             HapticService.lightImpact()
         } catch {
@@ -65,11 +77,24 @@ final class HomeViewModel {
         }
     }
     
-    func undoLastAdd() {
-        guard let lastAddedEntry else { return }
+    func undoLastAction() {
+        guard let pendingUndoAction else { return }
         
-        deleteEntry(lastAddedEntry)
-        self.lastAddedEntry = nil
-        HapticService.warning()
+        do {
+            switch pendingUndoAction {
+            case .added(let snapshot):
+                try storageService.deleteEntry(id: snapshot.id)
+                
+            case .deleted(let snapshot):
+                try storageService.restoreEntry(from: snapshot)
+            }
+            
+            self.pendingUndoAction = nil
+            
+            loadEntries()
+            HapticService.warning()
+        } catch {
+            print("Failed to undo last action: \(error)")
+        }
     }
 }

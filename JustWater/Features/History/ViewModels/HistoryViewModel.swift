@@ -26,6 +26,10 @@ final class HistoryViewModel {
     
     var analytics: HistoryAnalytics?
     
+    private(set) var pendingUndoAction: WaterEntryUndoAction?
+    
+    var undoBannerMessage: String { pendingUndoAction?.message ?? "" }
+    
     // MARK: - Computed Properties
     
     var referenceDate: Date {
@@ -148,7 +152,12 @@ final class HistoryViewModel {
     
     func deleteEntry(_ entry: WaterEntry) {
         do {
+            let snapshot = WaterEntrySnapshot(entry: entry)
+            
             try storageService.deleteEntry(id: entry.id)
+            
+            pendingUndoAction = .deleted(snapshot)
+            
             loadAnalytics()
             HapticService.lightImpact()
         } catch {
@@ -193,6 +202,27 @@ final class HistoryViewModel {
             HapticService.success()
         } catch {
             print("Failed to update history entry: \(error)")
+        }
+    }
+    
+    func undoLastAction() {
+        guard let pendingUndoAction else { return }
+        
+        do {
+            switch pendingUndoAction {
+            case .added(let snapshot):
+                try storageService.deleteEntry(id: snapshot.id)
+                
+            case .deleted(let snapshot):
+                try storageService.restoreEntry(from: snapshot)
+            }
+            
+            self.pendingUndoAction = nil
+            
+            loadAnalytics()
+            HapticService.warning()
+        } catch {
+            print("Failed to undo history action: \(error)")
         }
     }
     

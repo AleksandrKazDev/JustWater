@@ -20,6 +20,12 @@ struct HistoryView: View {
     @State private var isDatePickerPresented = false
     @State private var editorMode: WaterEntryEditorMode?
     
+    
+    @State private var isUndoBannerPresented = false
+    @State private var isUndoBannerVisible = false
+    @State private var undoBannerMessage = ""
+    @State private var undoBannerDismissTask: Task<Void, Never>?
+    
     // MARK: - Body
     
     var body: some View {
@@ -55,12 +61,32 @@ struct HistoryView: View {
                                 onEditEntry: { entry in
                                     editorMode = .edit(entry: entry)
                                 },
-                                onDeleteEntry: viewModel.deleteEntry
+                                onDeleteEntry: { entry in
+                                    viewModel.deleteEntry(entry)
+                                    showUndoBanner(
+                                        message: viewModel.undoBannerMessage
+                                    )
+                                }
                             )
                         }
                     }
                     .padding(AppSpacing.lg)
                 }
+            }
+            
+            if isUndoBannerPresented {
+                UndoBanner(
+                    message: undoBannerMessage,
+                    isVisible: isUndoBannerVisible,
+                    onUndo: {
+                        undoBannerDismissTask?.cancel()
+                        viewModel?.undoLastAction()
+                        
+                        Task {
+                            await hideUndoBanner()
+                        }
+                    }
+                )
             }
         }
         .onAppear {
@@ -127,6 +153,43 @@ struct HistoryView: View {
                 date: date,
                 drinkType: drinkType
             )
+        }
+    }
+    
+    // MARK: - Undo
+
+    private func showUndoBanner(
+        message: String
+    ) {
+        undoBannerDismissTask?.cancel()
+        
+        undoBannerMessage = message
+        isUndoBannerPresented = true
+        isUndoBannerVisible = false
+        
+        withAnimation(.easeInOut(duration: 0.25)) {
+            isUndoBannerVisible = true
+        }
+        
+        undoBannerDismissTask = Task {
+            try? await Task.sleep(for: .seconds(4))
+            
+            guard !Task.isCancelled else { return }
+            
+            await hideUndoBanner()
+        }
+    }
+
+    @MainActor
+    private func hideUndoBanner() async {
+        withAnimation(.easeInOut(duration: 0.4)) {
+            isUndoBannerVisible = false
+        }
+        
+        try? await Task.sleep(for: .milliseconds(400))
+        
+        if !isUndoBannerVisible {
+            isUndoBannerPresented = false
         }
     }
     

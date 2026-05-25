@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HomeUndoBanner: View {
+struct UndoBanner: View {
     
     // MARK: - Properties
     

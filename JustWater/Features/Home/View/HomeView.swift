@@ -76,10 +76,13 @@ struct HomeView: View {
                                 showUndoBanner(message: "Water added")
                             }
                         )
-                        
+                                                
                         RecentActivitySection(
                             entries: viewModel.hydrationState.entries,
-                            onDelete: viewModel.deleteEntry,
+                            onDelete: { entry in
+                                viewModel.deleteEntry(entry)
+                                showUndoBanner(message: viewModel.undoBannerMessage)
+                            },
                             onOpenHistory: {
                                 isHistoryPresented = true
                             }
@@ -93,13 +96,12 @@ struct HomeView: View {
             }
             
             if isUndoBannerPresented {
-                HomeUndoBanner(
+                UndoBanner(
                     message: undoBannerMessage,
                     isVisible: isUndoBannerVisible,
                     onUndo: {
                         undoBannerDismissTask?.cancel()
-                        viewModel?.undoLastAdd()
-                        
+                        viewModel?.undoLastAction()
                         Task {
                             await hideUndoBanner()
                         }

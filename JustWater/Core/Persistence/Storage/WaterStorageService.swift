@@ -86,20 +86,27 @@ final class WaterStorageService {
     
     // MARK: - Saving
     
-    func saveEntry(amount: Int) throws {
+    // MARK: - Saving
+
+    @discardableResult
+    func saveEntry(amount: Int) throws -> WaterEntry {
         try saveEntry(
             amount: amount,
             date: Date(),
             drinkType: .water
         )
     }
-    
+
+    @discardableResult
     func saveEntry(
         amount: Int,
         date: Date,
         drinkType: DrinkType = .water
-    ) throws {
+    ) throws -> WaterEntry {
+        let id = UUID()
+        
         let entity = WaterEntryEntity(
+            id: id,
             amount: amount,
             date: date,
             drinkTypeRawValue: drinkType.rawValue
@@ -108,6 +115,13 @@ final class WaterStorageService {
         context.insert(entity)
         
         try context.save()
+        
+        return WaterEntry(
+            id: id,
+            amount: amount,
+            date: date,
+            drinkType: drinkType
+        )
     }
     
     // MARK: - Updating
@@ -139,6 +153,26 @@ final class WaterStorageService {
         context.delete(entity)
         
         try context.save()
+    }
+    
+    // MARK: - Restoring
+
+    @discardableResult
+    func restoreEntry(
+        from snapshot: WaterEntrySnapshot
+    ) throws -> WaterEntry {
+        let entity = WaterEntryEntity(
+            id: snapshot.id,
+            amount: snapshot.amount,
+            date: snapshot.date,
+            drinkTypeRawValue: snapshot.drinkType.rawValue
+        )
+        
+        context.insert(entity)
+        
+        try context.save()
+        
+        return snapshot.entry
     }
     
     // MARK: - Private Fetching
