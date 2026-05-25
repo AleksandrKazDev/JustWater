@@ -11,7 +11,7 @@ import Foundation
 @Observable
 final class HomeViewModel {
     
-    private let storageService: WaterStorageService
+    private let storageService: WaterStorageServicing
     
     var hydrationState = HydrationState(
         dailyGoal: AppSettingsStorage.dailyGoal,
@@ -24,7 +24,7 @@ final class HomeViewModel {
         pendingUndoAction?.message ?? ""
     }
     
-    init(storageService: WaterStorageService) {
+    init(storageService: WaterStorageServicing) {
         self.storageService = storageService
         loadEntries()
     }

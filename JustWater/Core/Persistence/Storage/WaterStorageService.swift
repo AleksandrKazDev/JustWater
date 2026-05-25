@@ -9,7 +9,54 @@ import Foundation
 import SwiftData
 
 @MainActor
-final class WaterStorageService {
+protocol WaterStorageServicing {
+    func fetchEntries() throws -> [WaterEntry]
+    
+    func fetchEntries(
+        for date: Date
+    ) throws -> [WaterEntry]
+    
+    func fetchEntries(
+        from startDate: Date,
+        to endDate: Date
+    ) throws -> [WaterEntry]
+    
+    func fetchEntries(
+        for period: HistoryPeriod,
+        referenceDate: Date
+    ) throws -> [WaterEntry]
+    
+    @discardableResult
+    func saveEntry(
+        amount: Int
+    ) throws -> WaterEntry
+    
+    @discardableResult
+    func saveEntry(
+        amount: Int,
+        date: Date,
+        drinkType: DrinkType
+    ) throws -> WaterEntry
+    
+    func updateEntry(
+        id: UUID,
+        amount: Int,
+        date: Date,
+        drinkType: DrinkType
+    ) throws
+    
+    func deleteEntry(
+        id: UUID
+    ) throws
+    
+    @discardableResult
+    func restoreEntry(
+        from snapshot: WaterEntrySnapshot
+    ) throws -> WaterEntry
+}
+
+@MainActor
+final class WaterStorageService: WaterStorageServicing {
     
     // MARK: - Properties
     
