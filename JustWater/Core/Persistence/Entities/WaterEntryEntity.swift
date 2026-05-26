@@ -11,7 +11,7 @@ import SwiftData
 @Model
 final class WaterEntryEntity {
     
-    var id: UUID
+    @Attribute(.unique) var id: UUID
     var amount: Int
     var date: Date
     var drinkTypeRawValue: String

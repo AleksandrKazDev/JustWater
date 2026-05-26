@@ -144,11 +144,15 @@ enum AppSettingsStorage {
 
     static var reminderStartHour: Int {
         get {
-            let value = UserDefaults.standard.integer(
+            guard UserDefaults.standard.object(
+                forKey: Keys.reminderStartHour
+            ) != nil else {
+                return 9
+            }
+            
+            return UserDefaults.standard.integer(
                 forKey: Keys.reminderStartHour
             )
-            
-            return value == 0 ? 9 : value
         }
         set {
             UserDefaults.standard.set(
@@ -160,11 +164,15 @@ enum AppSettingsStorage {
 
     static var reminderEndHour: Int {
         get {
-            let value = UserDefaults.standard.integer(
+            guard UserDefaults.standard.object(
+                forKey: Keys.reminderEndHour
+            ) != nil else {
+                return 22
+            }
+            
+            return UserDefaults.standard.integer(
                 forKey: Keys.reminderEndHour
             )
-            
-            return value == 0 ? 22 : value
         }
         set {
             UserDefaults.standard.set(
