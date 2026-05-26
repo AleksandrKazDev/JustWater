@@ -87,14 +87,35 @@ final class WaterGoalStorageService: WaterGoalStorageServicing {
     ) throws -> [Date: Int] {
         try ensureInitialGoalIfNeeded()
         
-        let startDay = calendar.startOfDay(for: startDate)
-        let endDay = calendar.startOfDay(for: endDate)
+        let startDay = calendar.startOfDay(
+            for: startDate
+        )
+        
+        let endDay = calendar.startOfDay(
+            for: endDate
+        )
+        
+        guard startDay < endDay else {
+            return [:]
+        }
+        
+        let records = try fetchGoalEntities(
+            before: endDay
+        )
         
         var result: [Date: Int] = [:]
         var currentDate = startDay
+        var recordIndex = 0
+        var currentGoal = AppSettingsStorage.dailyGoal
         
         while currentDate < endDay {
-            result[currentDate] = try goal(for: currentDate)
+            while recordIndex < records.count,
+                  records[recordIndex].effectiveDate <= currentDate {
+                currentGoal = records[recordIndex].dailyGoal
+                recordIndex += 1
+            }
+            
+            result[currentDate] = currentGoal
             
             guard let nextDate = calendar.date(
                 byAdding: .day,
@@ -162,5 +183,22 @@ final class WaterGoalStorageService: WaterGoalStorageServicing {
         )
         
         return try context.fetch(descriptor).first
+    }
+    
+    //MARK: - Helpers
+    
+    private func fetchGoalEntities(
+        before endDate: Date
+    ) throws -> [WaterGoalEntity] {
+        let descriptor = FetchDescriptor<WaterGoalEntity>(
+            predicate: #Predicate { entity in
+                entity.effectiveDate < endDate
+            },
+            sortBy: [
+                SortDescriptor(\.effectiveDate, order: .forward)
+            ]
+        )
+        
+        return try context.fetch(descriptor)
     }
 }
