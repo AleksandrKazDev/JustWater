@@ -367,15 +367,33 @@ struct SettingsView: View {
                 SettingsSectionTitle(title: "App")
                 
                 SettingsRow(
-                    title: "About",
-                    value: "JustWater",
+                    title: "JustWater",
+                    value: appVersion,
                     systemImage: "drop"
                 )
                 
                 Divider()
                     .opacity(0.35)
                 
-                Text("JustWater is designed for general wellness tracking. It is not medical advice.")
+                SettingsLabel(
+                    title: "Wellness Tracking",
+                    subtitle: "Track your daily water intake, review your history, and adjust your goal over time.",
+                    systemImage: "heart.text.square"
+                )
+                
+                Divider()
+                    .opacity(0.35)
+                
+                SettingsLabel(
+                    title: "Local Data",
+                    subtitle: "Your hydration entries and goal history are stored locally on this device.",
+                    systemImage: "lock"
+                )
+                
+                Divider()
+                    .opacity(0.35)
+                
+                Text("JustWater is designed for general wellness tracking and is not medical advice.")
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.secondaryText)
                     .fixedSize(horizontal: false, vertical: true)
@@ -399,5 +417,21 @@ struct SettingsView: View {
         _ hour: Int
     ) -> String {
         String(format: "%02d:00", hour)
+    }
+    
+    private var appVersion: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
+        
+        switch (version, build) {
+        case let (.some(version), .some(build)):
+            return "v\(version) (\(build))"
+            
+        case let (.some(version), .none):
+            return "v\(version)"
+            
+        default:
+            return "Version unknown"
+        }
     }
 }

@@ -43,13 +43,13 @@ enum ActivityLevel: String, CaseIterable, Identifiable {
     var description: String {
         switch self {
         case .low:
-            return "Mostly sitting during the day with little exercise."
+            return "A mostly sedentary day with little walking and no regular workouts."
             
         case .moderate:
-            return "Regular walking or light workouts several times a week."
+            return "A balanced routine with regular walking or light workouts during the week."
             
         case .high:
-            return "Frequent intense workouts or physically active lifestyle."
+            return "An active routine with frequent workouts, intense training, or a physically demanding day."
         }
     }
 }
