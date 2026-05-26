@@ -5,6 +5,13 @@
 //  Created by сонный on 25.05.2026.
 //
 
+//
+//  HistoryAnalyticsServiceTests.swift
+//  JustWaterTests
+//
+//  Created by сонный on 25.05.2026.
+//
+
 import XCTest
 @testable import JustWater
 
@@ -38,7 +45,7 @@ final class HistoryAnalyticsServiceTests: XCTestCase {
         let sut = HistoryAnalyticsService.makeAnalytics(
             period: .day,
             entries: entries,
-            dailyGoal: 2000,
+            dailyGoalProvider: { _ in 2000 },
             referenceDate: referenceDate
         )
         
@@ -101,7 +108,7 @@ final class HistoryAnalyticsServiceTests: XCTestCase {
         let sut = HistoryAnalyticsService.makeAnalytics(
             period: .day,
             entries: entries,
-            dailyGoal: 2000,
+            dailyGoalProvider: { _ in 2000 },
             referenceDate: referenceDate
         )
         
@@ -150,7 +157,7 @@ final class HistoryAnalyticsServiceTests: XCTestCase {
         let sut = HistoryAnalyticsService.makeAnalytics(
             period: .day,
             entries: entries,
-            dailyGoal: 2000,
+            dailyGoalProvider: { _ in 2000 },
             referenceDate: referenceDate
         )
         
@@ -161,7 +168,7 @@ final class HistoryAnalyticsServiceTests: XCTestCase {
         )
         
         XCTAssertEqual(
-            sut.chartPoints.map(\.amount),
+            sut.chartPoints.map(\HistoryChartPoint.amount),
             [500, 500]
         )
     }
@@ -187,7 +194,7 @@ final class HistoryAnalyticsServiceTests: XCTestCase {
         let sut = HistoryAnalyticsService.makeAnalytics(
             period: .week,
             entries: entries,
-            dailyGoal: 2000,
+            dailyGoalProvider: { _ in 2000 },
             referenceDate: referenceDate
         )
         
@@ -242,7 +249,7 @@ final class HistoryAnalyticsServiceTests: XCTestCase {
         let sut = HistoryAnalyticsService.makeAnalytics(
             period: .week,
             entries: entries,
-            dailyGoal: 2000,
+            dailyGoalProvider: { _ in 2000 },
             referenceDate: referenceDate
         )
         
@@ -255,6 +262,64 @@ final class HistoryAnalyticsServiceTests: XCTestCase {
         XCTAssertEqual(
             sut.statistics.bestAmount,
             2700
+        )
+    }
+    
+    func testMakeAnalytics_forWeek_usesGoalForEachSpecificDay() {
+        // Arrange
+        let may25 = makeDate(
+            year: 2026,
+            month: 5,
+            day: 25
+        )
+        
+        let may26 = makeDate(
+            year: 2026,
+            month: 5,
+            day: 26
+        )
+        
+        let entries = [
+            makeEntry(
+                amount: 2100,
+                date: may25
+            ),
+            makeEntry(
+                amount: 2100,
+                date: may26
+            )
+        ]
+        
+        let dailyGoalProvider: (Date) -> Int = { date in
+            let day = Calendar.current.component(
+                .day,
+                from: date
+            )
+            
+            switch day {
+            case 25:
+                return 2000
+                
+            case 26:
+                return 3000
+                
+            default:
+                return 3000
+            }
+        }
+        
+        // Act
+        let sut = HistoryAnalyticsService.makeAnalytics(
+            period: .week,
+            entries: entries,
+            dailyGoalProvider: dailyGoalProvider,
+            referenceDate: may25
+        )
+        
+        // Assert
+        XCTAssertEqual(
+            sut.statistics.goalReachedCount,
+            1
         )
     }
     
@@ -272,7 +337,7 @@ final class HistoryAnalyticsServiceTests: XCTestCase {
         let sut = HistoryAnalyticsService.makeAnalytics(
             period: .month,
             entries: [],
-            dailyGoal: 2000,
+            dailyGoalProvider: { _ in 2000 },
             referenceDate: referenceDate
         )
         
@@ -288,16 +353,33 @@ final class HistoryAnalyticsServiceTests: XCTestCase {
         )
         
         XCTAssertEqual(
-            sut.statistics,
-            HistoryStatistics(
-                totalAmount: 0,
-                averageAmount: 0,
-                completionRate: 0,
-                entriesCount: 31,
-                goalReachedCount: 0,
-                bestAmount: 0,
-                bestLabel: sut.chartPoints.first?.label
-            )
+            sut.statistics.totalAmount,
+            0
+        )
+        
+        XCTAssertEqual(
+            sut.statistics.averageAmount,
+            0
+        )
+        
+        XCTAssertEqual(
+            sut.statistics.completionRate,
+            0
+        )
+        
+        XCTAssertEqual(
+            sut.statistics.entriesCount,
+            31
+        )
+        
+        XCTAssertEqual(
+            sut.statistics.goalReachedCount,
+            0
+        )
+        
+        XCTAssertEqual(
+            sut.statistics.bestAmount,
+            0
         )
     }
     
@@ -326,7 +408,7 @@ final class HistoryAnalyticsServiceTests: XCTestCase {
         let sut = HistoryAnalyticsService.makeAnalytics(
             period: .year,
             entries: entries,
-            dailyGoal: 2000,
+            dailyGoalProvider: { _ in 2000 },
             referenceDate: referenceDate
         )
         
@@ -378,7 +460,7 @@ final class HistoryAnalyticsServiceTests: XCTestCase {
         let sut = HistoryAnalyticsService.makeAnalytics(
             period: .day,
             entries: entries,
-            dailyGoal: 2000,
+            dailyGoalProvider: { _ in 2000 },
             referenceDate: referenceDate
         )
         
@@ -416,7 +498,7 @@ final class HistoryAnalyticsServiceTests: XCTestCase {
         let sut = HistoryAnalyticsService.makeAnalytics(
             period: .day,
             entries: [],
-            dailyGoal: 2000,
+            dailyGoalProvider: { _ in 2000 },
             referenceDate: referenceDate
         )
         

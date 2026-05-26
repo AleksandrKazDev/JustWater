@@ -14,22 +14,21 @@ enum HistoryAnalyticsService {
     static func makeAnalytics(
         period: HistoryPeriod,
         entries: [WaterEntry],
-        dailyGoal: Int,
+        dailyGoalProvider: (Date) -> Int,
         referenceDate: Date
-        
     ) -> HistoryAnalytics {
         switch period {
         case .day:
             return makeDayAnalytics(
                 entries: entries,
-                dailyGoal: dailyGoal
+                dailyGoal: dailyGoalProvider(referenceDate)
             )
             
         case .week:
             return makeGroupedAnalytics(
                 period: period,
                 entries: entries,
-                dailyGoal: dailyGoal,
+                dailyGoalProvider: dailyGoalProvider,
                 component: .day,
                 referenceDate: referenceDate
             )
@@ -38,7 +37,7 @@ enum HistoryAnalyticsService {
             return makeGroupedAnalytics(
                 period: period,
                 entries: entries,
-                dailyGoal: dailyGoal,
+                dailyGoalProvider: dailyGoalProvider,
                 component: .day,
                 referenceDate: referenceDate
             )
@@ -47,7 +46,7 @@ enum HistoryAnalyticsService {
             return makeGroupedAnalytics(
                 period: period,
                 entries: entries,
-                dailyGoal: dailyGoal,
+                dailyGoalProvider: dailyGoalProvider,
                 component: .month,
                 referenceDate: referenceDate
             )
@@ -89,7 +88,7 @@ enum HistoryAnalyticsService {
     private static func makeGroupedAnalytics(
         period: HistoryPeriod,
         entries: [WaterEntry],
-        dailyGoal: Int,
+        dailyGoalProvider: (Date) -> Int,
         component: Calendar.Component,
         referenceDate: Date
     ) -> HistoryAnalytics {
@@ -126,7 +125,7 @@ enum HistoryAnalyticsService {
             period: period,
             statistics: makeGroupedStatistics(
                 chartPoints: chartPoints,
-                dailyGoal: dailyGoal
+                dailyGoalProvider: dailyGoalProvider
             ),
             chartPoints: chartPoints,
             entries: entries,
@@ -264,7 +263,7 @@ enum HistoryAnalyticsService {
     
     private static func makeGroupedStatistics(
         chartPoints: [HistoryChartPoint],
-        dailyGoal: Int
+        dailyGoalProvider: (Date) -> Int
     ) -> HistoryStatistics {
         let totalAmount = chartPoints.reduce(0) {
             $0 + $1.amount
@@ -276,16 +275,24 @@ enum HistoryAnalyticsService {
         ? 0
         : totalAmount / periodsCount
         
-        let goalReachedCount = chartPoints.filter {
-            $0.amount >= dailyGoal
+        let goals = chartPoints.map { point in
+            dailyGoalProvider(point.date)
+        }
+        
+        let averageGoal = goals.isEmpty
+        ? 0
+        : goals.reduce(0, +) / goals.count
+        
+        let goalReachedCount = chartPoints.filter { point in
+            point.amount >= dailyGoalProvider(point.date)
         }.count
         
         let bestPoint = chartPoints.max {
             $0.amount < $1.amount
         }
         
-        let completionRate = dailyGoal > 0
-        ? Double(averageAmount) / Double(dailyGoal)
+        let completionRate = averageGoal > 0
+        ? Double(averageAmount) / Double(averageGoal)
         : 0
         
         return HistoryStatistics(

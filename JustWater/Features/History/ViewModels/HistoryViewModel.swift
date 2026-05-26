@@ -143,10 +143,19 @@ final class HistoryViewModel {
                 referenceDate: referenceDate
             )
             
+            let dailyGoalProvider: (Date) -> Int = { [goalStorageService] date in
+                do {
+                    return try goalStorageService.goal(for: date)
+                } catch {
+                    print("Failed to fetch goal for date: \(error)")
+                    return AppSettingsStorage.dailyGoal
+                }
+            }
+            
             analytics = HistoryAnalyticsService.makeAnalytics(
                 period: selectedPeriod,
                 entries: entries,
-                dailyGoal: AppSettingsStorage.dailyGoal,
+                dailyGoalProvider: dailyGoalProvider,
                 referenceDate: referenceDate
             )
         } catch {

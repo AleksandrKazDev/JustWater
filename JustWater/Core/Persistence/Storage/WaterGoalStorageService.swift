@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  WaterGoalStorageService.swift
 //  JustWater
 //
 //  Created by сонный on 25.05.2026.
