@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct CalculatorView: View {
     
     // MARK: - Environment
@@ -132,7 +130,7 @@ struct CalculatorView: View {
         .sheet(item: $selectedActivityInfo) { level in
             activityInfoSheet(level)
         }
-        .navigationTitle("Water Goal")
+        .navigationTitle("Goal Calculator")
         .navigationBarTitleDisplayMode(.inline)
     }
     

@@ -23,7 +23,7 @@ struct HomeView: View {
     @State private var isUndoBannerPresented = false
     @State private var isUndoBannerVisible = false
     @State private var isHistoryPresented = false
-    @State private var undoBannerMessage = "Water added"
+    @State private var undoBannerMessage = " "
     @State private var undoBannerDismissTask: Task<Void, Never>?
     
     // MARK: - Constants
@@ -83,7 +83,9 @@ struct HomeView: View {
                             entries: viewModel.hydrationState.entries,
                             onDelete: { entry in
                                 viewModel.deleteEntry(entry)
-                                showUndoBanner(message: viewModel.undoBannerMessage)
+                                showUndoBanner(
+                                    message: viewModel.undoBannerMessage
+                                )
                             },
                             onOpenHistory: {
                                 isHistoryPresented = true
@@ -157,6 +159,8 @@ struct HomeView: View {
     private func showUndoBanner(
         message: String
     ) {
+        guard !message.isEmpty else { return }
+        
         undoBannerDismissTask?.cancel()
         
         undoBannerMessage = message

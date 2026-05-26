@@ -244,7 +244,6 @@ struct WaterEntryEditorSheet: View {
         guard let amount else { return }
         
         isAmountFocused = false
-        HapticService.success()
         
         let entryDate = mergedDate(
             mode.selectedDate,
