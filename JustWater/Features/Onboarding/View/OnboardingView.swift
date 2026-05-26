@@ -156,7 +156,9 @@ struct OnboardingView: View {
         CalculatorView(
             showsHeaderTitle: true
         ) { goal in
-            updateDailyGoal(goal)
+            guard updateDailyGoal(goal) else {
+                return
+            }
             coordinator.showResultStep()
         }
     }
@@ -221,17 +223,26 @@ struct OnboardingView: View {
     // MARK: - Actions
     
     @MainActor
+    @discardableResult
     private func updateDailyGoal(
         _ goal: Int
-    ) {
+    ) -> Bool {
         do {
             let dailyGoalUpdateService = AppFactory.makeDailyGoalUpdateService(
                 context: modelContext
             )
             
             try dailyGoalUpdateService.updateDailyGoal(goal)
+            return true
         } catch {
-            print("Failed to update daily goal from OnboardingView: \(error)")
+            let errorReporter = AppFactory.makeErrorReporter()
+            
+            errorReporter.report(
+                error,
+                context: "Failed to update daily goal from OnboardingView"
+            )
+            
+            return false
         }
     }
 }

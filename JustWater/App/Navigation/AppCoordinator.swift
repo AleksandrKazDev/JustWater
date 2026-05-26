@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  AppCoordinator.swift
 //  JustWater
 //
 //  Created by сонный on 11.05.2026.

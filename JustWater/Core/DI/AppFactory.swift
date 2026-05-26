@@ -96,7 +96,7 @@ enum AppFactory {
         AppHapticService()
     }
     
-    private static func makeErrorReporter() -> ErrorReporting {
+    static func makeErrorReporter() -> ErrorReporting {
         AppErrorReporter()
     }
     
