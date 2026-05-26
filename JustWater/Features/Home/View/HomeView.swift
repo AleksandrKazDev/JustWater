@@ -73,7 +73,9 @@ struct HomeView: View {
                             amounts: quickAddAmounts,
                             onAdd: { amount in
                                 viewModel.addWater(amount)
-                                showUndoBanner(message: "Water added")
+                                showUndoBanner(
+                                    message: viewModel.undoBannerMessage
+                                )
                             }
                         )
                                                 
@@ -120,7 +122,7 @@ struct HomeView: View {
                         )
                         
                         showUndoBanner(
-                            message: "\(drinkType.title) added"
+                            message: viewModel.undoBannerMessage
                         )
                     }
                 )

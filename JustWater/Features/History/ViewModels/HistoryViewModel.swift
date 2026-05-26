@@ -29,7 +29,9 @@ final class HistoryViewModel {
     
     private(set) var pendingUndoAction: WaterEntryUndoAction?
     
-    var undoBannerMessage: String { pendingUndoAction?.message ?? "" }
+    var undoBannerMessage: String {
+        pendingUndoAction?.message ?? ""
+    }
     
     // MARK: - Computed Properties
     
@@ -46,6 +48,17 @@ final class HistoryViewModel {
             
         case .year:
             return yearReferenceDate
+        }
+    }
+    
+    var displayDailyGoal: Int {
+        do {
+            return try goalStorageService.goal(
+                for: referenceDate
+            )
+        } catch {
+            print("Failed to fetch display daily goal: \(error)")
+            return AppSettingsStorage.dailyGoal
         }
     }
     
@@ -145,7 +158,9 @@ final class HistoryViewModel {
             
             let dailyGoalProvider: (Date) -> Int = { [goalStorageService] date in
                 do {
-                    return try goalStorageService.goal(for: date)
+                    return try goalStorageService.goal(
+                        for: date
+                    )
                 } catch {
                     print("Failed to fetch goal for date: \(error)")
                     return AppSettingsStorage.dailyGoal
@@ -163,11 +178,17 @@ final class HistoryViewModel {
         }
     }
     
-    func deleteEntry(_ entry: WaterEntry) {
+    func deleteEntry(
+        _ entry: WaterEntry
+    ) {
         do {
-            let snapshot = WaterEntrySnapshot(entry: entry)
+            let snapshot = WaterEntrySnapshot(
+                entry: entry
+            )
             
-            try storageService.deleteEntry(id: entry.id)
+            try storageService.deleteEntry(
+                id: entry.id
+            )
             
             pendingUndoAction = .deleted(snapshot)
             
@@ -184,10 +205,16 @@ final class HistoryViewModel {
         drinkType: DrinkType = .water
     ) {
         do {
-            try storageService.saveEntry(
+            let entry = try storageService.saveEntry(
                 amount: amount,
                 date: date,
                 drinkType: drinkType
+            )
+            
+            pendingUndoAction = .added(
+                WaterEntrySnapshot(
+                    entry: entry
+                )
             )
             
             loadAnalytics()
@@ -224,10 +251,14 @@ final class HistoryViewModel {
         do {
             switch pendingUndoAction {
             case .added(let snapshot):
-                try storageService.deleteEntry(id: snapshot.id)
+                try storageService.deleteEntry(
+                    id: snapshot.id
+                )
                 
             case .deleted(let snapshot):
-                try storageService.restoreEntry(from: snapshot)
+                try storageService.restoreEntry(
+                    from: snapshot
+                )
             }
             
             self.pendingUndoAction = nil

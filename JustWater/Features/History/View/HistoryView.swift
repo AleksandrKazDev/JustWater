@@ -20,7 +20,6 @@ struct HistoryView: View {
     @State private var isDatePickerPresented = false
     @State private var editorMode: WaterEntryEditorMode?
     
-    
     @State private var isUndoBannerPresented = false
     @State private var isUndoBannerVisible = false
     @State private var undoBannerMessage = ""
@@ -52,17 +51,20 @@ struct HistoryView: View {
                         if let analytics = viewModel.analytics {
                             HistoryContentView(
                                 analytics: analytics,
-                                dailyGoal: AppSettingsStorage.dailyGoal,
+                                dailyGoal: viewModel.displayDailyGoal,
                                 onAddEntry: {
                                     editorMode = .add(
                                         date: viewModel.referenceDate
                                     )
                                 },
                                 onEditEntry: { entry in
-                                    editorMode = .edit(entry: entry)
+                                    editorMode = .edit(
+                                        entry: entry
+                                    )
                                 },
                                 onDeleteEntry: { entry in
                                     viewModel.deleteEntry(entry)
+                                    
                                     showUndoBanner(
                                         message: viewModel.undoBannerMessage
                                     )
@@ -146,6 +148,10 @@ struct HistoryView: View {
                 drinkType: drinkType
             )
             
+            showUndoBanner(
+                message: viewModel.undoBannerMessage
+            )
+            
         case .edit(let entry):
             viewModel.updateEntry(
                 entry,
@@ -157,10 +163,12 @@ struct HistoryView: View {
     }
     
     // MARK: - Undo
-
+    
     private func showUndoBanner(
         message: String
     ) {
+        guard !message.isEmpty else { return }
+        
         undoBannerDismissTask?.cancel()
         
         undoBannerMessage = message
@@ -179,7 +187,7 @@ struct HistoryView: View {
             await hideUndoBanner()
         }
     }
-
+    
     @MainActor
     private func hideUndoBanner() async {
         withAnimation(.easeInOut(duration: 0.4)) {
@@ -197,6 +205,7 @@ struct HistoryView: View {
     
     private func setupViewModelIfNeeded() {
         guard viewModel == nil else { return }
+        
         viewModel = AppFactory.makeHistoryViewModel(
             context: modelContext
         )
