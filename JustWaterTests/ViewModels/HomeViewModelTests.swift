@@ -269,6 +269,35 @@ final class HomeViewModelTests: XCTestCase {
         )
     }
     
+    // MARK: - Error Reporting
+
+    func testLoadEntries_whenStorageFails_reportsError() {
+        // Arrange
+        let storageService = TestWaterStorageService()
+        let errorReporter = TestErrorReporter()
+        
+        storageService.fetchEntriesError = TestStorageError.requestedFailure
+        
+        let sut = makeSUT(
+            storageService: storageService,
+            hapticService: TestHapticService(),
+            errorReporter: errorReporter
+        )
+        
+        // Act
+        sut.loadEntries()
+        
+        // Assert
+        XCTAssertEqual(
+            errorReporter.reports.count,
+            1
+        )
+        
+        XCTAssertEqual(
+            errorReporter.reports.first?.context,
+            "Failed to fetch water entries"
+        )
+    }
     // MARK: - Helpers
     
     private func makeSUT(
