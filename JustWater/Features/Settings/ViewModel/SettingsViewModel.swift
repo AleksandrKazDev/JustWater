@@ -16,6 +16,8 @@ final class SettingsViewModel {
     
     private let goalStorageService: WaterGoalStorageServicing
     private let dailyGoalUpdateService: DailyGoalUpdating
+    private let notificationService: NotificationServicing
+    private let errorReporter: ErrorReporting
     
     // MARK: - Properties
     
@@ -44,10 +46,14 @@ final class SettingsViewModel {
     
     init(
         goalStorageService: WaterGoalStorageServicing,
-        dailyGoalUpdateService: DailyGoalUpdating
+        dailyGoalUpdateService: DailyGoalUpdating,
+        notificationService: NotificationServicing,
+        errorReporter: ErrorReporting
     ) {
         self.goalStorageService = goalStorageService
         self.dailyGoalUpdateService = dailyGoalUpdateService
+        self.notificationService = notificationService
+        self.errorReporter = errorReporter
         
         self.dailyGoal = AppSettingsStorage.dailyGoal
         self.isHapticsEnabled = AppSettingsStorage.isHapticsEnabled
@@ -72,7 +78,10 @@ final class SettingsViewModel {
             try dailyGoalUpdateService.updateDailyGoal(goal)
             dailyGoal = goal
         } catch {
-            print("Failed to update daily goal: \(error)")
+            errorReporter.report(
+                error,
+                context: "Failed to update daily goal"
+            )
         }
     }
     
@@ -145,19 +154,25 @@ final class SettingsViewModel {
     
     func refreshNotificationAuthorizationStatus() {
         Task {
-            notificationAuthorizationStatus = await NotificationService.getAuthorizationStatus()
+            notificationAuthorizationStatus = await notificationService.getAuthorizationStatus()
             
             if notificationAuthorizationStatus == .denied {
                 areRemindersEnabled = false
                 AppSettingsStorage.areRemindersEnabled = false
-                NotificationService.cancelHydrationReminders()
+                notificationService.cancelHydrationReminders()
             }
         }
     }
     
     func openNotificationSettings() {
-        NotificationService.openAppNotificationSettings()
+        notificationService.openAppNotificationSettings()
     }
+    
+    #if DEBUG
+    func scheduleTestNotificationInFiveSeconds() async {
+        await notificationService.scheduleTestNotificationInFiveSeconds()
+    }
+    #endif
     
     func reload() {
         syncCurrentGoal()
@@ -179,7 +194,7 @@ final class SettingsViewModel {
         _ isEnabled: Bool
     ) async {
         if isEnabled {
-            let status = await NotificationService.getAuthorizationStatus()
+            let status = await notificationService.getAuthorizationStatus()
             notificationAuthorizationStatus = status
             
             let isAuthorized: Bool
@@ -189,8 +204,8 @@ final class SettingsViewModel {
                 isAuthorized = true
                 
             case .notDetermined:
-                isAuthorized = await NotificationService.requestAuthorization()
-                notificationAuthorizationStatus = await NotificationService.getAuthorizationStatus()
+                isAuthorized = await notificationService.requestAuthorization()
+                notificationAuthorizationStatus = await notificationService.getAuthorizationStatus()
                 
             case .denied:
                 isAuthorized = false
@@ -202,7 +217,7 @@ final class SettingsViewModel {
             guard isAuthorized else {
                 areRemindersEnabled = false
                 AppSettingsStorage.areRemindersEnabled = false
-                NotificationService.cancelHydrationReminders()
+                notificationService.cancelHydrationReminders()
                 return
             }
             
@@ -213,7 +228,7 @@ final class SettingsViewModel {
         } else {
             areRemindersEnabled = false
             AppSettingsStorage.areRemindersEnabled = false
-            NotificationService.cancelHydrationReminders()
+            notificationService.cancelHydrationReminders()
         }
     }
     
@@ -226,7 +241,7 @@ final class SettingsViewModel {
     }
     
     private func scheduleReminders() async {
-        await NotificationService.scheduleHydrationReminders(
+        await notificationService.scheduleHydrationReminders(
             startHour: reminderStartHour,
             endHour: reminderEndHour,
             frequency: reminderFrequency
@@ -246,7 +261,10 @@ final class SettingsViewModel {
             AppSettingsStorage.dailyGoal = currentGoal
             dailyGoal = currentGoal
         } catch {
-            print("Failed to sync current goal: \(error)")
+            errorReporter.report(
+                error,
+                context: "Failed to sync current goal"
+            )
         }
     }
 }

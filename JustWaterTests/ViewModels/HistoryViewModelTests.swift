@@ -309,8 +309,13 @@ final class HistoryViewModelTests: XCTestCase {
     func testAddEntry_savesEntryAndReloadsAnalytics() {
         // Arrange
         let storageService = TestWaterStorageService()
+        let hapticService = TestHapticService()
+        
         let sut = makeSUT(
-            storageService: storageService
+            storageService: storageService,
+            goalStorageService: TestWaterGoalStorageService(),
+            hapticService: hapticService,
+            errorReporter: TestErrorReporter()
         )
         
         let date = makeDate(
@@ -318,6 +323,9 @@ final class HistoryViewModelTests: XCTestCase {
             month: 5,
             day: 25
         )
+        
+        sut.selectPeriod(.day)
+        sut.selectReferenceDate(date)
         
         // Act
         sut.addEntry(
@@ -350,6 +358,16 @@ final class HistoryViewModelTests: XCTestCase {
         XCTAssertEqual(
             sut.analytics?.statistics.totalAmount,
             450
+        )
+        
+        XCTAssertEqual(
+            sut.undoBannerMessage,
+            "Juice added"
+        )
+        
+        XCTAssertEqual(
+            hapticService.successCallCount,
+            1
         )
     }
     

@@ -213,7 +213,7 @@ struct SettingsView: View {
                 
                 Button {
                     Task {
-                        await NotificationService.scheduleTestNotificationInFiveSeconds()
+                        await viewModel.scheduleTestNotificationInFiveSeconds()
                     }
                 } label: {
                     SettingsRow(

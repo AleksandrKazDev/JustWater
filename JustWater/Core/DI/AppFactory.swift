@@ -54,9 +54,15 @@ enum AppFactory {
             goalStorageService: goalStorageService
         )
         
+        let errorReporter = makeErrorReporter()
+        
         return SettingsViewModel(
             goalStorageService: goalStorageService,
-            dailyGoalUpdateService: dailyGoalUpdateService
+            dailyGoalUpdateService: dailyGoalUpdateService,
+            notificationService: makeNotificationService(
+                errorReporter: errorReporter
+            ),
+            errorReporter: errorReporter
         )
     }
     
@@ -92,5 +98,13 @@ enum AppFactory {
     
     private static func makeErrorReporter() -> ErrorReporting {
         AppErrorReporter()
+    }
+    
+    private static func makeNotificationService(
+        errorReporter: ErrorReporting
+    ) -> NotificationServicing {
+        AppNotificationService(
+            errorReporter: errorReporter
+        )
     }
 }
