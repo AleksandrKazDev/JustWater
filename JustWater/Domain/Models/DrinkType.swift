@@ -63,7 +63,7 @@ enum DrinkType: String, CaseIterable, Codable, Identifiable {
         case .water:
             return AppColors.primaryBlue
         case .tea:
-            return .orange.opacity(0.75)
+            return .orange.opacity(0.65)
         case .coffee:
             return .brown.opacity(0.75)
         case .juice:
@@ -71,7 +71,7 @@ enum DrinkType: String, CaseIterable, Codable, Identifiable {
         case .soda:
             return .cyan.opacity(0.75)
         case .milk:
-            return .gray.opacity(0.65)
+            return .white.opacity(0.85)
         case .other:
             return AppColors.secondaryText
         }

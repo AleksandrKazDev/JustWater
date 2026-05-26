@@ -28,6 +28,7 @@ struct RootView: View {
                     HomeView()
                         .environment(coordinator)
                 }
+                .tint(AppColors.primaryBlue)
             }
         }
         .preferredColorScheme(appearanceMode.colorScheme)

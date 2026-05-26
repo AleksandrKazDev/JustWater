@@ -85,10 +85,10 @@ struct HistoryStatisticsSection: View {
             return "Goal"
             
         case .week, .month:
-            return "Best Day"
+            return "Highest Day"
             
         case .year:
-            return "Best Month"
+            return "Highest Month"
         }
     }
     
