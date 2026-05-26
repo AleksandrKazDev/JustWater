@@ -16,7 +16,6 @@ enum WaterGoalCalculator {
         gender: Gender,
         activityLevel: ActivityLevel
     ) -> Int {
-        
         let baseGoal = Double(weight) * 32
         
         let adjustedGoal = baseGoal * activityLevel.multiplier

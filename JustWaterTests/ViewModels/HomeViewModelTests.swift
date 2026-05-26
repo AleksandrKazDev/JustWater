@@ -16,8 +16,10 @@ final class HomeViewModelTests: XCTestCase {
     func testAddWater_addsWaterEntryAndCreatesUndoMessage() {
         // Arrange
         let storageService = TestWaterStorageService()
-        let sut = HomeViewModel(
-            storageService: storageService
+        let hapticService = TestHapticService()
+        let sut = makeSUT(
+            storageService: storageService,
+            hapticService: hapticService
         )
         
         // Act
@@ -46,13 +48,20 @@ final class HomeViewModelTests: XCTestCase {
             sut.undoBannerMessage,
             "Water added"
         )
+        
+        XCTAssertEqual(
+            hapticService.successCallCount,
+            1
+        )
     }
     
     func testAddWater_withCoffee_addsCoffeeEntryAndCreatesUndoMessage() {
         // Arrange
         let storageService = TestWaterStorageService()
-        let sut = HomeViewModel(
-            storageService: storageService
+        let hapticService = TestHapticService()
+        let sut = makeSUT(
+            storageService: storageService,
+            hapticService: hapticService
         )
         
         // Act
@@ -81,6 +90,11 @@ final class HomeViewModelTests: XCTestCase {
             sut.undoBannerMessage,
             "Coffee added"
         )
+        
+        XCTAssertEqual(
+            hapticService.successCallCount,
+            1
+        )
     }
     
     // MARK: - Undo Add
@@ -88,8 +102,10 @@ final class HomeViewModelTests: XCTestCase {
     func testUndoLastAction_afterAddingEntry_removesEntry() {
         // Arrange
         let storageService = TestWaterStorageService()
-        let sut = HomeViewModel(
-            storageService: storageService
+        let hapticService = TestHapticService()
+        let sut = makeSUT(
+            storageService: storageService,
+            hapticService: hapticService
         )
         
         sut.addWater(
@@ -109,6 +125,11 @@ final class HomeViewModelTests: XCTestCase {
             sut.undoBannerMessage,
             ""
         )
+        
+        XCTAssertEqual(
+            hapticService.warningCallCount,
+            1
+        )
     }
     
     // MARK: - Delete
@@ -126,9 +147,14 @@ final class HomeViewModelTests: XCTestCase {
             entries: [entry]
         )
         
-        let sut = HomeViewModel(
-            storageService: storageService
+        let hapticService = TestHapticService()
+        
+        let sut = makeSUT(
+            storageService: storageService,
+            hapticService: hapticService
         )
+        
+        sut.loadEntries()
         
         // Act
         sut.deleteEntry(entry)
@@ -141,6 +167,11 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertEqual(
             sut.undoBannerMessage,
             "Juice deleted"
+        )
+        
+        XCTAssertEqual(
+            hapticService.lightImpactCallCount,
+            1
         )
     }
     
@@ -159,10 +190,14 @@ final class HomeViewModelTests: XCTestCase {
             entries: [entry]
         )
         
-        let sut = HomeViewModel(
-            storageService: storageService
+        let hapticService = TestHapticService()
+        
+        let sut = makeSUT(
+            storageService: storageService,
+            hapticService: hapticService
         )
         
+        sut.loadEntries()
         sut.deleteEntry(entry)
         
         // Act
@@ -192,6 +227,80 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertEqual(
             sut.undoBannerMessage,
             ""
+        )
+        
+        XCTAssertEqual(
+            hapticService.warningCallCount,
+            1
+        )
+    }
+    
+    // MARK: - Loading
+    
+    func testLoadEntries_loadsEntriesForToday() {
+        // Arrange
+        let entry = WaterEntry(
+            id: UUID(),
+            amount: 250,
+            date: Date(),
+            drinkType: .water
+        )
+        
+        let storageService = TestWaterStorageService(
+            entries: [entry]
+        )
+        
+        let sut = makeSUT(
+            storageService: storageService
+        )
+        
+        // Act
+        sut.loadEntries()
+        
+        // Assert
+        XCTAssertEqual(
+            sut.hydrationState.entries.count,
+            1
+        )
+        
+        XCTAssertEqual(
+            sut.hydrationState.entries.first?.id,
+            entry.id
+        )
+    }
+    
+    // MARK: - Helpers
+    
+    private func makeSUT(
+        storageService: TestWaterStorageService
+    ) -> HomeViewModel {
+        HomeViewModel(
+            storageService: storageService,
+            hapticService: TestHapticService(),
+            errorReporter: TestErrorReporter()
+        )
+    }
+
+    private func makeSUT(
+        storageService: TestWaterStorageService,
+        hapticService: TestHapticService
+    ) -> HomeViewModel {
+        HomeViewModel(
+            storageService: storageService,
+            hapticService: hapticService,
+            errorReporter: TestErrorReporter()
+        )
+    }
+
+    private func makeSUT(
+        storageService: TestWaterStorageService,
+        hapticService: TestHapticService,
+        errorReporter: TestErrorReporter
+    ) -> HomeViewModel {
+        HomeViewModel(
+            storageService: storageService,
+            hapticService: hapticService,
+            errorReporter: errorReporter
         )
     }
 }

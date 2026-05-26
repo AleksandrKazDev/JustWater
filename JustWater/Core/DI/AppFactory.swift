@@ -18,7 +18,9 @@ enum AppFactory {
         )
         
         return HomeViewModel(
-            storageService: storageService
+            storageService: storageService,
+            hapticService: makeHapticService(),
+            errorReporter: makeErrorReporter()
         )
     }
     
@@ -35,7 +37,9 @@ enum AppFactory {
         
         return HistoryViewModel(
             storageService: storageService,
-            goalStorageService: goalStorageService
+            goalStorageService: goalStorageService,
+            hapticService: makeHapticService(),
+            errorReporter: makeErrorReporter()
         )
     }
     
@@ -80,5 +84,13 @@ enum AppFactory {
                 context: context
             )
         )
+    }
+    
+    private static func makeHapticService() -> HapticServicing {
+        AppHapticService()
+    }
+    
+    private static func makeErrorReporter() -> ErrorReporting {
+        AppErrorReporter()
     }
 }

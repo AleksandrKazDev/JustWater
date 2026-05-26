@@ -12,6 +12,8 @@ import Foundation
 final class HomeViewModel {
     
     private let storageService: WaterStorageServicing
+    private let hapticService: HapticServicing
+    private let errorReporter: ErrorReporting
     
     var hydrationState = HydrationState(
         dailyGoal: AppSettingsStorage.dailyGoal,
@@ -24,9 +26,14 @@ final class HomeViewModel {
         pendingUndoAction?.message ?? ""
     }
     
-    init(storageService: WaterStorageServicing) {
+    init(
+        storageService: WaterStorageServicing,
+        hapticService: HapticServicing,
+        errorReporter: ErrorReporting
+    ) {
         self.storageService = storageService
-        loadEntries()
+        self.hapticService = hapticService
+        self.errorReporter = errorReporter
     }
     
     func loadEntries() {
@@ -36,7 +43,10 @@ final class HomeViewModel {
             let entries = try storageService.fetchEntries(for: Date.now)
             hydrationState.entries = entries
         } catch {
-            print("Failed to fetch water entries: \(error)")
+            errorReporter.report(
+                error,
+                context: "Failed to fetch water entries"
+            )
         }
     }
     
@@ -56,9 +66,12 @@ final class HomeViewModel {
             )
             
             loadEntries()
-            HapticService.success()
+            hapticService.success()
         } catch {
-            print("Failed to save water entry: \(error)")
+            errorReporter.report(
+                error,
+                context: "Failed to save water entry"
+            )
         }
     }
     
@@ -71,9 +84,12 @@ final class HomeViewModel {
             pendingUndoAction = .deleted(snapshot)
             
             loadEntries()
-            HapticService.lightImpact()
+            hapticService.lightImpact()
         } catch {
-            print("Failed to delete water entry: \(error)")
+            errorReporter.report(
+                error,
+                context: "Failed to delete water entry"
+            )
         }
     }
     
@@ -92,9 +108,12 @@ final class HomeViewModel {
             self.pendingUndoAction = nil
             
             loadEntries()
-            HapticService.warning()
+            hapticService.warning()
         } catch {
-            print("Failed to undo last action: \(error)")
+            errorReporter.report(
+                error,
+                context: "Failed to undo last home action"
+            )
         }
     }
 }

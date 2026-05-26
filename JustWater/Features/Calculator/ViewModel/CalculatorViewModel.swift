@@ -29,6 +29,7 @@ final class CalculatorViewModel {
         
         return goal
     }
+    
     // MARK: - Output
     
     var recommendedGoal: Int?

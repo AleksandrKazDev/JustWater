@@ -275,16 +275,21 @@ enum HistoryAnalyticsService {
         ? 0
         : totalAmount / periodsCount
         
-        let goals = chartPoints.map { point in
-            dailyGoalProvider(point.date)
+        let pointsWithGoals = chartPoints.map { point in
+            (
+                point: point,
+                goal: dailyGoalProvider(point.date)
+            )
         }
         
-        let averageGoal = goals.isEmpty
+        let averageGoal = pointsWithGoals.isEmpty
         ? 0
-        : goals.reduce(0, +) / goals.count
+        : pointsWithGoals.reduce(0) { result, item in
+            result + item.goal
+        } / pointsWithGoals.count
         
-        let goalReachedCount = chartPoints.filter { point in
-            point.amount >= dailyGoalProvider(point.date)
+        let goalReachedCount = pointsWithGoals.filter { item in
+            item.point.amount >= item.goal
         }.count
         
         let bestPoint = chartPoints.max {

@@ -429,12 +429,39 @@ final class HistoryViewModelTests: XCTestCase {
     // MARK: - Helpers
     
     private func makeSUT(
-        storageService: TestWaterStorageService,
-        goalStorageService: TestWaterGoalStorageService? = nil
+        storageService: TestWaterStorageService
     ) -> HistoryViewModel {
         HistoryViewModel(
             storageService: storageService,
-            goalStorageService: goalStorageService ?? TestWaterGoalStorageService()
+            goalStorageService: TestWaterGoalStorageService(),
+            hapticService: TestHapticService(),
+            errorReporter: TestErrorReporter()
+        )
+    }
+
+    private func makeSUT(
+        storageService: TestWaterStorageService,
+        goalStorageService: TestWaterGoalStorageService
+    ) -> HistoryViewModel {
+        HistoryViewModel(
+            storageService: storageService,
+            goalStorageService: goalStorageService,
+            hapticService: TestHapticService(),
+            errorReporter: TestErrorReporter()
+        )
+    }
+
+    private func makeSUT(
+        storageService: TestWaterStorageService,
+        goalStorageService: TestWaterGoalStorageService,
+        hapticService: TestHapticService,
+        errorReporter: TestErrorReporter
+    ) -> HistoryViewModel {
+        HistoryViewModel(
+            storageService: storageService,
+            goalStorageService: goalStorageService,
+            hapticService: hapticService,
+            errorReporter: errorReporter
         )
     }
     

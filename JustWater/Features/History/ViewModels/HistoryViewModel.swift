@@ -15,6 +15,8 @@ final class HistoryViewModel {
     
     private let storageService: WaterStorageServicing
     private let goalStorageService: WaterGoalStorageServicing
+    private let hapticService: HapticServicing
+    private let errorReporter: ErrorReporting
     
     // MARK: - State
     
@@ -57,7 +59,10 @@ final class HistoryViewModel {
                 for: referenceDate
             )
         } catch {
-            print("Failed to fetch display daily goal: \(error)")
+            errorReporter.report(
+                error,
+                context: "Failed to fetch display daily goal"
+            )
             return AppSettingsStorage.dailyGoal
         }
     }
@@ -116,11 +121,14 @@ final class HistoryViewModel {
     
     init(
         storageService: WaterStorageServicing,
-        goalStorageService: WaterGoalStorageServicing
+        goalStorageService: WaterGoalStorageServicing,
+        hapticService: HapticServicing,
+        errorReporter: ErrorReporting
     ) {
         self.storageService = storageService
         self.goalStorageService = goalStorageService
-        loadAnalytics()
+        self.hapticService = hapticService
+        self.errorReporter = errorReporter
     }
     
     // MARK: - Public Methods
@@ -162,7 +170,10 @@ final class HistoryViewModel {
                         for: date
                     )
                 } catch {
-                    print("Failed to fetch goal for date: \(error)")
+                    self.errorReporter.report(
+                        error,
+                        context: "Failed to fetch goal for history date"
+                    )
                     return AppSettingsStorage.dailyGoal
                 }
             }
@@ -174,7 +185,10 @@ final class HistoryViewModel {
                 referenceDate: referenceDate
             )
         } catch {
-            print("Failed to load history analytics: \(error)")
+            errorReporter.report(
+                error,
+                context: "Failed to load history analytics"
+            )
         }
     }
     
@@ -193,9 +207,12 @@ final class HistoryViewModel {
             pendingUndoAction = .deleted(snapshot)
             
             loadAnalytics()
-            HapticService.lightImpact()
+            hapticService.lightImpact()
         } catch {
-            print("Failed to delete history entry: \(error)")
+            errorReporter.report(
+                error,
+                context: "Failed to delete history entry"
+            )
         }
     }
     
@@ -218,9 +235,12 @@ final class HistoryViewModel {
             )
             
             loadAnalytics()
-            HapticService.success()
+            hapticService.success()
         } catch {
-            print("Failed to add history entry: \(error)")
+            errorReporter.report(
+                error,
+                context: "Failed to add history entry"
+            )
         }
     }
     
@@ -241,7 +261,10 @@ final class HistoryViewModel {
             loadAnalytics()
             HapticService.success()
         } catch {
-            print("Failed to update history entry: \(error)")
+            errorReporter.report(
+                error,
+                context: "Failed to update history entry"
+            )
         }
     }
     
@@ -264,9 +287,12 @@ final class HistoryViewModel {
             self.pendingUndoAction = nil
             
             loadAnalytics()
-            HapticService.warning()
+            hapticService.warning()
         } catch {
-            print("Failed to undo history action: \(error)")
+            errorReporter.report(
+                error,
+                context: "Failed to undo history action"
+            )
         }
     }
     
