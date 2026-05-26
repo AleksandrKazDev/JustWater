@@ -151,16 +151,11 @@ struct HomeHeader: View {
         _ goal: Int
     ) {
         do {
-            let goalStorageService = WaterGoalStorageService(
+            let dailyGoalUpdateService = AppFactory.makeDailyGoalUpdateService(
                 context: modelContext
             )
             
-            try goalStorageService.updateGoal(
-                goal,
-                effectiveDate: Date.now
-            )
-            
-            AppSettingsStorage.dailyGoal = goal
+            try dailyGoalUpdateService.updateDailyGoal(goal)
             onGoalUpdated()
         } catch {
             print("Failed to update daily goal from HomeHeader: \(error)")

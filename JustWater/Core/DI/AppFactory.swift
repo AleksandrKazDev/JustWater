@@ -46,8 +46,13 @@ enum AppFactory {
             context: context
         )
         
-        return SettingsViewModel(
+        let dailyGoalUpdateService = DailyGoalUpdateService(
             goalStorageService: goalStorageService
+        )
+        
+        return SettingsViewModel(
+            goalStorageService: goalStorageService,
+            dailyGoalUpdateService: dailyGoalUpdateService
         )
     }
     
@@ -64,6 +69,16 @@ enum AppFactory {
     ) -> WaterGoalStorageService {
         WaterGoalStorageService(
             context: context
+        )
+    }
+    
+    static func makeDailyGoalUpdateService(
+        context: ModelContext
+    ) -> DailyGoalUpdateService {
+        DailyGoalUpdateService(
+            goalStorageService: makeWaterGoalStorageService(
+                context: context
+            )
         )
     }
 }

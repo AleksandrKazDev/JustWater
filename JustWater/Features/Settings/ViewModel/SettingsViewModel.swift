@@ -15,6 +15,7 @@ final class SettingsViewModel {
     // MARK: - Dependencies
     
     private let goalStorageService: WaterGoalStorageServicing
+    private let dailyGoalUpdateService: DailyGoalUpdating
     
     // MARK: - Properties
     
@@ -42,9 +43,11 @@ final class SettingsViewModel {
     // MARK: - Initializer
     
     init(
-        goalStorageService: WaterGoalStorageServicing
+        goalStorageService: WaterGoalStorageServicing,
+        dailyGoalUpdateService: DailyGoalUpdating
     ) {
         self.goalStorageService = goalStorageService
+        self.dailyGoalUpdateService = dailyGoalUpdateService
         
         self.dailyGoal = AppSettingsStorage.dailyGoal
         self.isHapticsEnabled = AppSettingsStorage.isHapticsEnabled
@@ -66,12 +69,7 @@ final class SettingsViewModel {
         _ goal: Int
     ) {
         do {
-            try goalStorageService.updateGoal(
-                goal,
-                effectiveDate: Date.now
-            )
-            
-            AppSettingsStorage.dailyGoal = goal
+            try dailyGoalUpdateService.updateDailyGoal(goal)
             dailyGoal = goal
         } catch {
             print("Failed to update daily goal: \(error)")
