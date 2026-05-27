@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  HomeView.swift
 //  JustWater
 //
 //  Created by сонный on 10.05.2026.
@@ -23,7 +23,7 @@ struct HomeView: View {
     @State private var isUndoBannerPresented = false
     @State private var isUndoBannerVisible = false
     @State private var isHistoryPresented = false
-    @State private var undoBannerMessage = " "
+    @State private var undoBannerMessage = ""
     @State private var undoBannerDismissTask: Task<Void, Never>?
     
     // MARK: - Constants
