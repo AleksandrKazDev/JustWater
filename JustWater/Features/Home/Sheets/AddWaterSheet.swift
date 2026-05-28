@@ -131,7 +131,7 @@ struct AddWaterSheet: View {
     
     private var addButton: some View {
         PrimaryButton(
-            title: "Add Drink",
+            title: String(localized: "Add Drink"),
             systemImage: "plus"
         ) {
             addCustomAmount()

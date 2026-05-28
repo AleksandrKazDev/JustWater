@@ -19,16 +19,21 @@ struct RecommendedGoalSection: View {
     var body: some View {
         GlassCard {
             VStack(spacing: AppSpacing.md) {
-                Text("Recommended Goal")
+                Text(String(localized: "Recommended Goal"))
                     .font(AppTypography.headline)
                     .foregroundStyle(AppColors.primaryText)
                 
-                Text("\(goal) ml")
-                    .font(AppTypography.largeTitle)
-                    .foregroundStyle(AppColors.primaryText)
+                Text(
+                    String(
+                        format: String(localized: "%lld ml"),
+                        goal
+                    )
+                )
+                .font(AppTypography.largeTitle)
+                .foregroundStyle(AppColors.primaryText)
                 
                 PrimaryButton(
-                    title: "Use Recommended Goal",
+                    title: String(localized: "Use Recommended Goal"),
                     systemImage: "checkmark"
                 ) {
                     HapticService.success()

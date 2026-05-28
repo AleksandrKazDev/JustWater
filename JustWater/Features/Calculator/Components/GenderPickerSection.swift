@@ -18,7 +18,7 @@ struct GenderPickerSection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            Text("Gender")
+            Text(String(localized: "Gender"))
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.primaryText)
             

@@ -13,11 +13,11 @@ enum WaterEntryUndoAction {
     
     var message: String {
         switch self {
-        case .added(let snapshot):
-            return "\(snapshot.drinkType.title) added"
+        case .added:
+            return String(localized: "undo.added")
             
-        case .deleted(let snapshot):
-            return "\(snapshot.drinkType.title) deleted"
+        case .deleted:
+            return String(localized: "undo.deleted")
         }
     }
 }

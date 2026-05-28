@@ -106,7 +106,7 @@ struct HistoryView: View {
         .sheet(item: $editorMode) { mode in
             editorSheet(mode)
         }
-        .navigationTitle("History")
+        .navigationTitle(String(localized: "History"))
         .navigationBarTitleDisplayMode(.inline)
     }
     

@@ -19,11 +19,13 @@ enum ActivityLevel: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .low:
-            return "Low"
+            return String(localized: "activity.low.title")
+            
         case .moderate:
-            return "Moderate"
+            return String(localized: "activity.moderate.title")
+            
         case .high:
-            return "High"
+            return String(localized: "activity.high.title")
         }
     }
     
@@ -43,13 +45,13 @@ enum ActivityLevel: String, CaseIterable, Identifiable {
     var description: String {
         switch self {
         case .low:
-            return "A mostly sedentary day with little walking and no regular workouts."
+            return String(localized: "activity.low.description")
             
         case .moderate:
-            return "A balanced routine with regular walking or light workouts during the week."
+            return String(localized: "activity.moderate.description")
             
         case .high:
-            return "An active routine with frequent workouts, intense training, or a physically demanding day."
+            return String(localized: "activity.high.description")
         }
     }
 }

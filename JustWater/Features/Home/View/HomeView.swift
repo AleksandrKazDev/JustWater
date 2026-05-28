@@ -63,7 +63,7 @@ struct HomeView: View {
                         )
                         
                         PrimaryButton(
-                            title: "Add Water",
+                            title: String(localized: "Add Water"),
                             systemImage: "plus"
                         ) {
                             isAddWaterSheetPresented = true

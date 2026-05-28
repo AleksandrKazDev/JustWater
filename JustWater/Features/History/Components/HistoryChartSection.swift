@@ -171,7 +171,7 @@ struct HistoryChartSection: View {
     private var chartTitle: String {
         switch analytics.period {
         case .day:
-            return "Intake by Time"
+            return String(localized: "history.chart.intake_by_time")
             
         case .week, .month, .year:
             return "Consumption"

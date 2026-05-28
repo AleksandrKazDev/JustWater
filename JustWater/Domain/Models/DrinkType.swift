@@ -23,19 +23,25 @@ enum DrinkType: String, CaseIterable, Codable, Identifiable {
     var title: String {
         switch self {
         case .water:
-            return "Water"
+            return String(localized: "drink.water")
+            
         case .tea:
-            return "Tea"
+            return String(localized: "drink.tea")
+            
         case .coffee:
-            return "Coffee"
+            return String(localized: "drink.coffee")
+            
         case .juice:
-            return "Juice"
+            return String(localized: "drink.juice")
+            
         case .soda:
-            return "Soda"
+            return String(localized: "drink.soda")
+            
         case .milk:
-            return "Milk"
+            return String(localized: "drink.milk")
+            
         case .other:
-            return "Other"
+            return String(localized: "drink.other")
         }
     }
     
@@ -43,16 +49,22 @@ enum DrinkType: String, CaseIterable, Codable, Identifiable {
         switch self {
         case .water:
             return "drop.fill"
+            
         case .tea:
             return "cup.and.saucer.fill"
+            
         case .coffee:
             return "mug.fill"
+            
         case .juice:
             return "takeoutbag.and.cup.and.straw.fill"
+            
         case .soda:
             return "bubbles.and.sparkles"
+            
         case .milk:
             return "mug.fill"
+            
         case .other:
             return "ellipsis.circle.fill"
         }
@@ -62,16 +74,22 @@ enum DrinkType: String, CaseIterable, Codable, Identifiable {
         switch self {
         case .water:
             return AppColors.primaryBlue
+            
         case .tea:
             return .orange.opacity(0.65)
+            
         case .coffee:
             return .brown.opacity(0.75)
+            
         case .juice:
             return .orange
+            
         case .soda:
             return .cyan.opacity(0.75)
+            
         case .milk:
             return .white.opacity(0.85)
+            
         case .other:
             return AppColors.secondaryText
         }

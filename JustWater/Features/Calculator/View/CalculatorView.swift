@@ -138,8 +138,7 @@ struct CalculatorView: View {
     
     private var calculateButton: some View {
         PrimaryButton(
-            title: "Calculate Recommendation",
-            systemImage: "function"
+            title: String(localized: "calculator.calculate_recommendation")
         ) {
             focusedField = nil
             viewModel.calculateGoal()

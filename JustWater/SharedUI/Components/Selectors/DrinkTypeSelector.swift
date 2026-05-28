@@ -20,7 +20,7 @@ struct DrinkTypeSelector: View {
     // MARK: - Initializer
     
     init(
-        title: String = "Drink Type",
+        title: String = String(localized: "Drink Type"),
         selectedDrinkType: Binding<DrinkType>
     ) {
         self.title = title

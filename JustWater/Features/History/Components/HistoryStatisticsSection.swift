@@ -20,13 +20,13 @@ struct HistoryStatisticsSection: View {
         VStack(spacing: AppSpacing.md) {
             HStack(spacing: AppSpacing.md) {
                 HistoryStatisticCard(
-                    title: "Total",
-                    value: "\(statistics.totalAmount) ml"
+                    title: String(localized: "history.stat.total"),
+                    value: formattedAmount(statistics.totalAmount)
                 )
                 
                 HistoryStatisticCard(
                     title: averageTitle,
-                    value: "\(statistics.averageAmount) ml"
+                    value: formattedAmount(statistics.averageAmount)
                 )
             }
             
@@ -49,23 +49,23 @@ struct HistoryStatisticsSection: View {
     private var averageTitle: String {
         switch period {
         case .day:
-            return "Average"
+            return String(localized: "history.stat.average")
             
         case .week, .month:
-            return "Daily Avg"
+            return String(localized: "history.stat.daily_avg")
             
         case .year:
-            return "Monthly Avg"
+            return String(localized: "history.stat.monthly_avg")
         }
     }
     
     private var secondaryMetricTitle: String {
         switch period {
         case .day:
-            return "Entries"
+            return String(localized: "history.stat.entries")
             
         case .week, .month, .year:
-            return "Goal Days"
+            return String(localized: "history.stat.goal_days")
         }
     }
     
@@ -82,13 +82,13 @@ struct HistoryStatisticsSection: View {
     private var bestMetricTitle: String {
         switch period {
         case .day:
-            return "Goal"
+            return String(localized: "history.stat.goal")
             
         case .week, .month:
-            return "Highest Day"
+            return String(localized: "history.stat.highest_day")
             
         case .year:
-            return "Highest Month"
+            return String(localized: "history.stat.highest_month")
         }
     }
     
@@ -99,9 +99,20 @@ struct HistoryStatisticsSection: View {
             
         case .week, .month, .year:
             return statistics.bestAmount > 0
-            ? "\(statistics.bestAmount) ml"
+            ? formattedAmount(statistics.bestAmount)
             : "—"
         }
+    }
+    
+    // MARK: - Private Methods
+    
+    private func formattedAmount(
+        _ amount: Int
+    ) -> String {
+        String(
+            format: String(localized: "%lld ml"),
+            amount
+        )
     }
 }
 

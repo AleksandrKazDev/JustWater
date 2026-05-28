@@ -20,13 +20,16 @@ enum HistoryPeriod: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .day:
-            return "Day"
+            return String(localized: "history.period.day")
+        
         case .week:
-            return "Week"
+            return String(localized: "history.period.week")
+            
         case .month:
-            return "Month"
+            return String(localized: "history.period.month")
+            
         case .year:
-            return "Year"
+            return String(localized: "history.period.year")
         }
     }
 }

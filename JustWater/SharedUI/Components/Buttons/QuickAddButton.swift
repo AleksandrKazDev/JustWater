@@ -58,7 +58,12 @@ struct QuickAddButton: View {
         Button {
             action()
         } label: {
-            Text("+\(amount) ml")
+            Text(
+                String(
+                    format: String(localized: "+%lld ml"),
+                    amount
+                )
+            )
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.primaryBlue)
                 .lineLimit(1)

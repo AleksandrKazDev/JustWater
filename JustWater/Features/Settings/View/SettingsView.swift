@@ -43,7 +43,7 @@ struct SettingsView: View {
                 }
             }
         }
-        .navigationTitle("Settings")
+        .navigationTitle(String(localized: "Settings"))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             setupViewModelIfNeeded()
@@ -54,7 +54,7 @@ struct SettingsView: View {
     // MARK: - Components
     
     private var header: some View {
-        Text("Manage your hydration preferences.")
+        Text(String(localized: "Manage your hydration preferences."))
             .font(AppTypography.body)
             .foregroundStyle(AppColors.secondaryText)
             .fixedSize(horizontal: false, vertical: true)
@@ -65,16 +65,21 @@ struct SettingsView: View {
     ) -> some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                SettingsSectionTitle(title: "Daily Goal")
+                SettingsSectionTitle(title: String(localized: "settings.daily_goal"))
                 
-                Text("\(viewModel.dailyGoal) ml")
+                Text(
+                    String(
+                        format: String(localized: "%lld ml"),
+                        viewModel.dailyGoal
+                    )
+                )
                     .font(.system(size: 34, weight: .semibold, design: .rounded))
                     .foregroundStyle(AppColors.primaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.72)
                 
                 HStack(alignment: .center, spacing: AppSpacing.md) {
-                    Text("Your daily hydration target.")
+                    Text(String(localized: "Your daily hydration target."))
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.secondaryText)
                         .lineLimit(1)
@@ -87,7 +92,7 @@ struct SettingsView: View {
                             viewModel.updateDailyGoal(goal)
                         }
                     } label: {
-                        SettingsPillButton(title: "Change")
+                        SettingsPillButton(title: String(localized: "Change"))
                             .frame(minWidth: 108)
                     }
                     .buttonStyle(
@@ -106,7 +111,7 @@ struct SettingsView: View {
     ) -> some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                SettingsSectionTitle(title: "Appearance")
+                SettingsSectionTitle(title: String(localized: "Appearance"))
                 
                 Picker(
                     "Appearance",
@@ -135,7 +140,7 @@ struct SettingsView: View {
     ) -> some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                SettingsSectionTitle(title: "Preferences")
+                SettingsSectionTitle(title: String(localized: "Preferences"))
                 
                 Toggle(
                     isOn: Binding(
@@ -152,8 +157,8 @@ struct SettingsView: View {
                     )
                 ) {
                     SettingsLabel(
-                        title: "Haptics",
-                        subtitle: "Tactile feedback for app actions.",
+                        title: String(localized: "Haptics"),
+                        subtitle: String(localized: "Tactile feedback for app actions."),
                         systemImage: "waveform"
                     )
                 }
@@ -163,7 +168,7 @@ struct SettingsView: View {
                     .opacity(0.35)
                 
                 SettingsRow(
-                    title: "Units",
+                    title: String(localized: "Units"),
                     value: viewModel.measurementUnit.title,
                     systemImage: "ruler"
                 )
@@ -176,7 +181,7 @@ struct SettingsView: View {
     ) -> some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                SettingsSectionTitle(title: "Reminders")
+                SettingsSectionTitle(title: String(localized: "Reminders"))
                 
                 Toggle(
                     isOn: Binding(
@@ -189,8 +194,8 @@ struct SettingsView: View {
                     )
                 ) {
                     SettingsLabel(
-                        title: "Hydration Reminders",
-                        subtitle: "Gentle reminders during your day.",
+                        title: String(localized: "Hydration Reminders"),
+                        subtitle: String(localized: "Gentle reminders during your day."),
                         systemImage: "bell"
                     )
                 }
@@ -217,8 +222,8 @@ struct SettingsView: View {
                     }
                 } label: {
                     SettingsRow(
-                        title: "Test Notification",
-                        value: "5 seconds",
+                        title: String(localized: "Test Notification"),
+                        value: String(localized: "5 seconds"),
                         systemImage: "bell.badge"
                     )
                 }
@@ -237,7 +242,7 @@ struct SettingsView: View {
         _ viewModel: SettingsViewModel
     ) -> some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            Text("Notifications are disabled in iPhone Settings.")
+            Text(String(localized: "Notifications are disabled in iPhone Settings."))
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)
@@ -245,7 +250,7 @@ struct SettingsView: View {
             Button {
                 viewModel.openNotificationSettings()
             } label: {
-                SettingsPillButton(title: "Open Settings")
+                SettingsPillButton(title: String(localized: "Open Settings"))
             }
             .buttonStyle(
                 PressableScaleButtonStyle(
@@ -278,7 +283,7 @@ struct SettingsView: View {
     ) -> some View {
         VStack(spacing: AppSpacing.md) {
             reminderHourPicker(
-                title: "Start Time",
+                title: String(localized: "Start Time"),
                 selectedHour: Binding(
                     get: {
                         viewModel.reminderStartHour
@@ -290,7 +295,7 @@ struct SettingsView: View {
             )
             
             reminderHourPicker(
-                title: "End Time",
+                title: String(localized: "End Time"),
                 selectedHour: Binding(
                     get: {
                         viewModel.reminderEndHour
@@ -334,14 +339,14 @@ struct SettingsView: View {
         _ viewModel: SettingsViewModel
     ) -> some View {
         HStack(spacing: AppSpacing.sm) {
-            Text("Frequency")
+            Text(String(localized: "Frequency"))
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.primaryText)
             
             Spacer()
             
             Picker(
-                "Frequency",
+                String(localized: "Frequency"),
                 selection: Binding(
                     get: {
                         viewModel.reminderFrequency
@@ -364,7 +369,7 @@ struct SettingsView: View {
     private var appInfoSection: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                SettingsSectionTitle(title: "App")
+                SettingsSectionTitle(title: String(localized: "App"))
                 
                 SettingsRow(
                     title: "JustWater",
@@ -376,8 +381,8 @@ struct SettingsView: View {
                     .opacity(0.35)
                 
                 SettingsLabel(
-                    title: "Wellness Tracking",
-                    subtitle: "Track your daily water intake, review your history, and adjust your goal over time.",
+                    title: String(localized: "Wellness Tracking"),
+                    subtitle: String(localized: "Track your daily water intake, review your history, and adjust your goal over time."),
                     systemImage: "heart.text.square"
                 )
                 
@@ -385,15 +390,15 @@ struct SettingsView: View {
                     .opacity(0.35)
                 
                 SettingsLabel(
-                    title: "Local Data",
-                    subtitle: "Your hydration entries and goal history are stored locally on this device.",
+                    title: String(localized: "Local Data"),
+                    subtitle: String(localized: "Your hydration entries and goal history are stored locally on this device."),
                     systemImage: "lock"
                 )
                 
                 Divider()
                     .opacity(0.35)
                 
-                Text("JustWater is designed for general wellness tracking and is not medical advice.")
+                Text(String(localized: "JustWater is designed for general wellness tracking and is not medical advice."))
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.secondaryText)
                     .fixedSize(horizontal: false, vertical: true)
@@ -431,7 +436,7 @@ struct SettingsView: View {
             return "v\(version)"
             
         default:
-            return "Version unknown"
+            return String(localized: "Version unknown")
         }
     }
 }

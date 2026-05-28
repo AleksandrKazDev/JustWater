@@ -24,7 +24,7 @@ struct CustomGoalSection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            Text("Custom Goal")
+            Text(String(localized: "Custom Goal"))
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.primaryText)
             
@@ -52,7 +52,7 @@ struct CustomGoalSection: View {
     private var inputRow: some View {
         HStack(spacing: AppSpacing.sm) {
             TextField(
-                "1 - 10000",
+                String(localized: "1 - 10000"),
                 text: $customGoalText
             )
             .focused(focusedField, equals: .customGoal)
@@ -63,7 +63,7 @@ struct CustomGoalSection: View {
                 onTextChange(newValue)
             }
             
-            Text("ml")
+            Text(String(localized: "ml"))
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.secondaryText)
         }
@@ -80,7 +80,7 @@ struct CustomGoalSection: View {
                 Image(systemName: "slider.horizontal.3")
                     .font(.system(size: 14, weight: .semibold))
                 
-                Text("Use Custom Goal")
+                Text(String(localized: "Use Custom Goal"))
                     .font(AppTypography.body)
             }
             .foregroundStyle(AppColors.primaryBlue)

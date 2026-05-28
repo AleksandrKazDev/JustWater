@@ -81,7 +81,7 @@ struct OnboardingView: View {
             Spacer(minLength: AppSpacing.lg)
             
             PrimaryButton(
-                title: "Get Started",
+                title: String(localized: "Get Started"),
                 systemImage: "arrow.right"
             ) {
                 coordinator.showBenefitsStep()
@@ -110,8 +110,8 @@ struct OnboardingView: View {
             GlassCard {
                 VStack(spacing: 0) {
                     OnboardingBenefitRow(
-                        title: "Track your progress",
-                        subtitle: "See your daily intake at a glance.",
+                        title: String(localized: "Track your progress"),
+                        subtitle: String(localized: "See your daily intake at a glance."),
                         systemImage: "drop.fill"
                     )
                     .padding(.vertical, AppSpacing.sm)
@@ -120,8 +120,8 @@ struct OnboardingView: View {
                         .opacity(0.28)
                     
                     OnboardingBenefitRow(
-                        title: "Review your history",
-                        subtitle: "Understand your hydration over time.",
+                        title: String(localized: "Review your history"),
+                        subtitle: String(localized: "Understand your hydration over time."),
                         systemImage: "chart.xyaxis.line"
                     )
                     .padding(.vertical, AppSpacing.sm)
@@ -130,8 +130,8 @@ struct OnboardingView: View {
                         .opacity(0.28)
                     
                     OnboardingBenefitRow(
-                        title: "Gentle reminders",
-                        subtitle: "Stay on track with gentle reminders.",
+                        title: String(localized: "Gentle reminders"),
+                        subtitle: String(localized: "Stay on track with gentle reminders."),
                         systemImage: "bell"
                     )
                     .padding(.vertical, AppSpacing.sm)
@@ -143,7 +143,7 @@ struct OnboardingView: View {
             Spacer(minLength: AppSpacing.lg)
             
             PrimaryButton(
-                title: "Continue",
+                title: String(localized: "Continue"),
                 systemImage: "arrow.right"
             ) {
                 coordinator.showCalculatorStep()
@@ -170,11 +170,16 @@ struct OnboardingView: View {
             OnboardingHeroMark(style: .success)
             
             VStack(spacing: AppSpacing.sm) {
-                Text("\(AppSettingsStorage.dailyGoal) ml")
-                    .font(AppTypography.largeTitle)
-                    .foregroundStyle(AppColors.primaryText)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.78)
+                Text(
+                    String(
+                        format: String(localized: "%lld ml"),
+                        AppSettingsStorage.dailyGoal
+                    )
+                )
+                .font(AppTypography.largeTitle)
+                .foregroundStyle(AppColors.primaryText)
+                .lineLimit(1)
+                .minimumScaleFactor(0.78)
                 
                 Text("Your daily goal is ready.")
                     .font(AppTypography.headline)
@@ -193,7 +198,7 @@ struct OnboardingView: View {
             Spacer(minLength: AppSpacing.lg)
             
             PrimaryButton(
-                title: "Start Tracking",
+                title: String(localized: "Start Tracking"),
                 systemImage: "checkmark"
             ) {
                 coordinator.completeOnboarding()

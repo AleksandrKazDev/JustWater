@@ -18,14 +18,14 @@ enum MeasurementUnit: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .milliliters:
-            return "Milliliters"
+            return String(localized: "unit.milliliters")
         }
     }
     
     var shortTitle: String {
         switch self {
         case .milliliters:
-            return "ml"
+            return String(localized: "unit.milliliters.short")
         }
     }
 }

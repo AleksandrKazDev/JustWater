@@ -21,13 +21,16 @@ enum ReminderFrequency: Int, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .oneHour:
-            return "Every hour"
+            return String(localized: "reminder.frequency.one_hour")
+            
         case .twoHours:
-            return "Every 2 hours"
+            return String(localized: "reminder.frequency.two_hours")
+            
         case .threeHours:
-            return "Every 3 hours"
+            return String(localized: "reminder.frequency.three_hours")
+            
         case .fourHours:
-            return "Every 4 hours"
+            return String(localized: "reminder.frequency.four_hours")
         }
     }
 }

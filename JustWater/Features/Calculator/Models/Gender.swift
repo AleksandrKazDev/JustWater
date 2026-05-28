@@ -18,10 +18,10 @@ enum Gender: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .male:
-            return "Male"
+            return String(localized: "gender.male")
             
         case .female:
-            return "Female"
+            return String(localized: "gender.female")
         }
     }
     

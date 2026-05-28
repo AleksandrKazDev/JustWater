@@ -20,13 +20,13 @@ enum AppAppearanceMode: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .system:
-            return "System"
+            return String(localized: "appearance.system")
             
         case .light:
-            return "Light"
+            return String(localized: "appearance.light")
             
         case .dark:
-            return "Dark"
+            return String(localized: "appearance.dark")
         }
     }
     
