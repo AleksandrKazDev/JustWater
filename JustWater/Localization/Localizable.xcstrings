@@ -52,7 +52,7 @@
       }
     },
     "5 seconds" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -1443,6 +1443,193 @@
         }
       }
     },
+    "notification.hydration.body.1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a moment to drink some water."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сделайте паузу и выпейте немного воды."
+          }
+        }
+      }
+    },
+    "notification.hydration.body.2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A small sip now can help you stay on track."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пара глотков поможет не сбиться с цели."
+          }
+        }
+      }
+    },
+    "notification.hydration.body.3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pause for a moment and have some water."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Может короткую паузу на воду?"
+          }
+        }
+      }
+    },
+    "notification.hydration.body.4" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep your hydration going with a quick sip."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поддержите привычку — выпейте немного воды."
+          }
+        }
+      }
+    },
+    "notification.hydration.body.5" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A little water break might be a good idea."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Небольшой перерыв на воду может быть кстати."
+          }
+        }
+      }
+    },
+    "notification.hydration.body.6" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your next sip is a small step toward today’s goal."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Следующий глоток — маленький шаг к цели на день."
+          }
+        }
+      }
+    },
+    "notification.hydration.body.7" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a quick water break when you can."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сделайте небольшой перерыв на воду, когда будет удобно."
+          }
+        }
+      }
+    },
+    "notification.hydration.body.8" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A few sips now can make the day feel better."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Несколько глотков сейчас могут сделать день легче."
+          }
+        }
+      }
+    },
+    "notification.hydration.body.9" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep it simple: a little water now."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всё просто: немного воды прямо сейчас."
+          }
+        }
+      }
+    },
+    "notification.hydration.body.10" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Give yourself a calm hydration break."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Устройте себе спокойный перерыв на воду."
+          }
+        }
+      }
+    },
+    "notification.hydration.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time to hydrate"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время попить"
+          }
+        }
+      }
+    },
     "Notifications are disabled in iPhone Settings." : {
       "localizations" : {
         "ru" : {
@@ -1650,7 +1837,7 @@
       }
     },
     "Reset Onboarding" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -1883,7 +2070,7 @@
       }
     },
     "Test Notification" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ru" : {
           "stringUnit" : {

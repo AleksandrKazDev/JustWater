@@ -99,9 +99,14 @@ final class AppNotificationService: NotificationServicing {
             )
         )
         
-        for hour in hours {
+        let reminderBodies = HydrationReminderMessageProvider.shuffledBodies(
+            count: hours.count
+        )
+        
+        for (index, hour) in hours.enumerated() {
             await scheduleReminder(
-                hour: hour
+                hour: hour,
+                body: reminderBodies[index]
             )
         }
     }
@@ -115,21 +120,21 @@ final class AppNotificationService: NotificationServicing {
 //    #if DEBUG
 //    func scheduleTestNotificationInFiveSeconds() async {
 //        let content = UNMutableNotificationContent()
-//        content.title = "Test reminder"
-//        content.body = "This is a JustWater test notification."
+//        content.title = String(localized: "notification.test.title")
+//        content.body = String(localized: "notification.test.body")
 //        content.sound = .default
-//        
+//
 //        let trigger = UNTimeIntervalNotificationTrigger(
 //            timeInterval: 5,
 //            repeats: false
 //        )
-//        
+//
 //        let request = UNNotificationRequest(
 //            identifier: "hydration-test-notification",
 //            content: content,
 //            trigger: trigger
 //        )
-//        
+//
 //        do {
 //            try await UNUserNotificationCenter.current().add(request)
 //        } catch {
@@ -152,11 +157,12 @@ final class AppNotificationService: NotificationServicing {
     // MARK: - Private Methods
     
     private func scheduleReminder(
-        hour: Int
+        hour: Int,
+        body: String
     ) async {
         let content = UNMutableNotificationContent()
-        content.title = "Time to hydrate"
-        content.body = "Take a moment to drink some water."
+        content.title = HydrationReminderMessageProvider.title()
+        content.body = body
         content.sound = .default
         
         var dateComponents = DateComponents()
