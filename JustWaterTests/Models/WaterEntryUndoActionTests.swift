@@ -21,7 +21,7 @@ final class WaterEntryUndoActionTests: XCTestCase {
         // Assert
         XCTAssertEqual(
             sut.message,
-            "Water added"
+            expectedAddedMessage(for: .water)
         )
     }
     
@@ -36,7 +36,7 @@ final class WaterEntryUndoActionTests: XCTestCase {
         // Assert
         XCTAssertEqual(
             sut.message,
-            "Coffee added"
+            expectedAddedMessage(for: .coffee)
         )
     }
     
@@ -51,7 +51,7 @@ final class WaterEntryUndoActionTests: XCTestCase {
         // Assert
         XCTAssertEqual(
             sut.message,
-            "Tea deleted"
+            expectedDeletedMessage(for: .tea)
         )
     }
     
@@ -66,7 +66,7 @@ final class WaterEntryUndoActionTests: XCTestCase {
         // Assert
         XCTAssertEqual(
             sut.message,
-            "Juice deleted"
+            expectedDeletedMessage(for: .juice)
         )
     }
     
@@ -86,6 +86,24 @@ final class WaterEntryUndoActionTests: XCTestCase {
         
         return WaterEntrySnapshot(
             entry: entry
+        )
+    }
+    
+    private func expectedAddedMessage(
+        for drinkType: DrinkType
+    ) -> String {
+        String(
+            format: String(localized: "undo.added"),
+            drinkType.title
+        )
+    }
+    
+    private func expectedDeletedMessage(
+        for drinkType: DrinkType
+    ) -> String {
+        String(
+            format: String(localized: "undo.deleted"),
+            drinkType.title
         )
     }
 }

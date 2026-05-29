@@ -40,7 +40,7 @@ final class HistoryViewModelTests: XCTestCase {
         
         XCTAssertEqual(
             sut.undoBannerMessage,
-            "Coffee deleted"
+            expectedDeletedMessage(for: .coffee)
         )
     }
     
@@ -362,7 +362,7 @@ final class HistoryViewModelTests: XCTestCase {
         
         XCTAssertEqual(
             sut.undoBannerMessage,
-            "Juice added"
+            expectedAddedMessage(for: .juice)
         )
         
         XCTAssertEqual(
@@ -403,6 +403,9 @@ final class HistoryViewModelTests: XCTestCase {
         let sut = makeSUT(
             storageService: storageService
         )
+        
+        sut.selectPeriod(.day)
+        sut.selectReferenceDate(updatedDate)
         
         // Act
         sut.updateEntry(
@@ -456,7 +459,7 @@ final class HistoryViewModelTests: XCTestCase {
             errorReporter: TestErrorReporter()
         )
     }
-
+    
     private func makeSUT(
         storageService: TestWaterStorageService,
         goalStorageService: TestWaterGoalStorageService
@@ -468,7 +471,7 @@ final class HistoryViewModelTests: XCTestCase {
             errorReporter: TestErrorReporter()
         )
     }
-
+    
     private func makeSUT(
         storageService: TestWaterStorageService,
         goalStorageService: TestWaterGoalStorageService,
@@ -499,5 +502,23 @@ final class HistoryViewModelTests: XCTestCase {
         components.minute = minute
         
         return components.date!
+    }
+    
+    private func expectedAddedMessage(
+        for drinkType: DrinkType
+    ) -> String {
+        String(
+            format: String(localized: "undo.added"),
+            drinkType.title
+        )
+    }
+    
+    private func expectedDeletedMessage(
+        for drinkType: DrinkType
+    ) -> String {
+        String(
+            format: String(localized: "undo.deleted"),
+            drinkType.title
+        )
     }
 }

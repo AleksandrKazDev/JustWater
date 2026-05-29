@@ -46,7 +46,7 @@ final class HomeViewModelTests: XCTestCase {
         
         XCTAssertEqual(
             sut.undoBannerMessage,
-            "Water added"
+            expectedAddedMessage(for: .water)
         )
         
         XCTAssertEqual(
@@ -88,7 +88,7 @@ final class HomeViewModelTests: XCTestCase {
         
         XCTAssertEqual(
             sut.undoBannerMessage,
-            "Coffee added"
+            expectedAddedMessage(for: .coffee)
         )
         
         XCTAssertEqual(
@@ -166,7 +166,7 @@ final class HomeViewModelTests: XCTestCase {
         
         XCTAssertEqual(
             sut.undoBannerMessage,
-            "Juice deleted"
+            expectedDeletedMessage(for: .juice)
         )
         
         XCTAssertEqual(
@@ -270,7 +270,7 @@ final class HomeViewModelTests: XCTestCase {
     }
     
     // MARK: - Error Reporting
-
+    
     func testLoadEntries_whenStorageFails_reportsError() {
         // Arrange
         let storageService = TestWaterStorageService()
@@ -298,6 +298,7 @@ final class HomeViewModelTests: XCTestCase {
             "Failed to fetch water entries"
         )
     }
+    
     // MARK: - Helpers
     
     private func makeSUT(
@@ -309,7 +310,7 @@ final class HomeViewModelTests: XCTestCase {
             errorReporter: TestErrorReporter()
         )
     }
-
+    
     private func makeSUT(
         storageService: TestWaterStorageService,
         hapticService: TestHapticService
@@ -320,7 +321,7 @@ final class HomeViewModelTests: XCTestCase {
             errorReporter: TestErrorReporter()
         )
     }
-
+    
     private func makeSUT(
         storageService: TestWaterStorageService,
         hapticService: TestHapticService,
@@ -330,6 +331,24 @@ final class HomeViewModelTests: XCTestCase {
             storageService: storageService,
             hapticService: hapticService,
             errorReporter: errorReporter
+        )
+    }
+    
+    private func expectedAddedMessage(
+        for drinkType: DrinkType
+    ) -> String {
+        String(
+            format: String(localized: "undo.added"),
+            drinkType.title
+        )
+    }
+    
+    private func expectedDeletedMessage(
+        for drinkType: DrinkType
+    ) -> String {
+        String(
+            format: String(localized: "undo.deleted"),
+            drinkType.title
         )
     }
 }
