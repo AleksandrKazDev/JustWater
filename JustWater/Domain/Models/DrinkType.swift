@@ -88,7 +88,7 @@ enum DrinkType: String, CaseIterable, Codable, Identifiable {
             return .cyan.opacity(0.75)
             
         case .milk:
-            return .white.opacity(0.85)
+            return Color(red: 0.56, green: 0.68, blue: 0.82)
             
         case .other:
             return AppColors.secondaryText

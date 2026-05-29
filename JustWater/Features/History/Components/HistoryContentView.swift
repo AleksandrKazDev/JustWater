@@ -78,7 +78,7 @@ struct HistoryContentView: View {
             )
             
             HistoryPeriodSummarySection(
-                title: "Daily Summary",
+                title: String(localized: "Daily Summary"),
                 points: analytics.chartPoints,
                 labelProvider: weekSummaryLabel
             )
@@ -120,7 +120,7 @@ struct HistoryContentView: View {
             )
             
             HistoryPeriodSummarySection(
-                title: "Monthly Summary",
+                title: String(localized: "Monthly Summary"),
                 points: analytics.chartPoints,
                 labelProvider: { $0.label }
             )

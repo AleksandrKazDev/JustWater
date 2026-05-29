@@ -18,7 +18,7 @@ struct DrinkSummarySection: View {
     var body: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                Text("Drink Summary")
+                Text(String(localized: "Drink Summary"))
                     .font(AppTypography.headline)
                     .foregroundStyle(AppColors.primaryText)
                 
@@ -39,7 +39,7 @@ struct DrinkSummarySection: View {
                 .font(.system(size: 22, weight: .semibold))
                 .foregroundStyle(AppColors.secondaryText.opacity(0.7))
             
-            Text("No drinks logged yet")
+            Text(String(localized: "No drinks logged yet"))
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.secondaryText)
         }
@@ -81,11 +81,16 @@ private struct DrinkSummaryRow: View {
             
             Spacer(minLength: AppSpacing.sm)
             
-            Text("\(item.amount) ml")
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.secondaryText)
-                .lineLimit(1)
-                .minimumScaleFactor(0.82)
+            Text(
+                String(
+                    format: String(localized: "%lld ml"),
+                    item.amount
+                )
+            )
+            .font(AppTypography.caption)
+            .foregroundStyle(AppColors.secondaryText)
+            .lineLimit(1)
+            .minimumScaleFactor(0.82)
         }
     }
 }

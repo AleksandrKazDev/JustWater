@@ -36,7 +36,7 @@ struct HistoryEntriesSection: View {
     
     private var header: some View {
         HStack {
-            Text("Entries")
+            Text(String(localized: "Entries"))
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.primaryText)
             
@@ -46,7 +46,7 @@ struct HistoryEntriesSection: View {
                 HapticService.selection()
                 onAdd()
             } label: {
-                Label("Add", systemImage: "plus")
+                Label(String(localized: "Add"), systemImage: "plus")
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.primaryBlue)
                     .padding(.horizontal, AppSpacing.md)
@@ -83,7 +83,7 @@ struct HistoryEntriesSection: View {
                 .font(.system(size: 22, weight: .semibold))
                 .foregroundStyle(AppColors.secondaryText.opacity(0.7))
             
-            Text("No entries yet")
+            Text(String(localized: "No entries yet"))
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.secondaryText)
         }

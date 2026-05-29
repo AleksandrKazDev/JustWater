@@ -18,7 +18,7 @@ struct HistoryDatePickerSheet: View {
     
     var body: some View {
         VStack(spacing: AppSpacing.md) {
-            Text("Select Date")
+            Text(String(localized: "Select Date"))
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.primaryText)
                 .padding(.top, AppSpacing.sm)

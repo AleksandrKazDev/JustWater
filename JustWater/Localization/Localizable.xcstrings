@@ -252,7 +252,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Темная"
+            "value" : "Тёмная"
           }
         }
       }
@@ -466,11 +466,29 @@
       }
     },
     "Daily goal" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Дневная цель"
+          }
+        }
+      }
+    },
+    "Daily Summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily Summary"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ежедневная сводка"
           }
         }
       }
@@ -830,6 +848,38 @@
         }
       }
     },
+    "history.chart.consumption" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consumption"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Потребление"
+          }
+        }
+      }
+    },
+    "history.chart.daily_goal" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily goal"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цель на день"
+          }
+        }
+      }
+    },
     "history.chart.intake_by_time" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -987,7 +1037,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Среднее за приём"
+            "value" : "Среднее"
           }
         }
       }
@@ -1235,6 +1285,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "мл"
+          }
+        }
+      }
+    },
+    "Monthly Summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monthly Summary"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ежемесячная сводка"
           }
         }
       }

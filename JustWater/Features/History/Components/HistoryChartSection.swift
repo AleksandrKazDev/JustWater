@@ -45,7 +45,7 @@ struct HistoryChartSection: View {
                 .fill(AppColors.primaryBlue.opacity(0.35))
                 .frame(width: 22, height: 2)
             
-            Text("Daily goal")
+            Text(String(localized: "history.chart.daily_goal"))
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.secondaryText)
         }
@@ -57,7 +57,7 @@ struct HistoryChartSection: View {
                 .font(.system(size: 22, weight: .semibold))
                 .foregroundStyle(AppColors.secondaryText.opacity(0.7))
             
-            Text("No data for selected period")
+            Text(String(localized: "No data for selected period"))
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.secondaryText)
         }
@@ -174,7 +174,7 @@ struct HistoryChartSection: View {
             return String(localized: "history.chart.intake_by_time")
             
         case .week, .month, .year:
-            return "Consumption"
+            return String(localized: "history.chart.consumption")
         }
     }
     
