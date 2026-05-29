@@ -81,18 +81,18 @@ struct HomeHeader: View {
                 )
             }
             
-            #if DEBUG
-            Divider()
-            
-            Button(role: .destructive) {
-                onResetOnboarding()
-            } label: {
-                Label(
-                    "Reset Onboarding",
-                    systemImage: "arrow.counterclockwise"
-                )
-            }
-            #endif
+//            #if DEBUG
+//            Divider()
+//            
+//            Button(role: .destructive) {
+//                onResetOnboarding()
+//            } label: {
+//                Label(
+//                    "Reset Onboarding",
+//                    systemImage: "arrow.counterclockwise"
+//                )
+//            }
+//            #endif
             
         } label: {
             Image(systemName: "ellipsis")

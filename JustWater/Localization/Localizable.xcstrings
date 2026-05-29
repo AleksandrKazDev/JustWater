@@ -52,6 +52,7 @@
       }
     },
     "5 seconds" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -1649,6 +1650,7 @@
       }
     },
     "Reset Onboarding" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -1881,6 +1883,7 @@
       }
     },
     "Test Notification" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {

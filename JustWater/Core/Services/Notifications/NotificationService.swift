@@ -26,9 +26,9 @@ protocol NotificationServicing {
     
     func cancelHydrationReminders()
     
-    #if DEBUG
-    func scheduleTestNotificationInFiveSeconds() async
-    #endif
+//    #if DEBUG
+//    func scheduleTestNotificationInFiveSeconds() async
+//    #endif
 }
 
 @MainActor
@@ -112,34 +112,34 @@ final class AppNotificationService: NotificationServicing {
         )
     }
     
-    #if DEBUG
-    func scheduleTestNotificationInFiveSeconds() async {
-        let content = UNMutableNotificationContent()
-        content.title = "Test reminder"
-        content.body = "This is a JustWater test notification."
-        content.sound = .default
-        
-        let trigger = UNTimeIntervalNotificationTrigger(
-            timeInterval: 5,
-            repeats: false
-        )
-        
-        let request = UNNotificationRequest(
-            identifier: "hydration-test-notification",
-            content: content,
-            trigger: trigger
-        )
-        
-        do {
-            try await UNUserNotificationCenter.current().add(request)
-        } catch {
-            errorReporter.report(
-                error,
-                context: "Failed to schedule test notification"
-            )
-        }
-    }
-    #endif
+//    #if DEBUG
+//    func scheduleTestNotificationInFiveSeconds() async {
+//        let content = UNMutableNotificationContent()
+//        content.title = "Test reminder"
+//        content.body = "This is a JustWater test notification."
+//        content.sound = .default
+//        
+//        let trigger = UNTimeIntervalNotificationTrigger(
+//            timeInterval: 5,
+//            repeats: false
+//        )
+//        
+//        let request = UNNotificationRequest(
+//            identifier: "hydration-test-notification",
+//            content: content,
+//            trigger: trigger
+//        )
+//        
+//        do {
+//            try await UNUserNotificationCenter.current().add(request)
+//        } catch {
+//            errorReporter.report(
+//                error,
+//                context: "Failed to schedule test notification"
+//            )
+//        }
+//    }
+//    #endif
     
     // MARK: - Private Properties
     
