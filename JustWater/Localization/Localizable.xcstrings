@@ -328,6 +328,17 @@
         }
       }
     },
+    "Change the app language in iPhone Settings." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Измените язык приложения в настройках iPhone."
+          }
+        }
+      }
+    },
     "Choose a drink type and amount" : {
       "localizations" : {
         "ru" : {
@@ -1302,6 +1313,16 @@
         }
       }
     },
+    "iPhone Settings" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки iPhone"
+          }
+        }
+      }
+    },
     "JustWater" : {
       "localizations" : {
         "ru" : {
@@ -1318,6 +1339,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "JustWater предназначен для общего wellness tracking и не является медицинской рекомендацией."
+          }
+        }
+      }
+    },
+    "Language" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Язык"
           }
         }
       }

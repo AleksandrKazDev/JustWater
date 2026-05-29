@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct SettingsView: View {
     
@@ -163,6 +164,21 @@ struct SettingsView: View {
                     )
                 }
                 .tint(AppColors.primaryBlue)
+                
+                Divider()
+                    .opacity(0.35)
+
+                Button {
+                    HapticService.selection()
+                    openAppSettings()
+                } label: {
+                    SettingsRow(
+                        title: String(localized: "Language"),
+                        value: String(localized: "iPhone Settings"),
+                        systemImage: "globe"
+                    )
+                }
+                .buttonStyle(.plain)
                 
                 Divider()
                     .opacity(0.35)
@@ -438,5 +454,15 @@ struct SettingsView: View {
         default:
             return String(localized: "Version unknown")
         }
+    }
+    
+    private func openAppSettings() {
+        guard let url = URL(
+            string: UIApplication.openSettingsURLString
+        ) else {
+            return
+        }
+        
+        UIApplication.shared.open(url)
     }
 }
