@@ -172,11 +172,19 @@ struct SettingsView: View {
                     HapticService.selection()
                     openAppSettings()
                 } label: {
-                    SettingsRow(
-                        title: String(localized: "Language"),
-                        value: String(localized: "iPhone Settings"),
-                        systemImage: "globe"
-                    )
+                    HStack(spacing: AppSpacing.md) {
+                        SettingsLabel(
+                            title: String(localized: "Language"),
+                            subtitle: String(localized: "Change the app language in iPhone Settings."),
+                            systemImage: "globe"
+                        )
+                        
+                        Spacer()
+                        
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(AppColors.secondaryText.opacity(0.65))
+                    }
                 }
                 .buttonStyle(.plain)
                 
