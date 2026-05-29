@@ -7,17 +7,23 @@
 
 import Foundation
 
-enum WaterEntryUndoAction {
+enum WaterEntryUndoAction: Equatable {
     case added(WaterEntrySnapshot)
     case deleted(WaterEntrySnapshot)
     
     var message: String {
         switch self {
-        case .added:
-            return String(localized: "undo.added")
+        case .added(let snapshot):
+            return String(
+                format: String(localized: "undo.added"),
+                snapshot.drinkType.title
+            )
             
-        case .deleted:
-            return String(localized: "undo.deleted")
+        case .deleted(let snapshot):
+            return String(
+                format: String(localized: "undo.deleted"),
+                snapshot.drinkType.title
+            )
         }
     }
 }

@@ -1314,7 +1314,7 @@
       }
     },
     "iPhone Settings" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -1974,7 +1974,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Запись добавлена"
+            "value" : "Добавлено: %@"
           }
         }
       }
@@ -1990,7 +1990,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Запись удалена"
+            "value" : "Удалено: %@"
           }
         }
       }
