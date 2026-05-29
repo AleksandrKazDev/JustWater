@@ -24,20 +24,20 @@ enum WaterEntryEditorMode: Identifiable {
     var title: String {
         switch self {
         case .add:
-            return "Add Entry"
+            return String(localized: "entry_editor.add.title")
             
         case .edit:
-            return "Edit Entry"
+            return String(localized: "entry_editor.edit.title")
         }
     }
     
     var actionTitle: String {
         switch self {
         case .add:
-            return "Save Entry"
+            return String(localized: "entry_editor.add.action")
             
         case .edit:
-            return "Save Changes"
+            return String(localized: "entry_editor.edit.action")
         }
     }
     

@@ -199,6 +199,14 @@ struct HistoryChartSection: View {
                     .foregroundStyle(chartAxisLabelColor)
             }
             
+        case .year:
+            AxisMarks(
+                values: yearAxisLabels
+            ) { _ in
+                AxisValueLabel()
+                    .foregroundStyle(chartAxisLabelColor)
+            }
+            
         default:
             AxisMarks(values: .automatic) { _ in
                 AxisValueLabel()
@@ -222,6 +230,14 @@ struct HistoryChartSection: View {
                 day == 20 ||
                 day == 25 ||
                 day == 30
+            }
+    }
+    
+    private var yearAxisLabels: [String] {
+        analytics.chartPoints
+            .enumerated()
+            .compactMap { index, point in
+                index.isMultiple(of: 2) ? point.label : nil
             }
     }
     
