@@ -1506,7 +1506,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Поддержите привычку — выпейте немного воды."
+            "value" : "Поддержите привычку — выпейте воды."
           }
         }
       }
@@ -1619,13 +1619,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Time to hydrate"
+            "value" : "Time to add water"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Время попить"
+            "value" : "Время выпить воды"
           }
         }
       }

@@ -26,9 +26,9 @@ protocol NotificationServicing {
     
     func cancelHydrationReminders()
     
-//    #if DEBUG
-//    func scheduleTestNotificationInFiveSeconds() async
-//    #endif
+    //    #if DEBUG
+    //    func scheduleTestNotificationInFiveSeconds() async
+    //    #endif
 }
 
 @MainActor
@@ -99,14 +99,14 @@ final class AppNotificationService: NotificationServicing {
             )
         )
         
-        let reminderBodies = HydrationReminderMessageProvider.shuffledBodies(
+        let reminderBodyKeys = HydrationReminderMessageProvider.shuffledBodyKeys(
             count: hours.count
         )
         
         for (index, hour) in hours.enumerated() {
             await scheduleReminder(
                 hour: hour,
-                body: reminderBodies[index]
+                bodyLocalizationKey: reminderBodyKeys[index]
             )
         }
     }
@@ -117,34 +117,40 @@ final class AppNotificationService: NotificationServicing {
         )
     }
     
-//    #if DEBUG
-//    func scheduleTestNotificationInFiveSeconds() async {
-//        let content = UNMutableNotificationContent()
-//        content.title = String(localized: "notification.test.title")
-//        content.body = String(localized: "notification.test.body")
-//        content.sound = .default
-//
-//        let trigger = UNTimeIntervalNotificationTrigger(
-//            timeInterval: 5,
-//            repeats: false
-//        )
-//
-//        let request = UNNotificationRequest(
-//            identifier: "hydration-test-notification",
-//            content: content,
-//            trigger: trigger
-//        )
-//
-//        do {
-//            try await UNUserNotificationCenter.current().add(request)
-//        } catch {
-//            errorReporter.report(
-//                error,
-//                context: "Failed to schedule test notification"
-//            )
-//        }
-//    }
-//    #endif
+    //    #if DEBUG
+    //    func scheduleTestNotificationInFiveSeconds() async {
+    //        let content = UNMutableNotificationContent()
+    //    content.title = NSString.localizedUserNotificationString(
+    //        forKey: "notification.test.title",
+    //        arguments: nil
+    //    )
+    //    content.body = NSString.localizedUserNotificationString(
+    //        forKey: "notification.test.body",
+    //        arguments: nil
+    //    )
+    //        content.sound = .default
+    //
+    //        let trigger = UNTimeIntervalNotificationTrigger(
+    //            timeInterval: 5,
+    //            repeats: false
+    //        )
+    //
+    //        let request = UNNotificationRequest(
+    //            identifier: "hydration-test-notification",
+    //            content: content,
+    //            trigger: trigger
+    //        )
+    //
+    //        do {
+    //            try await UNUserNotificationCenter.current().add(request)
+    //        } catch {
+    //            errorReporter.report(
+    //                error,
+    //                context: "Failed to schedule test notification"
+    //            )
+    //        }
+    //    }
+    //    #endif
     
     // MARK: - Private Properties
     
@@ -158,11 +164,17 @@ final class AppNotificationService: NotificationServicing {
     
     private func scheduleReminder(
         hour: Int,
-        body: String
+        bodyLocalizationKey: String
     ) async {
         let content = UNMutableNotificationContent()
-        content.title = HydrationReminderMessageProvider.title()
-        content.body = body
+        content.title = NSString.localizedUserNotificationString(
+            forKey: HydrationReminderMessageProvider.titleKey,
+            arguments: nil
+        )
+        content.body = NSString.localizedUserNotificationString(
+            forKey: bodyLocalizationKey,
+            arguments: nil
+        )
         content.sound = .default
         
         var dateComponents = DateComponents()
@@ -179,7 +191,6 @@ final class AppNotificationService: NotificationServicing {
             content: content,
             trigger: trigger
         )
-        
         do {
             try await UNUserNotificationCenter.current().add(request)
         } catch {
