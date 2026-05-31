@@ -88,7 +88,7 @@ Healthcare & Fitness
 https://github.com/AleksandrKazDev
 
 ### Privacy Policy URL
-https://github.com/AleksandrKazDev/JustWater/blob/main/PRIVACY.md
+https://aleksandrkazdev.github.io/JustWater/privacy
 
 ---
 

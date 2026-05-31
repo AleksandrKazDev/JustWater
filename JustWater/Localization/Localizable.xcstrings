@@ -1630,6 +1630,17 @@
         }
       }
     },
+    "notification.test.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "тест уведомлений"
+          }
+        }
+      }
+    },
     "Notifications are disabled in iPhone Settings." : {
       "localizations" : {
         "ru" : {

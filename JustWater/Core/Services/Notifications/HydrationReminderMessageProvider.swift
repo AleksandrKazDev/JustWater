@@ -11,6 +11,8 @@ enum HydrationReminderMessageProvider {
     
     // MARK: - Private Properties
     
+    private static let titleKey = "notification.hydration.title"
+    
     private static let bodyKeys = [
         "notification.hydration.body.1",
         "notification.hydration.body.2",
@@ -24,15 +26,15 @@ enum HydrationReminderMessageProvider {
         "notification.hydration.body.10"
     ]
     
-    // MARK: - Public Properties
-    
-    static var titleKey: String {
-        "notification.hydration.title"
-    }
-    
     // MARK: - Public Methods
     
-    static func shuffledBodyKeys(
+    static func title() -> String {
+        localizedString(
+            for: titleKey
+        )
+    }
+    
+    static func shuffledBodies(
         count: Int
     ) -> [String] {
         guard count > 0 else {
@@ -49,10 +51,30 @@ enum HydrationReminderMessageProvider {
                     break
                 }
                 
-                result.append(key)
+                result.append(
+                    localizedString(for: key)
+                )
             }
         }
         
         return result
+    }
+    
+    // MARK: - Private Methods
+    
+    private static func localizedString(
+        for key: String
+    ) -> String {
+        let languageIdentifier = Bundle.main.preferredLocalizations.first
+            ?? Locale.current.identifier
+        
+        let locale = Locale(
+            identifier: languageIdentifier
+        )
+        
+        return String(
+            localized: String.LocalizationValue(key),
+            locale: locale
+        )
     }
 }
