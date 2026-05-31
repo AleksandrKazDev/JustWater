@@ -288,7 +288,7 @@ struct HistoryDatePickerSheet: View {
             for: date
         )
         
-        let state = dayStates[normalizedDate] ?? .empty
+        let state = dayStates[normalizedDate]
         
         return Button {
             HapticService.selection()
@@ -297,33 +297,30 @@ struct HistoryDatePickerSheet: View {
             ZStack {
                 Circle()
                     .fill(
-                        backgroundColor(
-                            state: state,
-                            isSelected: isSelected
-                        )
+                        isSelected
+                        ? AppColors.primaryBlue
+                        : Color.clear
                     )
                     .frame(
                         width: cellSize,
                         height: cellSize
                     )
                 
-                if isToday && !isSelected {
+                if let state,
+                   state.hasEntries,
+                   !isSelected {
+                    progressRing(
+                        progress: state.progress,
+                        isGoalReached: state.isGoalReached,
+                        cellSize: cellSize
+                    )
+                }
+                
+                if isToday && !isSelected && state == nil {
                     Circle()
                         .stroke(
                             AppColors.primaryText.opacity(0.18),
                             lineWidth: 1
-                        )
-                        .frame(
-                            width: cellSize,
-                            height: cellSize
-                        )
-                }
-                
-                if state == .goalReached && !isSelected {
-                    Circle()
-                        .stroke(
-                            AppColors.primaryBlue.opacity(0.45),
-                            lineWidth: 1.5
                         )
                         .frame(
                             width: cellSize,
@@ -346,6 +343,44 @@ struct HistoryDatePickerSheet: View {
             .contentShape(Circle())
         }
         .buttonStyle(.plain)
+    }
+    
+    private func progressRing(
+        progress: Double,
+        isGoalReached: Bool,
+        cellSize: CGFloat
+    ) -> some View {
+        ZStack {
+            Circle()
+                .stroke(
+                    AppColors.primaryBlue.opacity(0.12),
+                    lineWidth: 2
+                )
+                .frame(
+                    width: cellSize,
+                    height: cellSize
+                )
+            
+            Circle()
+                .trim(
+                    from: 0,
+                    to: progress
+                )
+                .stroke(
+                    AppColors.primaryBlue.opacity(
+                        isGoalReached ? 0.85 : 0.58
+                    ),
+                    style: StrokeStyle(
+                        lineWidth: 2,
+                        lineCap: .round
+                    )
+                )
+                .rotationEffect(.degrees(-90))
+                .frame(
+                    width: cellSize,
+                    height: cellSize
+                )
+        }
     }
     
     // MARK: - Layout Constants
@@ -649,26 +684,6 @@ struct HistoryDatePickerSheet: View {
         for date: Date
     ) -> String {
         "\(calendar.component(.day, from: date))"
-    }
-    
-    private func backgroundColor(
-        state: HistoryCalendarDayState,
-        isSelected: Bool
-    ) -> Color {
-        if isSelected {
-            return AppColors.primaryBlue
-        }
-        
-        switch state {
-        case .empty:
-            return .clear
-            
-        case .hasEntries:
-            return AppColors.primaryBlue.opacity(0.10)
-            
-        case .goalReached:
-            return AppColors.primaryBlue.opacity(0.14)
-        }
     }
     
     private func calendarMetrics(

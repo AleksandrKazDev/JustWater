@@ -231,15 +231,15 @@ final class HistoryViewModel {
                 }
                 
                 guard totalAmount > 0 else {
-                    result[date] = .empty
                     continue
                 }
                 
                 let goal = goalsByDay[date] ?? AppSettingsStorage.dailyGoal
                 
-                result[date] = totalAmount >= goal
-                ? .goalReached
-                : .hasEntries
+                result[date] = HistoryCalendarDayState(
+                    totalAmount: totalAmount,
+                    goal: goal
+                )
             }
             
             return result
