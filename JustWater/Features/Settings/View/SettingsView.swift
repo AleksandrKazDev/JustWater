@@ -236,28 +236,28 @@ struct SettingsView: View {
                     .disabled(!viewModel.areRemindersEnabled)
                     .opacity(viewModel.areRemindersEnabled ? 1 : 0.45)
                 
-//                #if DEBUG
-//                Divider()
-//                    .opacity(0.35)
-//                
-//                Button {
-//                    Task {
-//                        await viewModel.scheduleTestNotificationInFiveSeconds()
-//                    }
-//                } label: {
-//                    SettingsRow(
-//                        title: String(localized: "Test Notification"),
-//                        value: String(localized: "5 seconds"),
-//                        systemImage: "bell.badge"
-//                    )
-//                }
-//                .buttonStyle(
-//                    PressableScaleButtonStyle(
-//                        scale: 0.985,
-//                        pressedBrightness: -0.015
-//                    )
-//                )
-//                #endif
+                #if DEBUG
+                Divider()
+                    .opacity(0.35)
+                
+                Button {
+                    Task {
+                        await viewModel.scheduleTestNotificationInFiveSeconds()
+                    }
+                } label: {
+                    SettingsRow(
+                        title: String(localized: "Test Notification"),
+                        value: String(localized: "5 seconds"),
+                        systemImage: "bell.badge"
+                    )
+                }
+                .buttonStyle(
+                    PressableScaleButtonStyle(
+                        scale: 0.985,
+                        pressedBrightness: -0.015
+                    )
+                )
+                #endif
             }
         }
     }

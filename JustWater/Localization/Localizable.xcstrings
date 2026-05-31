@@ -506,7 +506,7 @@
       }
     },
     "Date" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -1388,7 +1388,14 @@
       }
     },
     "Month" : {
-
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Месяц"
+          }
+        }
+      }
     },
     "Monthly Summary" : {
       "extractionState" : "manual",
@@ -1633,6 +1640,9 @@
           }
         }
       }
+    },
+    "notification.test.body" : {
+
     },
     "notification.test.title" : {
       "extractionState" : "manual",
@@ -2329,7 +2339,14 @@
       }
     },
     "Year" : {
-
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Год"
+          }
+        }
+      }
     },
     "You can always adjust it later in Settings." : {
       "localizations" : {
