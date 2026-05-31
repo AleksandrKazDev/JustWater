@@ -61,16 +61,16 @@ struct HomeHeader: View {
                 )
             }
             
-            NavigationLink {
-                CalculatorView { goal in
-                    updateDailyGoal(goal)
-                }
-            } label: {
-                Label(
-                    "Goal Calculator",
-                    systemImage: "target"
-                )
-            }
+//            NavigationLink {
+//                CalculatorView { goal in
+//                    updateDailyGoal(goal)
+//                }
+//            } label: {
+//                Label(
+//                    "Goal Calculator",
+//                    systemImage: "target"
+//                )
+//            }
             
             NavigationLink {
                 SettingsView()
