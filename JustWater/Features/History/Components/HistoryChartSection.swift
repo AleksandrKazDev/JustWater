@@ -202,9 +202,16 @@ struct HistoryChartSection: View {
         case .year:
             AxisMarks(
                 values: yearAxisLabels
-            ) { _ in
-                AxisValueLabel()
-                    .foregroundStyle(chartAxisLabelColor)
+            ) { value in
+                AxisValueLabel {
+                    if let label = value.as(String.self) {
+                        Text(yearAxisInitial(for: label))
+                            .font(AppTypography.caption)
+                            .foregroundStyle(chartAxisLabelColor)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                    }
+                }
             }
             
         default:
@@ -233,13 +240,13 @@ struct HistoryChartSection: View {
             }
     }
     
-    private var yearAxisLabels: [String] {
-        analytics.chartPoints
-            .enumerated()
-            .compactMap { index, point in
-                index.isMultiple(of: 2) ? point.label : nil
-            }
-    }
+//    private var yearAxisLabels: [String] {
+//        analytics.chartPoints
+//            .enumerated()
+//            .compactMap { index, point in
+//                index.isMultiple(of: 2) ? point.label : nil
+//            }
+//    }
     
     private var chartYDomain: ClosedRange<Int> {
         let maxAmount = analytics.chartPoints.map(\.amount).max() ?? 0
@@ -278,5 +285,19 @@ struct HistoryChartSection: View {
         
         let step = 500
         return ((value + step - 1) / step) * step
+    }
+    
+    private var yearAxisLabels: [String] {
+        analytics.chartPoints.map(\.label)
+    }
+
+    private func yearAxisInitial(
+        for label: String
+    ) -> String {
+        guard let firstCharacter = label.first else {
+            return label
+        }
+        
+        return String(firstCharacter).uppercased()
     }
 }
