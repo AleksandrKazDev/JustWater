@@ -21,6 +21,7 @@ struct HistoryDatePickerSheet: View {
     @State private var visibleMonth: Date
     @State private var dayStates: [Date: HistoryCalendarDayState]
     @State private var isMonthYearPickerPresented = false
+    @State private var preferredDay: Int
     
     // MARK: - Private Properties
     
@@ -52,6 +53,13 @@ struct HistoryDatePickerSheet: View {
         
         self._dayStates = State(
             initialValue: dayStatesProvider(month)
+        )
+        
+        self._preferredDay = State(
+            initialValue: Calendar.current.component(
+                .day,
+                from: selectedDate
+            )
         )
     }
     
@@ -518,6 +526,19 @@ struct HistoryDatePickerSheet: View {
     private func selectDate(
         _ date: Date
     ) {
+        preferredDay = calendar.component(
+            .day,
+            from: date
+        )
+        
+        internalSelectedDate = date
+        visibleMonth = monthStart(for: date)
+        onSelectDate(date)
+    }
+    
+    private func selectDatePreservingPreferredDay(
+        _ date: Date
+    ) {
         internalSelectedDate = date
         visibleMonth = monthStart(for: date)
         onSelectDate(date)
@@ -541,11 +562,11 @@ struct HistoryDatePickerSheet: View {
             return
         }
         
-        let newDate = dateByKeepingSelectedDay(
+        let newDate = dateByKeepingPreferredDay(
             in: newVisibleMonth
         )
         
-        selectDate(newDate)
+        selectDatePreservingPreferredDay(newDate)
     }
     
     private func updateSelectedDate(
@@ -580,49 +601,23 @@ struct HistoryDatePickerSheet: View {
         year: Int,
         month: Int
     ) {
-        let selectedDay = calendar.component(
-            .day,
-            from: internalSelectedDate
+        let monthStart = monthStartDate(
+            year: year,
+            month: month
         )
         
-        var components = DateComponents()
-        components.calendar = calendar
-        components.year = year
-        components.month = month
-        components.day = 1
-        
-        guard let monthStart = calendar.date(
-            from: components
-        ) else {
-            return
-        }
-        
-        let validDay = min(
-            selectedDay,
-            numberOfDays(in: monthStart)
+        let newDate = dateByKeepingPreferredDay(
+            in: monthStart
         )
         
-        components.day = validDay
-        
-        guard let newDate = calendar.date(
-            from: components
-        ) else {
-            return
-        }
-        
-        selectDate(newDate)
+        selectDatePreservingPreferredDay(newDate)
     }
     
-    private func dateByKeepingSelectedDay(
+    private func dateByKeepingPreferredDay(
         in monthDate: Date
     ) -> Date {
-        let selectedDay = calendar.component(
-            .day,
-            from: internalSelectedDate
-        )
-        
         let validDay = min(
-            selectedDay,
+            preferredDay,
             numberOfDays(in: monthDate)
         )
         
@@ -645,6 +640,21 @@ struct HistoryDatePickerSheet: View {
             of: .month,
             for: date
         )?.start ?? date
+    }
+    
+    private func monthStartDate(
+        year: Int,
+        month: Int
+    ) -> Date {
+        var components = DateComponents()
+        components.calendar = calendar
+        components.year = year
+        components.month = month
+        components.day = 1
+        
+        return calendar.date(
+            from: components
+        ) ?? Date()
     }
     
     private func numberOfDays(
