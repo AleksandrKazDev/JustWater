@@ -99,7 +99,14 @@ struct HistoryView: View {
             if let viewModel {
                 HistoryDatePickerSheet(
                     selectedDate: viewModel.referenceDate,
-                    onSelectDate: viewModel.selectReferenceDate
+                    dayStatesProvider: { monthDate in
+                        viewModel.calendarDayStates(
+                            for: monthDate
+                        )
+                    },
+                    onSelectDate: { date in
+                        viewModel.selectReferenceDate(date)
+                    }
                 )
             }
         }

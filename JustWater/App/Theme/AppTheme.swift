@@ -71,6 +71,12 @@ enum AppTypography {
         design: .default
     )
     
+    static let title2 = Font.system(
+            size: 26,
+            weight: .semibold,
+            design: .default
+        )
+    
     static let headline = Font.system(
         size: 20,
         weight: .semibold,

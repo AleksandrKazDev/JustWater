@@ -192,6 +192,67 @@ final class HistoryViewModel {
         }
     }
     
+    func calendarDayStates(
+        for monthDate: Date
+    ) -> [Date: HistoryCalendarDayState] {
+        let calendar = Calendar.current
+        
+        guard let monthInterval = calendar.dateInterval(
+            of: .month,
+            for: monthDate
+        ) else {
+            return [:]
+        }
+        
+        do {
+            let entries = try storageService.fetchEntries(
+                for: .month,
+                referenceDate: monthDate
+            )
+            
+            let groupedEntries = Dictionary(
+                grouping: entries
+            ) { entry in
+                calendar.startOfDay(
+                    for: entry.date
+                )
+            }
+            
+            let goalsByDay = try goalStorageService.goalsByDay(
+                from: monthInterval.start,
+                to: monthInterval.end
+            )
+            
+            var result: [Date: HistoryCalendarDayState] = [:]
+            
+            for (date, entriesForDate) in groupedEntries {
+                let totalAmount = entriesForDate.reduce(0) {
+                    $0 + $1.amount
+                }
+                
+                guard totalAmount > 0 else {
+                    result[date] = .empty
+                    continue
+                }
+                
+                let goal = goalsByDay[date] ?? AppSettingsStorage.dailyGoal
+                
+                result[date] = totalAmount >= goal
+                ? .goalReached
+                : .hasEntries
+            }
+            
+            return result
+        } catch {
+            errorReporter.report(
+                error,
+                context: "Failed to load calendar day states"
+            )
+            
+            return [:]
+        }
+    }
+    
     func deleteEntry(
         _ entry: WaterEntry
     ) {

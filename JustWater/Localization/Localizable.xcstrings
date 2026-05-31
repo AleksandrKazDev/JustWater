@@ -506,6 +506,7 @@
       }
     },
     "Date" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -1385,6 +1386,9 @@
           }
         }
       }
+    },
+    "Month" : {
+
     },
     "Monthly Summary" : {
       "extractionState" : "manual",
@@ -2323,6 +2327,9 @@
           }
         }
       }
+    },
+    "Year" : {
+
     },
     "You can always adjust it later in Settings." : {
       "localizations" : {
