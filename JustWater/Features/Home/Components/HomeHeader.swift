@@ -56,7 +56,7 @@ struct HomeHeader: View {
                 HistoryView()
             } label: {
                 Label(
-                    "History",
+                    String(localized: "History"),
                     systemImage: "clock.arrow.circlepath"
                 )
             }
@@ -76,7 +76,7 @@ struct HomeHeader: View {
                 SettingsView()
             } label: {
                 Label(
-                    "Settings",
+                    String(localized: "Settings"),
                     systemImage: "gearshape"
                 )
             }
