@@ -18,7 +18,8 @@ struct JustWaterApp: App {
         .modelContainer(
             for: [
                 WaterEntryEntity.self,
-                WaterGoalEntity.self
+                WaterGoalEntity.self,
+                HydrationStreakDayEntity.self
             ]
         )
     }

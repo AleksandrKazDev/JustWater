@@ -12,6 +12,7 @@ import Foundation
 final class HomeViewModel {
     
     private let storageService: WaterStorageServicing
+    private let streakDayService: HydrationStreakDayTracking
     private let hapticService: HapticServicing
     private let errorReporter: ErrorReporting
     
@@ -28,10 +29,12 @@ final class HomeViewModel {
     
     init(
         storageService: WaterStorageServicing,
+        streakDayService: HydrationStreakDayTracking,
         hapticService: HapticServicing,
         errorReporter: ErrorReporting
     ) {
         self.storageService = storageService
+        self.streakDayService = streakDayService
         self.hapticService = hapticService
         self.errorReporter = errorReporter
     }
@@ -40,7 +43,10 @@ final class HomeViewModel {
         do {
             hydrationState.dailyGoal = AppSettingsStorage.dailyGoal
             
-            let entries = try storageService.fetchEntries(for: Date.now)
+            let entries = try storageService.fetchEntries(
+                for: Date.now
+            )
+            
             hydrationState.entries = entries
         } catch {
             errorReporter.report(
@@ -55,10 +61,16 @@ final class HomeViewModel {
         drinkType: DrinkType = .water
     ) {
         do {
+            let entryDate = Date()
+            
             let entry = try storageService.saveEntry(
                 amount: amount,
-                date: Date(),
+                date: entryDate,
                 drinkType: drinkType
+            )
+            
+            try streakDayService.markTodayIfEntryIsForToday(
+                entryDate: entryDate
             )
             
             pendingUndoAction = .added(

@@ -15,8 +15,12 @@ final class HistoryViewModel {
     
     private let storageService: WaterStorageServicing
     private let goalStorageService: WaterGoalStorageServicing
+    private let streakDayService: HydrationStreakDayTracking
+    private let streakCalculator: HydrationStreakCalculating
+    private let dateProvider: DateProviding
     private let hapticService: HapticServicing
     private let errorReporter: ErrorReporting
+    private let calendar: Calendar
     
     // MARK: - State
     
@@ -28,6 +32,8 @@ final class HistoryViewModel {
     var yearReferenceDate = Date.now
     
     var analytics: HistoryAnalytics?
+    
+    private(set) var currentStreak: Int = 0
     
     private(set) var pendingUndoAction: WaterEntryUndoAction?
     
@@ -122,13 +128,21 @@ final class HistoryViewModel {
     init(
         storageService: WaterStorageServicing,
         goalStorageService: WaterGoalStorageServicing,
+        streakDayService: HydrationStreakDayTracking,
+        streakCalculator: HydrationStreakCalculating = HydrationStreakCalculator(),
+        dateProvider: DateProviding = SystemDateProvider(),
         hapticService: HapticServicing,
-        errorReporter: ErrorReporting
+        errorReporter: ErrorReporting,
+        calendar: Calendar = .current
     ) {
         self.storageService = storageService
         self.goalStorageService = goalStorageService
+        self.streakDayService = streakDayService
+        self.streakCalculator = streakCalculator
+        self.dateProvider = dateProvider
         self.hapticService = hapticService
         self.errorReporter = errorReporter
+        self.calendar = calendar
     }
     
     // MARK: - Public Methods
@@ -184,6 +198,8 @@ final class HistoryViewModel {
                 dailyGoalProvider: dailyGoalProvider,
                 referenceDate: referenceDate
             )
+            
+            reloadCurrentStreak()
         } catch {
             errorReporter.report(
                 error,
@@ -289,6 +305,10 @@ final class HistoryViewModel {
                 drinkType: drinkType
             )
             
+            try streakDayService.markTodayIfEntryIsForToday(
+                entryDate: date
+            )
+            
             pendingUndoAction = .added(
                 WaterEntrySnapshot(
                     entry: entry
@@ -320,7 +340,7 @@ final class HistoryViewModel {
             )
             
             loadAnalytics()
-            HapticService.success()
+            hapticService.success()
         } catch {
             errorReporter.report(
                 error,
@@ -359,6 +379,25 @@ final class HistoryViewModel {
     
     // MARK: - Private Methods
     
+    private func reloadCurrentStreak() {
+        do {
+            let streakDays = try streakDayService.fetchStreakDays()
+            
+            currentStreak = streakCalculator.currentStreak(
+                streakDays: streakDays,
+                currentDate: dateProvider.now,
+                calendar: calendar
+            )
+        } catch {
+            currentStreak = 0
+            
+            errorReporter.report(
+                error,
+                context: "Failed to load current streak"
+            )
+        }
+    }
+    
     private func setReferenceDate(
         _ date: Date
     ) {
@@ -380,8 +419,6 @@ final class HistoryViewModel {
     private func shiftPeriod(
         by value: Int
     ) {
-        let calendar = Calendar.current
-        
         let component: Calendar.Component
         
         switch selectedPeriod {

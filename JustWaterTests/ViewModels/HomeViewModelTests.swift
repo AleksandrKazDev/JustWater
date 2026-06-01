@@ -306,6 +306,7 @@ final class HomeViewModelTests: XCTestCase {
     ) -> HomeViewModel {
         HomeViewModel(
             storageService: storageService,
+            streakDayService: TestHydrationStreakDayService(),
             hapticService: TestHapticService(),
             errorReporter: TestErrorReporter()
         )
@@ -317,6 +318,7 @@ final class HomeViewModelTests: XCTestCase {
     ) -> HomeViewModel {
         HomeViewModel(
             storageService: storageService,
+            streakDayService: TestHydrationStreakDayService(),
             hapticService: hapticService,
             errorReporter: TestErrorReporter()
         )
@@ -329,9 +331,20 @@ final class HomeViewModelTests: XCTestCase {
     ) -> HomeViewModel {
         HomeViewModel(
             storageService: storageService,
+            streakDayService: TestHydrationStreakDayService(),
             hapticService: hapticService,
             errorReporter: errorReporter
         )
+    }
+    
+    private final class TestHydrationStreakDayService: HydrationStreakDayTracking {
+        func markTodayIfEntryIsForToday(
+            entryDate: Date
+        ) throws {}
+        
+        func fetchStreakDays() throws -> Set<Date> {
+            []
+        }
     }
     
     private func expectedAddedMessage(

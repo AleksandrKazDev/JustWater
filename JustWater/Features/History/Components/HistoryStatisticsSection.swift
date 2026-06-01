@@ -13,6 +13,7 @@ struct HistoryStatisticsSection: View {
     
     let statistics: HistoryStatistics
     let period: HistoryPeriod
+    let currentStreak: Int
     
     // MARK: - Body
     
@@ -25,8 +26,8 @@ struct HistoryStatisticsSection: View {
                 )
                 
                 HistoryStatisticCard(
-                    title: averageTitle,
-                    value: formattedAmount(statistics.averageAmount)
+                    title: primarySecondaryMetricTitle,
+                    value: primarySecondaryMetricValue
                 )
             }
             
@@ -46,16 +47,28 @@ struct HistoryStatisticsSection: View {
     
     // MARK: - Computed Properties
     
-    private var averageTitle: String {
+    private var primarySecondaryMetricTitle: String {
         switch period {
         case .day:
-            return String(localized: "history.stat.average")
+            return String(localized: "history.stat.streak")
             
         case .week, .month:
             return String(localized: "history.stat.daily_avg")
             
         case .year:
             return String(localized: "history.stat.monthly_avg")
+        }
+    }
+    
+    private var primarySecondaryMetricValue: String {
+        switch period {
+        case .day:
+            return streakValue
+            
+        case .week, .month, .year:
+            return formattedAmount(
+                statistics.averageAmount
+            )
         }
     }
     
@@ -102,6 +115,13 @@ struct HistoryStatisticsSection: View {
             ? formattedAmount(statistics.bestAmount)
             : "—"
         }
+    }
+    
+    private var streakValue: String {
+        String(
+            format: String(localized: "history.stat.streak_days"),
+            currentStreak
+        )
     }
     
     // MARK: - Private Methods

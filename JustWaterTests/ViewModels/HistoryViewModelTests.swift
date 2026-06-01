@@ -448,18 +448,19 @@ final class HistoryViewModelTests: XCTestCase {
     }
     
     // MARK: - Helpers
-    
+
     private func makeSUT(
         storageService: TestWaterStorageService
     ) -> HistoryViewModel {
         HistoryViewModel(
             storageService: storageService,
             goalStorageService: TestWaterGoalStorageService(),
+            streakDayService: TestHydrationStreakDayService(),
             hapticService: TestHapticService(),
             errorReporter: TestErrorReporter()
         )
     }
-    
+
     private func makeSUT(
         storageService: TestWaterStorageService,
         goalStorageService: TestWaterGoalStorageService
@@ -467,11 +468,12 @@ final class HistoryViewModelTests: XCTestCase {
         HistoryViewModel(
             storageService: storageService,
             goalStorageService: goalStorageService,
+            streakDayService: TestHydrationStreakDayService(),
             hapticService: TestHapticService(),
             errorReporter: TestErrorReporter()
         )
     }
-    
+
     private func makeSUT(
         storageService: TestWaterStorageService,
         goalStorageService: TestWaterGoalStorageService,
@@ -481,11 +483,22 @@ final class HistoryViewModelTests: XCTestCase {
         HistoryViewModel(
             storageService: storageService,
             goalStorageService: goalStorageService,
+            streakDayService: TestHydrationStreakDayService(),
             hapticService: hapticService,
             errorReporter: errorReporter
         )
     }
-    
+
+    private final class TestHydrationStreakDayService: HydrationStreakDayTracking {
+        func markTodayIfEntryIsForToday(
+            entryDate: Date
+        ) throws {}
+
+        func fetchStreakDays() throws -> Set<Date> {
+            []
+        }
+    }
+
     private func makeDate(
         year: Int,
         month: Int,
@@ -500,10 +513,10 @@ final class HistoryViewModelTests: XCTestCase {
         components.day = day
         components.hour = hour
         components.minute = minute
-        
+
         return components.date!
     }
-    
+
     private func expectedAddedMessage(
         for drinkType: DrinkType
     ) -> String {
@@ -512,7 +525,7 @@ final class HistoryViewModelTests: XCTestCase {
             drinkType.title
         )
     }
-    
+
     private func expectedDeletedMessage(
         for drinkType: DrinkType
     ) -> String {

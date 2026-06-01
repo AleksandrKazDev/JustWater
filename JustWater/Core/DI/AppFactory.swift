@@ -17,8 +17,13 @@ enum AppFactory {
             context: context
         )
         
+        let streakDayService = makeHydrationStreakDayService(
+            context: context
+        )
+        
         return HomeViewModel(
             storageService: storageService,
+            streakDayService: streakDayService,
             hapticService: makeHapticService(),
             errorReporter: makeErrorReporter()
         )
@@ -35,9 +40,16 @@ enum AppFactory {
             context: context
         )
         
+        let streakDayService = makeHydrationStreakDayService(
+            context: context
+        )
+        
         return HistoryViewModel(
             storageService: storageService,
             goalStorageService: goalStorageService,
+            streakDayService: streakDayService,
+            streakCalculator: HydrationStreakCalculator(),
+            dateProvider: SystemDateProvider(),
             hapticService: makeHapticService(),
             errorReporter: makeErrorReporter()
         )
@@ -78,6 +90,14 @@ enum AppFactory {
         context: ModelContext
     ) -> WaterGoalStorageService {
         WaterGoalStorageService(
+            context: context
+        )
+    }
+    
+    private static func makeHydrationStreakDayService(
+        context: ModelContext
+    ) -> HydrationStreakDayService {
+        HydrationStreakDayService(
             context: context
         )
     }

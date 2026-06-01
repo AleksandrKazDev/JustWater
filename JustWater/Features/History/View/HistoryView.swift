@@ -52,6 +52,7 @@ struct HistoryView: View {
                             HistoryContentView(
                                 analytics: analytics,
                                 dailyGoal: viewModel.displayDailyGoal,
+                                currentStreak:  viewModel.currentStreak,
                                 onAddEntry: {
                                     editorMode = .add(
                                         date: viewModel.referenceDate

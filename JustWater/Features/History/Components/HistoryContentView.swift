@@ -13,6 +13,7 @@ struct HistoryContentView: View {
     
     let analytics: HistoryAnalytics
     let dailyGoal: Int
+    let currentStreak: Int
     
     let onAddEntry: () -> Void
     let onEditEntry: (WaterEntry) -> Void
@@ -44,7 +45,8 @@ struct HistoryContentView: View {
         Group {
             HistoryStatisticsSection(
                 statistics: analytics.statistics,
-                period: analytics.period
+                period: analytics.period,
+                currentStreak: currentStreak
             )
             
             HistoryChartSection(
@@ -69,7 +71,8 @@ struct HistoryContentView: View {
         Group {
             HistoryStatisticsSection(
                 statistics: analytics.statistics,
-                period: analytics.period
+                period: analytics.period,
+                currentStreak: currentStreak
             )
             
             HistoryChartSection(
@@ -93,7 +96,8 @@ struct HistoryContentView: View {
         Group {
             HistoryStatisticsSection(
                 statistics: analytics.statistics,
-                period: analytics.period
+                period: analytics.period,
+                currentStreak: currentStreak
             )
             
             HistoryChartSection(
@@ -111,7 +115,8 @@ struct HistoryContentView: View {
         Group {
             HistoryStatisticsSection(
                 statistics: analytics.statistics,
-                period: analytics.period
+                period: analytics.period,
+                currentStreak: currentStreak
             )
             
             HistoryChartSection(
