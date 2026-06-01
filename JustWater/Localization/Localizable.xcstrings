@@ -351,6 +351,7 @@
       }
     },
     "common.add" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -367,6 +368,7 @@
       }
     },
     "common.cancel" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -383,6 +385,7 @@
       }
     },
     "common.delete" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -399,6 +402,7 @@
       }
     },
     "common.done" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -415,6 +419,7 @@
       }
     },
     "common.edit" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -431,6 +436,7 @@
       }
     },
     "common.save" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -890,6 +896,7 @@
       }
     },
     "goal_calculator.title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1039,6 +1046,7 @@
       }
     },
     "history.select_date" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1055,6 +1063,7 @@
       }
     },
     "history.select_month" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1071,6 +1080,7 @@
       }
     },
     "history.select_week" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1087,6 +1097,7 @@
       }
     },
     "history.select_year" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1377,6 +1388,7 @@
       }
     },
     "history.title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1393,6 +1405,7 @@
       }
     },
     "home.title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1796,6 +1809,7 @@
       }
     },
     "onboarding.continue" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1812,6 +1826,7 @@
       }
     },
     "onboarding.get_started" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1828,6 +1843,7 @@
       }
     },
     "onboarding.start_tracking" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2035,6 +2051,7 @@
       }
     },
     "settings.app" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2051,6 +2068,7 @@
       }
     },
     "settings.appearance" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2067,6 +2085,7 @@
       }
     },
     "settings.change" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2099,6 +2118,7 @@
       }
     },
     "settings.header" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2115,6 +2135,7 @@
       }
     },
     "settings.preferences" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2131,6 +2152,7 @@
       }
     },
     "settings.reminders" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2147,6 +2169,7 @@
       }
     },
     "settings.title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

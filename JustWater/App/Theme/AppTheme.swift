@@ -1,5 +1,5 @@
 //
-//  AppColors.swift
+//  AppTheme.swift
 //  JustWater
 //
 //  Created by сонный on 14.05.2026.
@@ -72,10 +72,10 @@ enum AppTypography {
     )
     
     static let title2 = Font.system(
-            size: 26,
-            weight: .semibold,
-            design: .default
-        )
+        size: 26,
+        weight: .semibold,
+        design: .default
+    )
     
     static let headline = Font.system(
         size: 20,
