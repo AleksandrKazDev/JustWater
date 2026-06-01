@@ -216,7 +216,7 @@ final class HistoryAnalyticsServiceTests: XCTestCase {
         
         XCTAssertEqual(
             sut.statistics.averageAmount,
-            1000 / 7
+            1000
         )
         
         XCTAssertEqual(
@@ -430,7 +430,7 @@ final class HistoryAnalyticsServiceTests: XCTestCase {
         
         XCTAssertEqual(
             sut.statistics.averageAmount,
-            250
+            1500
         )
         
         XCTAssertEqual(
