@@ -1641,9 +1641,6 @@
         }
       }
     },
-    "notification.test.body" : {
-
-    },
     "notification.test.title" : {
       "extractionState" : "manual",
       "localizations" : {
