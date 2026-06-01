@@ -78,7 +78,7 @@ struct HistoryStatisticsSection: View {
             return String(localized: "history.stat.entries")
             
         case .week, .month, .year:
-            return String(localized: "history.stat.goal_days")
+            return String(localized: "history.stat.goal_reached")
         }
     }
     
@@ -88,7 +88,7 @@ struct HistoryStatisticsSection: View {
             return "\(statistics.entriesCount)"
             
         case .week, .month, .year:
-            return "\(statistics.goalReachedCount)"
+            return goalReachedValue
         }
     }
     
@@ -119,8 +119,13 @@ struct HistoryStatisticsSection: View {
     
     private var streakValue: String {
         String(
-            format: String(localized: "history.stat.streak_days"),
-            currentStreak
+            localized: "history.stat.streak.days \(currentStreak)"
+        )
+    }
+    
+    private var goalReachedValue: String {
+        String(
+            localized: "history.stat.goal_reached.days \(statistics.goalReachedCount)"
         )
     }
     
