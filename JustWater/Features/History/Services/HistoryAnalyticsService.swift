@@ -24,16 +24,7 @@ enum HistoryAnalyticsService {
                 dailyGoal: dailyGoalProvider(referenceDate)
             )
             
-        case .week:
-            return makeGroupedAnalytics(
-                period: period,
-                entries: entries,
-                dailyGoalProvider: dailyGoalProvider,
-                component: .day,
-                referenceDate: referenceDate
-            )
-            
-        case .month:
+        case .week, .month:
             return makeGroupedAnalytics(
                 period: period,
                 entries: entries,
@@ -64,14 +55,14 @@ enum HistoryAnalyticsService {
         let chartPoints = Dictionary(grouping: entries) { entry in
             calendar.component(.hour, from: entry.date)
         }
-        .map { hour, entries in
-            HistoryChartPoint(
-                date: entries.first?.date ?? Date(),
-                label: "\(hour):00",
-                amount: entries.reduce(0) { $0 + $1.amount }
-            )
-        }
-        .sorted { $0.date < $1.date }
+            .map { hour, entries in
+                HistoryChartPoint(
+                    date: entries.first?.date ?? Date(),
+                    label: "\(hour):00",
+                    amount: entries.reduce(0) { $0 + $1.amount }
+                )
+            }
+            .sorted { $0.date < $1.date }
         
         return HistoryAnalytics(
             period: .day,

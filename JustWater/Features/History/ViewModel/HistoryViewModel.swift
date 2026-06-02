@@ -34,7 +34,6 @@ final class HistoryViewModel {
     var analytics: HistoryAnalytics?
     
     private(set) var currentStreak: Int = 0
-    
     private(set) var pendingUndoAction: WaterEntryUndoAction?
     
     var undoBannerMessage: String {
@@ -83,8 +82,6 @@ final class HistoryViewModel {
             )
             
         case .week:
-            let calendar = Calendar.current
-            
             guard let weekInterval = calendar.dateInterval(
                 of: .weekOfYear,
                 for: referenceDate
@@ -178,13 +175,16 @@ final class HistoryViewModel {
                 referenceDate: referenceDate
             )
             
-            let dailyGoalProvider: (Date) -> Int = { [goalStorageService] date in
+            let goalStorageService = goalStorageService
+            let errorReporter = errorReporter
+            
+            let dailyGoalProvider: (Date) -> Int = { date in
                 do {
                     return try goalStorageService.goal(
                         for: date
                     )
                 } catch {
-                    self.errorReporter.report(
+                    errorReporter.report(
                         error,
                         context: "Failed to fetch goal for history date"
                     )
@@ -211,8 +211,6 @@ final class HistoryViewModel {
     func calendarDayStates(
         for monthDate: Date
     ) -> [Date: HistoryCalendarDayState] {
-        let calendar = Calendar.current
-        
         guard let monthInterval = calendar.dateInterval(
             of: .month,
             for: monthDate
@@ -226,39 +224,15 @@ final class HistoryViewModel {
                 referenceDate: monthDate
             )
             
-            let groupedEntries = Dictionary(
-                grouping: entries
-            ) { entry in
-                calendar.startOfDay(
-                    for: entry.date
-                )
-            }
-            
             let goalsByDay = try goalStorageService.goalsByDay(
                 from: monthInterval.start,
                 to: monthInterval.end
             )
             
-            var result: [Date: HistoryCalendarDayState] = [:]
-            
-            for (date, entriesForDate) in groupedEntries {
-                let totalAmount = entriesForDate.reduce(0) {
-                    $0 + $1.amount
-                }
-                
-                guard totalAmount > 0 else {
-                    continue
-                }
-                
-                let goal = goalsByDay[date] ?? AppSettingsStorage.dailyGoal
-                
-                result[date] = HistoryCalendarDayState(
-                    totalAmount: totalAmount,
-                    goal: goal
-                )
-            }
-            
-            return result
+            return makeCalendarDayStates(
+                entries: entries,
+                goalsByDay: goalsByDay
+            )
         } catch {
             errorReporter.report(
                 error,
@@ -305,8 +279,8 @@ final class HistoryViewModel {
                 drinkType: drinkType
             )
             
-            try streakDayService.markTodayIfEntryIsForToday(
-                entryDate: date
+            markStreakDayIfNeeded(
+                for: date
             )
             
             pendingUndoAction = .added(
@@ -396,6 +370,55 @@ final class HistoryViewModel {
                 context: "Failed to load current streak"
             )
         }
+    }
+    
+    private func markStreakDayIfNeeded(
+        for entryDate: Date
+    ) {
+        do {
+            try streakDayService.markTodayIfEntryIsForToday(
+                entryDate: entryDate
+            )
+        } catch {
+            errorReporter.report(
+                error,
+                context: "Failed to mark streak day after adding history entry"
+            )
+        }
+    }
+    
+    private func makeCalendarDayStates(
+        entries: [WaterEntry],
+        goalsByDay: [Date: Int]
+    ) -> [Date: HistoryCalendarDayState] {
+        let groupedEntries = Dictionary(
+            grouping: entries
+        ) { entry in
+            calendar.startOfDay(
+                for: entry.date
+            )
+        }
+        
+        var result: [Date: HistoryCalendarDayState] = [:]
+        
+        for (date, entriesForDate) in groupedEntries {
+            let totalAmount = entriesForDate.reduce(0) {
+                $0 + $1.amount
+            }
+            
+            guard totalAmount > 0 else {
+                continue
+            }
+            
+            let goal = goalsByDay[date] ?? AppSettingsStorage.dailyGoal
+            
+            result[date] = HistoryCalendarDayState(
+                totalAmount: totalAmount,
+                goal: goal
+            )
+        }
+        
+        return result
     }
     
     private func setReferenceDate(
