@@ -58,7 +58,11 @@ The app helps users set a daily hydration goal, quickly log water and other drin
 
 ## Архитектура
 
-- MVVM;
+- SwiftUI + MVVM
+- Feature-first структура
+- Dependency Injection через AppFactory
+- SwiftData persistence layer
+- Unit/integration tests for core business logic
 
 ## Requirements
 

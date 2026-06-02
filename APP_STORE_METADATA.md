@@ -36,7 +36,7 @@ Your data stays on your device. JustWater does not require an account and does n
 water,hydration,drink,tracker,wellness,health,habit,reminder,daily goal
 
 ### Category
-Healthcare & Fitness
+Health & Fitness
 
 ### Support URL
 https://github.com/AleksandrKazDev
@@ -82,7 +82,7 @@ JustWater предназначен для общего wellness tracking и не
 вода,питье,напитки,гидратация,трекер,здоровье,привычка,уведомления
 
 ### Category
-Healthcare & Fitness
+Health & Fitness
 
 ### Support URL
 https://github.com/AleksandrKazDev
