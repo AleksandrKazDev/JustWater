@@ -240,14 +240,6 @@ struct HistoryChartSection: View {
             }
     }
     
-//    private var yearAxisLabels: [String] {
-//        analytics.chartPoints
-//            .enumerated()
-//            .compactMap { index, point in
-//                index.isMultiple(of: 2) ? point.label : nil
-//            }
-//    }
-    
     private var chartYDomain: ClosedRange<Int> {
         let maxAmount = analytics.chartPoints.map(\.amount).max() ?? 0
         
@@ -290,7 +282,7 @@ struct HistoryChartSection: View {
     private var yearAxisLabels: [String] {
         analytics.chartPoints.map(\.label)
     }
-
+    
     private func yearAxisInitial(
         for label: String
     ) -> String {

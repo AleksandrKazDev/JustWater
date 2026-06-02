@@ -113,143 +113,62 @@ struct HistoryDatePickerSheet: View {
     // MARK: - Title
     
     private var titleView: some View {
-        Text(String(localized: "Select Date"))
-            .font(AppTypography.title2)
-            .foregroundStyle(AppColors.primaryText)
-            .lineLimit(1)
-            .minimumScaleFactor(0.85)
-            .padding(.top, AppSpacing.lg)
-            .frame(maxWidth: .infinity)
+        HistoryDatePickerTitleView()
     }
     
     // MARK: - Header
     
     private var headerView: some View {
-        HStack(spacing: AppSpacing.sm) {
-            Button {
-                HapticService.selection()
-                
+        HistoryCalendarHeaderView(
+            monthTitle: monthTitle,
+            isMonthYearPickerPresented: isMonthYearPickerPresented,
+            onToggleMonthYearPicker: {
                 withAnimation(.snappy(duration: 0.22)) {
                     isMonthYearPickerPresented.toggle()
                 }
-            } label: {
-                HStack(spacing: AppSpacing.xs) {
-                    Text(monthTitle)
-                        .font(AppTypography.title2)
-                        .foregroundStyle(AppColors.primaryText)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                    
-                    Image(
-                        systemName: isMonthYearPickerPresented
-                        ? "chevron.down"
-                        : "chevron.right"
-                    )
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(AppColors.primaryBlue)
-                }
-                .contentShape(Rectangle())
+            },
+            onPreviousMonth: {
+                shiftVisibleMonth(by: -1)
+            },
+            onNextMonth: {
+                shiftVisibleMonth(by: 1)
             }
-            .buttonStyle(.plain)
-            
-            Spacer(minLength: AppSpacing.md)
-            
-            HStack(spacing: AppSpacing.sm) {
-                Button {
-                    HapticService.selection()
-                    shiftVisibleMonth(by: -1)
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 23, weight: .semibold))
-                        .foregroundStyle(AppColors.primaryBlue)
-                        .frame(width: 40, height: 40)
-                }
-                
-                Button {
-                    HapticService.selection()
-                    shiftVisibleMonth(by: 1)
-                } label: {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 23, weight: .semibold))
-                        .foregroundStyle(AppColors.primaryBlue)
-                        .frame(width: 40, height: 40)
-                }
-            }
-        }
+        )
         .frame(height: headerHeight)
     }
     
     // MARK: - Month / Year Picker
     
     private var monthYearPicker: some View {
-        HStack(spacing: AppSpacing.md) {
-            Picker(
-                String(localized: "Month"),
-                selection: Binding(
-                    get: {
-                        calendar.component(
-                            .month,
-                            from: internalSelectedDate
-                        )
-                    },
-                    set: { newMonth in
-                        HapticService.selection()
-                        updateSelectedDate(month: newMonth)
-                    }
-                )
-            ) {
-                ForEach(1...12, id: \.self) { month in
-                    Text(monthName(for: month))
-                        .tag(month)
-                }
+        HistoryMonthYearPickerView(
+            selectedMonth: calendar.component(
+                .month,
+                from: internalSelectedDate
+            ),
+            selectedYear: calendar.component(
+                .year,
+                from: internalSelectedDate
+            ),
+            yearRange: yearRange,
+            monthNameProvider: monthName(for:),
+            onSelectMonth: { newMonth in
+                updateSelectedDate(month: newMonth)
+            },
+            onSelectYear: { newYear in
+                updateSelectedDate(year: newYear)
             }
-            .pickerStyle(.wheel)
-            .frame(maxWidth: .infinity)
-            .clipped()
-            
-            Picker(
-                String(localized: "Year"),
-                selection: Binding(
-                    get: {
-                        calendar.component(
-                            .year,
-                            from: internalSelectedDate
-                        )
-                    },
-                    set: { newYear in
-                        HapticService.selection()
-                        updateSelectedDate(year: newYear)
-                    }
-                )
-            ) {
-                ForEach(yearRange, id: \.self) { year in
-                    Text(String(year))
-                        .tag(year)
-                }
-            }
-            .pickerStyle(.wheel)
-            .frame(maxWidth: .infinity)
-            .clipped()
-        }
+        )
         .frame(height: pickerHeight)
     }
     
     // MARK: - Weekdays
     
     private var weekdaysView: some View {
-        LazyVGrid(
+        HistoryCalendarWeekdaysView(
+            weekdaySymbols: weekdaySymbols,
             columns: gridColumns,
-            spacing: 0
-        ) {
-            ForEach(weekdaySymbols, id: \.self) { symbol in
-                Text(symbol.uppercased())
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.secondaryText.opacity(0.6))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-                    .frame(height: weekdayHeight)
-            }
-        }
+            height: weekdayHeight
+        )
     }
     
     // MARK: - Grid
@@ -283,112 +202,23 @@ struct HistoryDatePickerSheet: View {
         for date: Date,
         cellSize: CGFloat
     ) -> some View {
-        let isSelected = calendar.isDate(
-            date,
-            inSameDayAs: internalSelectedDate
-        )
-        
-        let isToday = calendar.isDateInToday(
-            date
-        )
-        
         let normalizedDate = calendar.startOfDay(
             for: date
         )
         
-        let state = dayStates[normalizedDate]
-        
-        return Button {
-            HapticService.selection()
-            selectDate(date)
-        } label: {
-            ZStack {
-                Circle()
-                    .fill(
-                        isSelected
-                        ? AppColors.primaryBlue
-                        : Color.clear
-                    )
-                    .frame(
-                        width: cellSize,
-                        height: cellSize
-                    )
-                
-                if let state,
-                   state.hasEntries,
-                   !isSelected {
-                    progressRing(
-                        progress: state.progress,
-                        isGoalReached: state.isGoalReached,
-                        cellSize: cellSize
-                    )
-                }
-                
-                if isToday && !isSelected && state == nil {
-                    Circle()
-                        .stroke(
-                            AppColors.primaryText.opacity(0.18),
-                            lineWidth: 1
-                        )
-                        .frame(
-                            width: cellSize,
-                            height: cellSize
-                        )
-                }
-                
-                Text(dayNumber(for: date))
-                    .font(AppTypography.body)
-                    .foregroundStyle(
-                        isSelected ? .white : AppColors.primaryText
-                    )
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+        return HistoryCalendarDayCell(
+            date: date,
+            state: dayStates[normalizedDate],
+            isSelected: calendar.isDate(
+                date,
+                inSameDayAs: internalSelectedDate
+            ),
+            isToday: calendar.isDateInToday(date),
+            cellSize: cellSize,
+            onSelect: {
+                selectDate(date)
             }
-            .frame(
-                width: cellSize,
-                height: cellSize
-            )
-            .contentShape(Circle())
-        }
-        .buttonStyle(.plain)
-    }
-    
-    private func progressRing(
-        progress: Double,
-        isGoalReached: Bool,
-        cellSize: CGFloat
-    ) -> some View {
-        ZStack {
-            Circle()
-                .stroke(
-                    AppColors.primaryBlue.opacity(0.12),
-                    lineWidth: 2
-                )
-                .frame(
-                    width: cellSize,
-                    height: cellSize
-                )
-            
-            Circle()
-                .trim(
-                    from: 0,
-                    to: progress
-                )
-                .stroke(
-                    AppColors.primaryBlue.opacity(
-                        isGoalReached ? 0.85 : 0.58
-                    ),
-                    style: StrokeStyle(
-                        lineWidth: 2,
-                        lineCap: .round
-                    )
-                )
-                .rotationEffect(.degrees(-90))
-                .frame(
-                    width: cellSize,
-                    height: cellSize
-                )
-        }
+        )
     }
     
     // MARK: - Layout Constants
@@ -654,7 +484,7 @@ struct HistoryDatePickerSheet: View {
         
         return calendar.date(
             from: components
-        ) ?? Date()
+        ) ?? visibleMonth
     }
     
     private func numberOfDays(
@@ -688,12 +518,6 @@ struct HistoryDatePickerSheet: View {
         formatter.locale = Locale.current
         
         return formatter.monthSymbols[month - 1]
-    }
-    
-    private func dayNumber(
-        for date: Date
-    ) -> String {
-        "\(calendar.component(.day, from: date))"
     }
     
     private func calendarMetrics(

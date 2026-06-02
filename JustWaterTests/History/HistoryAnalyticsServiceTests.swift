@@ -5,13 +5,6 @@
 //  Created by сонный on 25.05.2026.
 //
 
-//
-//  HistoryAnalyticsServiceTests.swift
-//  JustWaterTests
-//
-//  Created by сонный on 25.05.2026.
-//
-
 import XCTest
 @testable import JustWater
 
