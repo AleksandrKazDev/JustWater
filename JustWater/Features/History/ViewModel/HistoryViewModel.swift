@@ -35,6 +35,7 @@ final class HistoryViewModel {
     
     private(set) var currentStreak: Int = 0
     private(set) var pendingUndoAction: WaterEntryUndoAction?
+    private(set) var measurementUnit = AppSettingsStorage.measurementUnit
     
     var undoBannerMessage: String {
         pendingUndoAction?.message ?? ""
@@ -169,6 +170,8 @@ final class HistoryViewModel {
     }
     
     func loadAnalytics() {
+        measurementUnit = AppSettingsStorage.measurementUnit
+        
         do {
             let entries = try storageService.fetchEntries(
                 for: selectedPeriod,

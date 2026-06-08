@@ -10,6 +10,7 @@ import SwiftUI
 struct RecentActivitySection: View {
     
     let entries: [WaterEntry]
+    let measurementUnit: MeasurementUnit
     let onDelete: (WaterEntry) -> Void
     let onOpenHistory: () -> Void
     
@@ -76,7 +77,7 @@ struct RecentActivitySection: View {
             DrinkIconView(drinkType: entry.drinkType)
             
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(entry.amount) ml")
+                Text(formattedAmount(entry.amount))
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.primaryText)
                 
@@ -102,7 +103,18 @@ struct RecentActivitySection: View {
             .buttonStyle(.plain)
         }
         .contentShape(Rectangle())
-    }}
+    }
+    
+    private func formattedAmount(
+        _ amount: Int
+    ) -> String {
+        MeasurementUnitFormatter()
+            .string(
+                fromMilliliters: amount,
+                unit: measurementUnit
+            )
+    }
+}
 
 //#Preview {
 //    ZStack {

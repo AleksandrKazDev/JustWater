@@ -69,15 +69,15 @@ struct SettingsView: View {
                 SettingsSectionTitle(title: String(localized: "settings.daily_goal"))
                 
                 Text(
-                    String(
-                        format: String(localized: "%lld ml"),
-                        viewModel.dailyGoal
+                    formattedVolume(
+                        milliliters: viewModel.dailyGoal,
+                        unit: viewModel.measurementUnit
                     )
                 )
-                    .font(.system(size: 34, weight: .semibold, design: .rounded))
-                    .foregroundStyle(AppColors.primaryText)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.72)
+                .font(.system(size: 34, weight: .semibold, design: .rounded))
+                .foregroundStyle(AppColors.primaryText)
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
                 
                 HStack(alignment: .center, spacing: AppSpacing.md) {
                     Text(String(localized: "Your daily hydration target."))
@@ -167,7 +167,7 @@ struct SettingsView: View {
                 
                 Divider()
                     .opacity(0.35)
-
+                
                 Button {
                     HapticService.selection()
                     openAppSettings()
@@ -191,11 +191,30 @@ struct SettingsView: View {
                 Divider()
                     .opacity(0.35)
                 
-                SettingsRow(
-                    title: String(localized: "Units"),
-                    value: viewModel.measurementUnit.title,
-                    systemImage: "ruler"
-                )
+                Button {
+                    HapticService.selection()
+                    viewModel.updateMeasurementUnit(
+                        viewModel.measurementUnit.toggled
+                    )
+                } label: {
+                    HStack(spacing: AppSpacing.md) {
+                        SettingsLabel(
+                            title: String(localized: "Units"),
+                            subtitle: String(localized: "Choose how water amounts are displayed."),
+                            systemImage: "ruler"
+                        )
+                        
+                        Spacer()
+                        
+                        Text(viewModel.measurementUnit.shortTitle)
+                            .font(AppTypography.body)
+                            .foregroundStyle(AppColors.secondaryText)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.85)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
             }
         }
     }
@@ -236,7 +255,7 @@ struct SettingsView: View {
                     .disabled(!viewModel.areRemindersEnabled)
                     .opacity(viewModel.areRemindersEnabled ? 1 : 0.45)
                 
-                #if DEBUG
+#if DEBUG
                 Divider()
                     .opacity(0.35)
                 
@@ -257,7 +276,7 @@ struct SettingsView: View {
                         pressedBrightness: -0.015
                     )
                 )
-                #endif
+#endif
             }
         }
     }
@@ -472,5 +491,16 @@ struct SettingsView: View {
         }
         
         UIApplication.shared.open(url)
+    }
+    
+    private func formattedVolume(
+        milliliters: Int,
+        unit: MeasurementUnit
+    ) -> String {
+        MeasurementUnitFormatter()
+            .string(
+                fromMilliliters: milliliters,
+                unit: unit
+            )
     }
 }

@@ -14,6 +14,7 @@ struct HistoryStatisticsSection: View {
     let statistics: HistoryStatistics
     let period: HistoryPeriod
     let currentStreak: Int
+    let measurementUnit: MeasurementUnit
     
     // MARK: - Body
     
@@ -134,10 +135,11 @@ struct HistoryStatisticsSection: View {
     private func formattedAmount(
         _ amount: Int
     ) -> String {
-        String(
-            format: String(localized: "%lld ml"),
-            amount
-        )
+        MeasurementUnitFormatter()
+            .string(
+                fromMilliliters: amount,
+                unit: measurementUnit
+            )
     }
 }
 
@@ -161,7 +163,7 @@ private struct HistoryStatisticCard: View {
                     .font(.system(size: 24, weight: .semibold, design: .rounded))
                     .foregroundStyle(AppColors.primaryText)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.78)
+                    .minimumScaleFactor(0.72)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .frame(minHeight: 68, alignment: .center)

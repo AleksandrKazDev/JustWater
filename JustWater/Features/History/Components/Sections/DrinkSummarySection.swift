@@ -12,6 +12,7 @@ struct DrinkSummarySection: View {
     // MARK: - Properties
     
     let items: [DrinkBreakdownItem]
+    let measurementUnit: MeasurementUnit
     
     // MARK: - Body
     
@@ -50,8 +51,11 @@ struct DrinkSummarySection: View {
     private var rows: some View {
         VStack(spacing: 0) {
             ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                DrinkSummaryRow(item: item)
-                    .padding(.vertical, AppSpacing.sm)
+                DrinkSummaryRow(
+                    item: item,
+                    measurementUnit: measurementUnit
+                )
+                .padding(.vertical, AppSpacing.sm)
                 
                 if index < items.count - 1 {
                     Divider()
@@ -67,6 +71,7 @@ private struct DrinkSummaryRow: View {
     // MARK: - Properties
     
     let item: DrinkBreakdownItem
+    let measurementUnit: MeasurementUnit
     
     // MARK: - Body
     
@@ -81,16 +86,21 @@ private struct DrinkSummaryRow: View {
             
             Spacer(minLength: AppSpacing.sm)
             
-            Text(
-                String(
-                    format: String(localized: "%lld ml"),
-                    item.amount
-                )
-            )
-            .font(AppTypography.caption)
-            .foregroundStyle(AppColors.secondaryText)
-            .lineLimit(1)
-            .minimumScaleFactor(0.82)
+            Text(formattedAmount)
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.secondaryText)
+                .lineLimit(1)
+                .minimumScaleFactor(0.82)
         }
+    }
+    
+    // MARK: - Private
+    
+    private var formattedAmount: String {
+        MeasurementUnitFormatter()
+            .string(
+                fromMilliliters: item.amount,
+                unit: measurementUnit
+            )
     }
 }

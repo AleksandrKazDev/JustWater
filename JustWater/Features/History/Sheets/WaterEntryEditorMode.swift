@@ -70,4 +70,14 @@ enum WaterEntryEditorMode: Identifiable {
             return entry.drinkType
         }
     }
+    
+    var initialAmount: Int? {
+        switch self {
+        case .add:
+            return nil
+            
+        case .edit(let entry):
+            return entry.amount
+        }
+    }
 }

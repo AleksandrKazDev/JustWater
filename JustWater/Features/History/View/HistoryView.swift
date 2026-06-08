@@ -52,7 +52,8 @@ struct HistoryView: View {
                             HistoryContentView(
                                 analytics: analytics,
                                 dailyGoal: viewModel.displayDailyGoal,
-                                currentStreak:  viewModel.currentStreak,
+                                currentStreak: viewModel.currentStreak,
+                                measurementUnit: viewModel.measurementUnit,
                                 onAddEntry: {
                                     editorMode = .add(
                                         date: viewModel.referenceDate
@@ -126,7 +127,8 @@ struct HistoryView: View {
     ) -> some View {
         if let viewModel {
             WaterEntryEditorSheet(
-                mode: mode
+                mode: mode,
+                measurementUnit: viewModel.measurementUnit
             ) { amount, date, drinkType in
                 handleEditorSave(
                     mode: mode,

@@ -13,6 +13,7 @@ struct HistoryPeriodSummarySection: View {
     
     let title: String
     let points: [HistoryChartPoint]
+    let measurementUnit: MeasurementUnit
     let labelProvider: (HistoryChartPoint) -> String
     
     // MARK: - Body
@@ -59,7 +60,7 @@ struct HistoryPeriodSummarySection: View {
                     
                     Spacer()
                     
-                    Text("\(point.amount) ml")
+                    Text(formattedAmount(point.amount))
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.secondaryText)
                 }
@@ -71,5 +72,17 @@ struct HistoryPeriodSummarySection: View {
                 }
             }
         }
+    }
+    
+    // MARK: - Private
+    
+    private func formattedAmount(
+        _ amount: Int
+    ) -> String {
+        MeasurementUnitFormatter()
+            .string(
+                fromMilliliters: amount,
+                unit: measurementUnit
+            )
     }
 }

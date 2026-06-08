@@ -37,6 +37,7 @@ struct QuickAddButton: View {
     // MARK: - Properties
     
     let amount: Int
+    let measurementUnit: MeasurementUnit
     let size: QuickAddButtonSize
     let action: () -> Void
     
@@ -44,10 +45,12 @@ struct QuickAddButton: View {
     
     init(
         amount: Int,
+        measurementUnit: MeasurementUnit = .milliliters,
         size: QuickAddButtonSize = .regular,
         action: @escaping () -> Void
     ) {
         self.amount = amount
+        self.measurementUnit = measurementUnit
         self.size = size
         self.action = action
     }
@@ -58,12 +61,7 @@ struct QuickAddButton: View {
         Button {
             action()
         } label: {
-            Text(
-                String(
-                    format: String(localized: "+%lld ml"),
-                    amount
-                )
-            )
+            Text(title)
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.primaryBlue)
                 .lineLimit(1)
@@ -108,5 +106,17 @@ struct QuickAddButton: View {
                 pressedBrightness: -0.02
             )
         )
+    }
+    
+    // MARK: - Private
+    
+    private var title: String {
+        let formattedAmount = MeasurementUnitFormatter()
+            .string(
+                fromMilliliters: amount,
+                unit: measurementUnit
+            )
+        
+        return "+\(formattedAmount)"
     }
 }

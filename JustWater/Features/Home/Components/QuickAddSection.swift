@@ -12,6 +12,7 @@ struct QuickAddSection: View {
     // MARK: - Properties
     
     let amounts: [Int]
+    let measurementUnit: MeasurementUnit
     let onAdd: (Int) -> Void
     
     // MARK: - Body
@@ -19,7 +20,10 @@ struct QuickAddSection: View {
     var body: some View {
         HStack(spacing: AppSpacing.sm) {
             ForEach(amounts, id: \.self) { amount in
-                QuickAddButton(amount: amount) {
+                QuickAddButton(
+                    amount: amount,
+                    measurementUnit: measurementUnit
+                ) {
                     onAdd(amount)
                 }
             }

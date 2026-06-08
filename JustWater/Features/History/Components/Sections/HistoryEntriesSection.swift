@@ -12,6 +12,7 @@ struct HistoryEntriesSection: View {
     // MARK: - Properties
     
     let entries: [WaterEntry]
+    let measurementUnit: MeasurementUnit
     let onAdd: () -> Void
     let onEdit: (WaterEntry) -> Void
     let onDelete: (WaterEntry) -> Void
@@ -96,6 +97,7 @@ struct HistoryEntriesSection: View {
             ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
                 HistoryEntryRow(
                     entry: entry,
+                    measurementUnit: measurementUnit,
                     onEdit: onEdit,
                     onDelete: onDelete
                 )

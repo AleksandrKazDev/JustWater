@@ -16,12 +16,14 @@ final class HomeViewModel {
     private let hapticService: HapticServicing
     private let errorReporter: ErrorReporting
     
+    
     var hydrationState = HydrationState(
         dailyGoal: AppSettingsStorage.dailyGoal,
         entries: []
     )
     
     private(set) var pendingUndoAction: WaterEntryUndoAction?
+    private(set) var measurementUnit = AppSettingsStorage.measurementUnit
     
     var undoBannerMessage: String {
         pendingUndoAction?.message ?? ""
@@ -42,6 +44,7 @@ final class HomeViewModel {
     func loadEntries() {
         do {
             hydrationState.dailyGoal = AppSettingsStorage.dailyGoal
+            measurementUnit = AppSettingsStorage.measurementUnit
             
             let entries = try storageService.fetchEntries(
                 for: Date.now

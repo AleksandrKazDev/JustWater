@@ -12,6 +12,7 @@ struct HistoryEntryRow: View {
     // MARK: - Properties
     
     let entry: WaterEntry
+    let measurementUnit: MeasurementUnit
     let onEdit: (WaterEntry) -> Void
     let onDelete: (WaterEntry) -> Void
     
@@ -36,7 +37,7 @@ struct HistoryEntryRow: View {
                 drinkIcon
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("\(entry.amount) ml")
+                    Text(formattedAmount)
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.primaryText)
                         .lineLimit(1)
@@ -104,5 +105,15 @@ struct HistoryEntryRow: View {
             )
         )
         .accessibilityLabel("Delete entry")
+    }
+    
+    // MARK: - Private
+    
+    private var formattedAmount: String {
+        MeasurementUnitFormatter()
+            .string(
+                fromMilliliters: entry.amount,
+                unit: measurementUnit
+            )
     }
 }

@@ -109,11 +109,26 @@ enum AppSettingsStorage {
         get {
             guard let rawValue = UserDefaults.standard.string(
                 forKey: Keys.measurementUnit
-            ),
-                  let unit = MeasurementUnit(
-                    rawValue: rawValue
-                  ) else {
-                return .milliliters
+            ) else {
+                let defaultUnit = MeasurementUnit.defaultUnit()
+                
+                UserDefaults.standard.set(
+                    defaultUnit.rawValue,
+                    forKey: Keys.measurementUnit
+                )
+                
+                return defaultUnit
+            }
+            
+            guard let unit = MeasurementUnit(rawValue: rawValue) else {
+                let fallbackUnit = MeasurementUnit.defaultUnit()
+                
+                UserDefaults.standard.set(
+                    fallbackUnit.rawValue,
+                    forKey: Keys.measurementUnit
+                )
+                
+                return fallbackUnit
             }
             
             return unit
@@ -127,7 +142,7 @@ enum AppSettingsStorage {
     }
     
     // MARK: - Reminders
-
+    
     static var areRemindersEnabled: Bool {
         get {
             UserDefaults.standard.bool(
@@ -141,7 +156,7 @@ enum AppSettingsStorage {
             )
         }
     }
-
+    
     static var reminderStartHour: Int {
         get {
             guard UserDefaults.standard.object(
@@ -161,7 +176,7 @@ enum AppSettingsStorage {
             )
         }
     }
-
+    
     static var reminderEndHour: Int {
         get {
             guard UserDefaults.standard.object(
@@ -181,7 +196,7 @@ enum AppSettingsStorage {
             )
         }
     }
-
+    
     static var reminderFrequency: ReminderFrequency {
         get {
             let rawValue = UserDefaults.standard.integer(

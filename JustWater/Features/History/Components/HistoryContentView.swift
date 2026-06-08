@@ -14,11 +14,12 @@ struct HistoryContentView: View {
     let analytics: HistoryAnalytics
     let dailyGoal: Int
     let currentStreak: Int
+    let measurementUnit: MeasurementUnit
     
     let onAddEntry: () -> Void
     let onEditEntry: (WaterEntry) -> Void
     let onDeleteEntry: (WaterEntry) -> Void
-    
+
     // MARK: - Body
     
     var body: some View {
@@ -46,23 +47,27 @@ struct HistoryContentView: View {
             HistoryStatisticsSection(
                 statistics: analytics.statistics,
                 period: analytics.period,
-                currentStreak: currentStreak
+                currentStreak: currentStreak,
+                measurementUnit: measurementUnit
             )
             
             HistoryChartSection(
                 analytics: analytics,
-                dailyGoal: dailyGoal
+                dailyGoal: dailyGoal,
+                measurementUnit: measurementUnit
             )
             
             HistoryEntriesSection(
                 entries: analytics.entries,
+                measurementUnit: measurementUnit,
                 onAdd: onAddEntry,
                 onEdit: onEditEntry,
                 onDelete: onDeleteEntry
             )
             
             DrinkSummarySection(
-                items: analytics.drinkBreakdown
+                items: analytics.drinkBreakdown,
+                measurementUnit: measurementUnit
             )
         }
     }
@@ -72,22 +77,26 @@ struct HistoryContentView: View {
             HistoryStatisticsSection(
                 statistics: analytics.statistics,
                 period: analytics.period,
-                currentStreak: currentStreak
+                currentStreak: currentStreak,
+                measurementUnit: measurementUnit
             )
             
             HistoryChartSection(
                 analytics: analytics,
-                dailyGoal: dailyGoal
+                dailyGoal: dailyGoal,
+                measurementUnit: measurementUnit
             )
             
             HistoryPeriodSummarySection(
                 title: String(localized: "Daily Summary"),
                 points: analytics.chartPoints,
+                measurementUnit: measurementUnit,
                 labelProvider: weekSummaryLabel
             )
             
             DrinkSummarySection(
-                items: analytics.drinkBreakdown
+                items: analytics.drinkBreakdown,
+                measurementUnit: measurementUnit
             )
         }
     }
@@ -97,16 +106,19 @@ struct HistoryContentView: View {
             HistoryStatisticsSection(
                 statistics: analytics.statistics,
                 period: analytics.period,
-                currentStreak: currentStreak
+                currentStreak: currentStreak,
+                measurementUnit: measurementUnit
             )
             
             HistoryChartSection(
                 analytics: analytics,
-                dailyGoal: dailyGoal
+                dailyGoal: dailyGoal,
+                measurementUnit: measurementUnit
             )
             
             DrinkSummarySection(
-                items: analytics.drinkBreakdown
+                items: analytics.drinkBreakdown,
+                measurementUnit: measurementUnit
             )
         }
     }
@@ -116,22 +128,26 @@ struct HistoryContentView: View {
             HistoryStatisticsSection(
                 statistics: analytics.statistics,
                 period: analytics.period,
-                currentStreak: currentStreak
+                currentStreak: currentStreak,
+                measurementUnit: measurementUnit
             )
             
             HistoryChartSection(
                 analytics: analytics,
-                dailyGoal: dailyGoal
+                dailyGoal: dailyGoal,
+                measurementUnit: measurementUnit
             )
             
             HistoryPeriodSummarySection(
                 title: String(localized: "Monthly Summary"),
                 points: analytics.chartPoints,
+                measurementUnit: measurementUnit,
                 labelProvider: { $0.label }
             )
             
             DrinkSummarySection(
-                items: analytics.drinkBreakdown
+                items: analytics.drinkBreakdown,
+                measurementUnit: measurementUnit
             )
         }
     }

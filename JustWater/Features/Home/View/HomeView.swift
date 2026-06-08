@@ -59,7 +59,8 @@ struct HomeView: View {
                         )
                         
                         HomeProgressCard(
-                            hydrationState: viewModel.hydrationState
+                            hydrationState: viewModel.hydrationState,
+                            measurementUnit: viewModel.measurementUnit
                         )
                         
                         PrimaryButton(
@@ -71,6 +72,7 @@ struct HomeView: View {
                         
                         QuickAddSection(
                             amounts: quickAddAmounts,
+                            measurementUnit: viewModel.measurementUnit,
                             onAdd: { amount in
                                 viewModel.addWater(amount)
                                 showUndoBanner(
@@ -78,9 +80,9 @@ struct HomeView: View {
                                 )
                             }
                         )
-                                                
                         RecentActivitySection(
                             entries: viewModel.hydrationState.entries,
+                            measurementUnit: viewModel.measurementUnit,
                             onDelete: { entry in
                                 viewModel.deleteEntry(entry)
                                 showUndoBanner(
@@ -116,18 +118,18 @@ struct HomeView: View {
         .sheet(isPresented: $isAddWaterSheetPresented) {
             if let viewModel {
                 AddWaterSheet(
-                    presets: addWaterPresetAmounts,
-                    onAdd: { amount, drinkType in
-                        viewModel.addWater(
-                            amount,
-                            drinkType: drinkType
-                        )
-                        
-                        showUndoBanner(
-                            message: viewModel.undoBannerMessage
-                        )
-                    }
-                )
+                    presets: quickAddAmounts,
+                    measurementUnit: viewModel.measurementUnit
+                ) { amount, drinkType in
+                    viewModel.addWater(
+                        amount,
+                        drinkType: drinkType
+                    )
+                    
+                    showUndoBanner(
+                        message: viewModel.undoBannerMessage
+                    )
+                }
             }
         }
         .navigationDestination(isPresented: $isHistoryPresented) {

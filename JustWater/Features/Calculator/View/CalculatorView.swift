@@ -82,6 +82,7 @@ struct CalculatorView: View {
                         if let recommendedGoal = viewModel.recommendedGoal {
                             RecommendedGoalSection(
                                 goal: recommendedGoal,
+                                measurementUnit: viewModel.measurementUnit,
                                 onUse: {
                                     HapticService.success()
                                     onComplete(recommendedGoal)
@@ -94,6 +95,8 @@ struct CalculatorView: View {
                             customGoalText: $viewModel.customGoalText,
                             focusedField: $focusedField,
                             customGoal: viewModel.customGoal,
+                            measurementUnit: viewModel.measurementUnit,
+                            maximumGoalInput: viewModel.maximumCustomGoalInput,
                             onTextChange: viewModel.updateCustomGoalText,
                             onUse: { goal in
                                 focusedField = nil
@@ -132,6 +135,9 @@ struct CalculatorView: View {
         }
         .navigationTitle("Goal Calculator")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            viewModel.reloadSettings()
+        }
     }
     
     // MARK: - Components

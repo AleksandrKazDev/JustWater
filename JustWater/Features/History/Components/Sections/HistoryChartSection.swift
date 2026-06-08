@@ -14,6 +14,7 @@ struct HistoryChartSection: View {
     
     let analytics: HistoryAnalytics
     let dailyGoal: Int
+    let measurementUnit: MeasurementUnit
     
     // MARK: - Body
     
@@ -117,15 +118,19 @@ struct HistoryChartSection: View {
         .frame(height: 180)
         .chartYScale(domain: chartYDomain)
         .chartYAxis {
-            AxisMarks(position: .leading) { _ in
+            AxisMarks(position: .leading) { value in
                 AxisGridLine()
                     .foregroundStyle(chartGridColor)
                 
                 AxisTick()
                     .foregroundStyle(chartGridColor)
                 
-                AxisValueLabel()
-                    .foregroundStyle(chartAxisLabelColor)
+                AxisValueLabel {
+                    if let amount = value.as(Int.self) {
+                        Text(chartAxisLabel(for: amount))
+                            .foregroundStyle(chartAxisLabelColor)
+                    }
+                }
             }
         }
         .chartXAxis {
@@ -291,5 +296,36 @@ struct HistoryChartSection: View {
         }
         
         return String(firstCharacter).uppercased()
+    }
+    
+    private func chartAxisLabel(
+        for amount: Int
+    ) -> String {
+        switch measurementUnit {
+        case .milliliters:
+            let value = MeasurementUnitFormatter()
+                .inputString(
+                    fromMilliliters: amount,
+                    unit: .milliliters
+                )
+            
+            return value
+            
+        case .fluidOunces:
+            let value = MeasurementUnitConverter.value(
+                fromMilliliters: amount,
+                unit: .fluidOunces
+            )
+            
+            if value >= 10 {
+                return String(Int(value.rounded()))
+            }
+            
+            return MeasurementUnitFormatter()
+                .inputString(
+                    fromMilliliters: amount,
+                    unit: .fluidOunces
+                )
+        }
     }
 }

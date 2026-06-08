@@ -17,6 +17,8 @@ struct CustomGoalSection: View {
     // MARK: - Properties
     
     let customGoal: Int?
+    let measurementUnit: MeasurementUnit
+    let maximumGoalInput: Int
     let onTextChange: (String) -> Void
     let onUse: (Int) -> Void
     
@@ -52,18 +54,20 @@ struct CustomGoalSection: View {
     private var inputRow: some View {
         HStack(spacing: AppSpacing.sm) {
             TextField(
-                String(localized: "1 - 10000"),
+                inputPlaceholder,
                 text: $customGoalText
             )
             .focused(focusedField, equals: .customGoal)
-            .keyboardType(.numberPad)
+            .keyboardType(
+                measurementUnit == .milliliters ? .numberPad : .decimalPad
+            )
             .font(AppTypography.body)
             .foregroundStyle(AppColors.primaryText)
             .onChange(of: customGoalText) { _, newValue in
                 onTextChange(newValue)
             }
             
-            Text(String(localized: "ml"))
+            Text(measurementUnit.shortTitle)
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.secondaryText)
         }
@@ -97,5 +101,11 @@ struct CustomGoalSection: View {
                 with: .move(edge: .top)
             )
         )
+    }
+    
+    // MARK: - Private
+    
+    private var inputPlaceholder: String {
+        "1 - \(maximumGoalInput)"
     }
 }

@@ -26,23 +26,38 @@ struct WaterEntryEditorSheet: View {
     // MARK: - Properties
     
     private let mode: WaterEntryEditorMode
+    private let measurementUnit: MeasurementUnit
     private let onSave: (Int, Date, DrinkType) -> Void
     
     // MARK: - Constants
     
     private let minimumAmount = 1
-    private let maximumAmount = 10_000
+    private let maximumAmountMilliliters = 10_000
+    private let maximumAmountFluidOunces = 338
     
     // MARK: - Computed Properties
     
+    private var maximumInputAmount: Int {
+        switch measurementUnit {
+        case .milliliters:
+            return maximumAmountMilliliters
+            
+        case .fluidOunces:
+            return maximumAmountFluidOunces
+        }
+    }
+    
     private var amount: Int? {
-        guard let amount = Int(amountText),
-              amount >= minimumAmount,
-              amount <= maximumAmount else {
+        guard let inputAmount = decimalValue(from: amountText),
+              inputAmount >= Double(minimumAmount),
+              inputAmount <= Double(maximumInputAmount) else {
             return nil
         }
         
-        return amount
+        return MeasurementUnitConverter.milliliters(
+            from: inputAmount,
+            unit: measurementUnit
+        )
     }
     
     private var isSaveEnabled: Bool {
@@ -57,17 +72,26 @@ struct WaterEntryEditorSheet: View {
         )
     }
     
+    private var amountRangePlaceholder: String {
+        "1 - \(maximumInputAmount)"
+    }
+    
     // MARK: - Initializer
     
     init(
         mode: WaterEntryEditorMode,
+        measurementUnit: MeasurementUnit,
         onSave: @escaping (Int, Date, DrinkType) -> Void
     ) {
         self.mode = mode
+        self.measurementUnit = measurementUnit
         self.onSave = onSave
         
         _amountText = State(
-            initialValue: mode.initialAmountText
+            initialValue: Self.initialAmountText(
+                for: mode,
+                measurementUnit: measurementUnit
+            )
         )
         
         _selectedTime = State(
@@ -142,18 +166,20 @@ struct WaterEntryEditorSheet: View {
             
             HStack(spacing: AppSpacing.sm) {
                 TextField(
-                    "1 - 10000",
+                    amountRangePlaceholder,
                     text: $amountText
                 )
                 .focused($isAmountFocused)
-                .keyboardType(.numberPad)
+                .keyboardType(
+                    measurementUnit == .milliliters ? .numberPad : .decimalPad
+                )
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.primaryText)
                 .onChange(of: amountText) { _, newValue in
                     updateAmountText(newValue)
                 }
                 
-                Text("ml")
+                Text(measurementUnit.shortTitle)
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.secondaryText)
             }
@@ -264,6 +290,18 @@ struct WaterEntryEditorSheet: View {
     private func updateAmountText(
         _ newValue: String
     ) {
+        switch measurementUnit {
+        case .milliliters:
+            updateIntegerAmountText(newValue)
+            
+        case .fluidOunces:
+            updateDecimalAmountText(newValue)
+        }
+    }
+
+    private func updateIntegerAmountText(
+        _ newValue: String
+    ) {
         let digitsOnly = newValue.filter(\.isNumber)
         
         guard let amount = Int(digitsOnly) else {
@@ -271,11 +309,49 @@ struct WaterEntryEditorSheet: View {
             return
         }
         
-        if amount > maximumAmount {
-            amountText = "\(maximumAmount)"
+        if amount > maximumInputAmount {
+            amountText = "\(maximumInputAmount)"
         } else {
             amountText = digitsOnly
         }
+    }
+
+    private func updateDecimalAmountText(
+        _ newValue: String
+    ) {
+        var result = ""
+        var hasSeparator = false
+        
+        for character in newValue {
+            if character.isNumber {
+                result.append(character)
+            } else if character == "." || character == "," {
+                guard !hasSeparator else { continue }
+                
+                result.append(character)
+                hasSeparator = true
+            }
+        }
+        
+        guard let amount = decimalValue(from: result) else {
+            amountText = result
+            return
+        }
+        
+        if amount > Double(maximumInputAmount) {
+            amountText = "\(maximumInputAmount)"
+        } else {
+            amountText = result
+        }
+    }
+
+    private func decimalValue(
+        from text: String
+    ) -> Double? {
+        let normalizedText = text
+            .replacingOccurrences(of: ",", with: ".")
+        
+        return Double(normalizedText)
     }
     
     private func mergedDate(
@@ -302,5 +378,20 @@ struct WaterEntryEditorSheet: View {
         components.minute = timeComponents.minute
         
         return calendar.date(from: components) ?? date
+    }
+    
+    private static func initialAmountText(
+        for mode: WaterEntryEditorMode,
+        measurementUnit: MeasurementUnit
+    ) -> String {
+        guard let amount = mode.initialAmount else {
+            return ""
+        }
+        
+        return MeasurementUnitFormatter()
+            .inputString(
+                fromMilliliters: amount,
+                unit: measurementUnit
+            )
     }
 }

@@ -32,6 +32,7 @@
       }
     },
     "+%lld ml" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -42,6 +43,7 @@
       }
     },
     "1 - 10000" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -350,8 +352,18 @@
         }
       }
     },
+    "Choose how water amounts are displayed." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите, как отображать объём воды."
+          }
+        }
+      }
+    },
     "common.add" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -368,7 +380,7 @@
       }
     },
     "common.cancel" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -385,7 +397,7 @@
       }
     },
     "common.delete" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -402,7 +414,7 @@
       }
     },
     "common.done" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -419,7 +431,7 @@
       }
     },
     "common.edit" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -436,7 +448,7 @@
       }
     },
     "common.save" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -896,7 +908,7 @@
       }
     },
     "goal_calculator.title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1046,7 +1058,7 @@
       }
     },
     "history.select_date" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1063,7 +1075,7 @@
       }
     },
     "history.select_month" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1080,7 +1092,7 @@
       }
     },
     "history.select_week" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1097,7 +1109,7 @@
       }
     },
     "history.select_year" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1388,7 +1400,7 @@
       }
     },
     "history.title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1405,7 +1417,7 @@
       }
     },
     "home.title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1514,6 +1526,7 @@
       }
     },
     "ml" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -1798,7 +1811,18 @@
         }
       }
     },
+    "of %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "из %@"
+          }
+        }
+      }
+    },
     "of %lld ml" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -1809,7 +1833,7 @@
       }
     },
     "onboarding.continue" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1826,7 +1850,7 @@
       }
     },
     "onboarding.get_started" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1843,7 +1867,7 @@
       }
     },
     "onboarding.start_tracking" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2051,7 +2075,7 @@
       }
     },
     "settings.app" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2068,7 +2092,7 @@
       }
     },
     "settings.appearance" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2085,7 +2109,7 @@
       }
     },
     "settings.change" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2118,7 +2142,7 @@
       }
     },
     "settings.header" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2135,7 +2159,7 @@
       }
     },
     "settings.preferences" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2152,7 +2176,7 @@
       }
     },
     "settings.reminders" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2169,7 +2193,7 @@
       }
     },
     "settings.title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2353,6 +2377,38 @@
         }
       }
     },
+    "unit.fluid_ounces" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fluid ounces"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "fl oz"
+          }
+        }
+      }
+    },
+    "unit.fluid_ounces.short" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "fl oz"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "fl oz"
+          }
+        }
+      }
+    },
     "unit.milliliters" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2382,7 +2438,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "мл"
+            "value" : "ml"
           }
         }
       }

@@ -12,6 +12,7 @@ struct RecommendedGoalSection: View {
     // MARK: - Properties
     
     let goal: Int
+    let measurementUnit: MeasurementUnit
     let onUse: () -> Void
     
     // MARK: - Body
@@ -23,14 +24,11 @@ struct RecommendedGoalSection: View {
                     .font(AppTypography.headline)
                     .foregroundStyle(AppColors.primaryText)
                 
-                Text(
-                    String(
-                        format: String(localized: "%lld ml"),
-                        goal
-                    )
-                )
-                .font(AppTypography.largeTitle)
-                .foregroundStyle(AppColors.primaryText)
+                Text(formattedGoal)
+                    .font(AppTypography.largeTitle)
+                    .foregroundStyle(AppColors.primaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
                 
                 PrimaryButton(
                     title: String(localized: "Use Recommended Goal"),
@@ -41,5 +39,15 @@ struct RecommendedGoalSection: View {
                 }
             }
         }
+    }
+    
+    // MARK: - Private
+    
+    private var formattedGoal: String {
+        MeasurementUnitFormatter()
+            .string(
+                fromMilliliters: goal,
+                unit: measurementUnit
+            )
     }
 }

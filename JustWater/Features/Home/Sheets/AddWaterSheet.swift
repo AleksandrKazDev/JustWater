@@ -16,12 +16,14 @@ struct AddWaterSheet: View {
     // MARK: - Properties
     
     let presets: [Int]
+    let measurementUnit: MeasurementUnit
     let onAdd: (Int, DrinkType) -> Void
     
     // MARK: - Constants
     
     private let minimumAmount = 1
-    private let maximumAmount = 10_000
+    private let maximumAmountMilliliters = 10_000
+    private let maximumAmountFluidOunces = 338
     
     // MARK: - State
     
@@ -34,14 +36,27 @@ struct AddWaterSheet: View {
     
     // MARK: - Computed Properties
     
+    private var maximumInputAmount: Int {
+        switch measurementUnit {
+        case .milliliters:
+            return maximumAmountMilliliters
+            
+        case .fluidOunces:
+            return maximumAmountFluidOunces
+        }
+    }
+    
     private var customAmount: Int? {
-        guard let amount = Int(customAmountText),
-              amount >= minimumAmount,
-              amount <= maximumAmount else {
+        guard let inputAmount = decimalValue(from: customAmountText),
+              inputAmount >= Double(minimumAmount),
+              inputAmount <= Double(maximumInputAmount) else {
             return nil
         }
         
-        return amount
+        return MeasurementUnitConverter.milliliters(
+            from: inputAmount,
+            unit: measurementUnit
+        )
     }
     
     private var isCustomAmountValid: Bool {
@@ -98,6 +113,7 @@ struct AddWaterSheet: View {
             ForEach(presets, id: \.self) { amount in
                 QuickAddButton(
                     amount: amount,
+                    measurementUnit: measurementUnit,
                     size: .compact
                 ) {
                     addPresetAmount(amount)
@@ -111,18 +127,20 @@ struct AddWaterSheet: View {
         GlassCard {
             HStack(spacing: AppSpacing.sm) {
                 TextField(
-                    "Custom amount",
+                    String(localized: "Custom amount"),
                     text: $customAmountText
                 )
                 .focused($isCustomAmountFocused)
-                .keyboardType(.numberPad)
+                .keyboardType(
+                    measurementUnit == .milliliters ? .numberPad : .decimalPad
+                )
                 .font(AppTypography.headline)
                 .foregroundStyle(AppColors.primaryText)
                 .onChange(of: customAmountText) { _, newValue in
                     updateCustomAmountText(newValue)
                 }
                 
-                Text("ml")
+                Text(measurementUnit.shortTitle)
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.secondaryText)
             }
@@ -173,6 +191,18 @@ struct AddWaterSheet: View {
     private func updateCustomAmountText(
         _ newValue: String
     ) {
+        switch measurementUnit {
+        case .milliliters:
+            updateIntegerAmountText(newValue)
+            
+        case .fluidOunces:
+            updateDecimalAmountText(newValue)
+        }
+    }
+    
+    private func updateIntegerAmountText(
+        _ newValue: String
+    ) {
         let digitsOnly = newValue.filter(\.isNumber)
         
         guard let amount = Int(digitsOnly) else {
@@ -180,10 +210,48 @@ struct AddWaterSheet: View {
             return
         }
         
-        if amount > maximumAmount {
-            customAmountText = "\(maximumAmount)"
+        if amount > maximumInputAmount {
+            customAmountText = "\(maximumInputAmount)"
         } else {
             customAmountText = digitsOnly
         }
+    }
+    
+    private func updateDecimalAmountText(
+        _ newValue: String
+    ) {
+        var result = ""
+        var hasSeparator = false
+        
+        for character in newValue {
+            if character.isNumber {
+                result.append(character)
+            } else if character == "." || character == "," {
+                guard !hasSeparator else { continue }
+                
+                result.append(character)
+                hasSeparator = true
+            }
+        }
+        
+        guard let amount = decimalValue(from: result) else {
+            customAmountText = result
+            return
+        }
+        
+        if amount > Double(maximumInputAmount) {
+            customAmountText = "\(maximumInputAmount)"
+        } else {
+            customAmountText = result
+        }
+    }
+    
+    private func decimalValue(
+        from text: String
+    ) -> Double? {
+        let normalizedText = text
+            .replacingOccurrences(of: ",", with: ".")
+        
+        return Double(normalizedText)
     }
 }
