@@ -10,6 +10,16 @@ JustWater is an iOS app for tracking daily water intake.
 
 The app helps users set a daily hydration goal, quickly log water and other drinks, review hydration history, configure reminders, and track goal completion over time.
 
+## App Store
+
+JustWater доступен в App Store:
+
+[Скачать JustWater](https://apps.apple.com/app/justwater-hydration-tracker/id6775974283)
+
+JustWater is available on the App Store:
+
+[Download JustWater](https://apps.apple.com/app/justwater-hydration-tracker/id6775974283)
+
 ## Скриншоты
 
 <p align="center">
@@ -32,22 +42,24 @@ The app helps users set a daily hydration goal, quickly log water and other drin
 
 ## Что есть в приложении
 
-- добавление выпитой воды быстрыми кнопками;
+- добавление воды быстрыми кнопками;
 - добавление записи вручную;
 - выбор типа напитка;
 - расчёт дневной цели;
 - изменение дневной цели;
 - история за день, неделю, месяц и год;
 - статистика по достигнутым целям;
+- текущая серия дней;
 - undo для добавления и удаления записей;
-- напоминания о воде;
+- локальные напоминания о воде;
 - настройки темы;
 - настройка haptics;
-- onboarding при первом запуске.
+- onboarding при первом запуске;
+- локализация на русский и английский языки.
 
 ## Стек
 
-- Swift
+- Swift 6
 - SwiftUI
 - SwiftData
 - Observation
@@ -67,9 +79,9 @@ The app helps users set a daily hydration goal, quickly log water and other drin
 ## Requirements
 
 - iOS 17+
-- Xcode 15+
+- Xcode 26+
 - SwiftData
 
 ## Note
 
-JustWater предназначен для общего wellness tracking и не является медицинской рекомендацией.
+JustWater предназначен для общего отслеживания привычки пить воду и не является медицинской рекомендацией.
