@@ -10,6 +10,16 @@ import XCTest
 
 final class CalculatorViewModelTests: XCTestCase {
     
+    override func setUp() {
+        super.setUp()
+        AppSettingsStorage.measurementUnit = .milliliters
+    }
+    
+    override func tearDown() {
+        AppSettingsStorage.measurementUnit = .milliliters
+        super.tearDown()
+    }
+    
     // MARK: - Weight Input
     
     func testUpdateWeightText_whenValueContainsNonDigits_keepsOnlyDigits() {
@@ -229,6 +239,102 @@ final class CalculatorViewModelTests: XCTestCase {
         // Assert
         XCTAssertNil(
             sut.customGoal
+        )
+    }
+    
+    // MARK: - Measurement Unit
+    
+    func testReloadSettings_whenMeasurementUnitIsFluidOunces_updatesMeasurementUnit() {
+        // Arrange
+        AppSettingsStorage.measurementUnit = .fluidOunces
+        let sut = CalculatorViewModel()
+        
+        // Act
+        sut.reloadSettings()
+        
+        // Assert
+        XCTAssertEqual(
+            sut.measurementUnit,
+            .fluidOunces
+        )
+    }
+    
+    func testUpdateCustomGoalText_whenUnitIsFluidOunces_allowsDecimalSeparatorWithDot() {
+        // Arrange
+        AppSettingsStorage.measurementUnit = .fluidOunces
+        let sut = CalculatorViewModel()
+        sut.reloadSettings()
+        
+        // Act
+        sut.updateCustomGoalText("8.5")
+        
+        // Assert
+        XCTAssertEqual(
+            sut.customGoalText,
+            "8.5"
+        )
+        
+        XCTAssertEqual(
+            sut.customGoal,
+            251
+        )
+    }
+    
+    func testUpdateCustomGoalText_whenUnitIsFluidOunces_allowsDecimalSeparatorWithComma() {
+        // Arrange
+        AppSettingsStorage.measurementUnit = .fluidOunces
+        let sut = CalculatorViewModel()
+        sut.reloadSettings()
+        
+        // Act
+        sut.updateCustomGoalText("8,5")
+        
+        // Assert
+        XCTAssertEqual(
+            sut.customGoalText,
+            "8,5"
+        )
+        
+        XCTAssertEqual(
+            sut.customGoal,
+            251
+        )
+    }
+    
+    func testUpdateCustomGoalText_whenUnitIsFluidOunces_filtersInvalidCharacters() {
+        // Arrange
+        AppSettingsStorage.measurementUnit = .fluidOunces
+        let sut = CalculatorViewModel()
+        sut.reloadSettings()
+        
+        // Act
+        sut.updateCustomGoalText("1a2,b5 oz")
+        
+        // Assert
+        XCTAssertEqual(
+            sut.customGoalText,
+            "12,5"
+        )
+        
+        XCTAssertEqual(
+            sut.customGoal,
+            370
+        )
+    }
+    
+    func testUpdateCustomGoalText_whenUnitIsFluidOunces_capsAtMaximumFluidOunces() {
+        // Arrange
+        AppSettingsStorage.measurementUnit = .fluidOunces
+        let sut = CalculatorViewModel()
+        sut.reloadSettings()
+        
+        // Act
+        sut.updateCustomGoalText("999")
+        
+        // Assert
+        XCTAssertEqual(
+            sut.customGoalText,
+            "338"
         )
     }
 }
