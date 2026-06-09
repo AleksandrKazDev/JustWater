@@ -1791,7 +1791,6 @@
       }
     },
     "notification.test.body" : {
-      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {

@@ -15,14 +15,14 @@ final class TestHydrationStreakDayService: HydrationStreakDayTracking {
     var streakDays: Set<Date> = []
     var markError: Error?
     var fetchError: Error?
-
+    
     func markTodayIfEntryIsForToday(
         entryDate: Date
     ) throws {
         if let markError {
             throw markError
         }
-
+        
         markedEntryDates.append(entryDate)
     }
     
@@ -31,5 +31,18 @@ final class TestHydrationStreakDayService: HydrationStreakDayTracking {
             throw fetchError
         }
         return streakDays
+    }
+}
+
+final class TestWidgetSnapshotService: WidgetSnapshotServicing {
+    
+    private(set) var updateSnapshotCallCount = 0
+    private(set) var receivedHydrationStates: [HydrationState] = []
+    
+    func updateSnapshot(
+        hydrationState: HydrationState
+    ) {
+        updateSnapshotCallCount += 1
+        receivedHydrationStates.append(hydrationState)
     }
 }

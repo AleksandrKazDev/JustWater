@@ -308,7 +308,8 @@ final class HomeViewModelTests: XCTestCase {
             storageService: storageService,
             streakDayService: TestHydrationStreakDayService(),
             hapticService: TestHapticService(),
-            errorReporter: TestErrorReporter()
+            errorReporter: TestErrorReporter(),
+            widgetSnapshotService: TestWidgetSnapshotService()
         )
     }
     
@@ -320,7 +321,8 @@ final class HomeViewModelTests: XCTestCase {
             storageService: storageService,
             streakDayService: TestHydrationStreakDayService(),
             hapticService: hapticService,
-            errorReporter: TestErrorReporter()
+            errorReporter: TestErrorReporter(),
+            widgetSnapshotService: TestWidgetSnapshotService()
         )
     }
     
@@ -333,7 +335,8 @@ final class HomeViewModelTests: XCTestCase {
             storageService: storageService,
             streakDayService: TestHydrationStreakDayService(),
             hapticService: hapticService,
-            errorReporter: errorReporter
+            errorReporter: errorReporter,
+            widgetSnapshotService: TestWidgetSnapshotService()
         )
     }
     
