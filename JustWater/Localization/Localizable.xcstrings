@@ -43,7 +43,7 @@
       }
     },
     "1 - 10000" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -1526,12 +1526,12 @@
       }
     },
     "ml" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "мл"
+            "value" : "ml"
           }
         }
       }
@@ -1791,7 +1791,15 @@
       }
     },
     "notification.test.body" : {
-
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "исправь "
+          }
+        }
+      }
     },
     "notification.test.title" : {
       "extractionState" : "manual",

@@ -66,6 +66,7 @@
 				Core/Units/MeasurementUnit.swift,
 				Core/Units/MeasurementUnitConverter.swift,
 				Core/Units/MeasurementUnitFormatter.swift,
+				Core/Widget/WidgetConstants.swift,
 				Core/Widget/WidgetHydrationSnapshot.swift,
 				Core/Widget/WidgetSnapshotStorage.swift,
 			);

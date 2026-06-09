@@ -28,19 +28,10 @@ struct WidgetSnapshotService: WidgetSnapshotServicing {
             updatedAt: .now
         )
         
-        print(
-            """
-            🔄 Updating widget snapshot:
-            consumedWater: \(snapshot.consumedWater)
-            dailyGoal: \(snapshot.dailyGoal)
-            unit: \(snapshot.measurementUnitRawValue)
-            """
-        )
-        
         WidgetSnapshotStorage.save(snapshot)
         
         WidgetCenter.shared.reloadTimelines(
-            ofKind: "JustWaterWidget"
+            ofKind: WidgetConstants.kind
         )
     }
 }

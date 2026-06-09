@@ -18,23 +18,13 @@ enum WidgetSnapshotStorage {
         guard let userDefaults = UserDefaults(
             suiteName: appGroupIdentifier
         ) else {
-            print("❌ WidgetSnapshotStorage: App Group UserDefaults unavailable")
+            assertionFailure("App Group UserDefaults is unavailable.")
             return
         }
         
         do {
             let data = try JSONEncoder().encode(snapshot)
             userDefaults.set(data, forKey: snapshotKey)
-            userDefaults.synchronize()
-            
-            print(
-                """
-                ✅ Widget snapshot saved:
-                consumedWater: \(snapshot.consumedWater)
-                dailyGoal: \(snapshot.dailyGoal)
-                unit: \(snapshot.measurementUnitRawValue)
-                """
-            )
         } catch {
             assertionFailure("Failed to encode widget snapshot: \(error)")
         }
@@ -44,31 +34,21 @@ enum WidgetSnapshotStorage {
         guard let userDefaults = UserDefaults(
             suiteName: appGroupIdentifier
         ) else {
-            print("❌ WidgetSnapshotStorage: App Group UserDefaults unavailable")
+            assertionFailure("App Group UserDefaults is unavailable.")
             return .empty
         }
         
-        guard let data = userDefaults.data(forKey: snapshotKey) else {
-            print("⚠️ WidgetSnapshotStorage: No snapshot found")
+        guard let data = userDefaults.data(
+            forKey: snapshotKey
+        ) else {
             return .empty
         }
         
         do {
-            let snapshot = try JSONDecoder().decode(
+            return try JSONDecoder().decode(
                 WidgetHydrationSnapshot.self,
                 from: data
             )
-            
-            print(
-                """
-                ✅ Widget snapshot loaded:
-                consumedWater: \(snapshot.consumedWater)
-                dailyGoal: \(snapshot.dailyGoal)
-                unit: \(snapshot.measurementUnitRawValue)
-                """
-            )
-            
-            return snapshot
         } catch {
             assertionFailure("Failed to decode widget snapshot: \(error)")
             return .empty

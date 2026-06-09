@@ -15,20 +15,47 @@ struct WidgetHydrationSnapshot: Codable {
     let date: Date
     let updatedAt: Date
     
-    var completionRate: Double {
+    var rawCompletionRate: Double {
         guard dailyGoal > 0 else { return 0 }
         
-        return min(
-            Double(consumedWater) / Double(dailyGoal),
-            1
-        )
+        return Double(consumedWater) / Double(dailyGoal)
+    }
+    
+    var cappedCompletionRate: Double {
+        min(rawCompletionRate, 1)
+    }
+    
+    var percentage: Int {
+        Int(rawCompletionRate * 100)
+    }
+    
+    func isForToday(
+        calendar: Calendar = .current
+    ) -> Bool {
+        calendar.isDateInToday(date)
+    }
+    
+    func normalizedForToday(
+        calendar: Calendar = .current
+    ) -> WidgetHydrationSnapshot {
+        guard isForToday(calendar: calendar) else {
+            return WidgetHydrationSnapshot(
+                consumedWater: 0,
+                dailyGoal: dailyGoal,
+                measurementUnitRawValue: measurementUnitRawValue,
+                date: .now,
+                updatedAt: .now
+            )
+        }
+        
+        return self
     }
     
     static var empty: WidgetHydrationSnapshot {
         WidgetHydrationSnapshot(
             consumedWater: 0,
             dailyGoal: 2_000,
-            measurementUnitRawValue: "milliliters",
+            measurementUnitRawValue: MeasurementUnit.milliliters.rawValue,
             date: .now,
             updatedAt: .now
         )
