@@ -6,7 +6,20 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F26582962FD85E8B00C03409 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F26582952FD85E8B00C03409 /* WidgetKit.framework */; };
+		F26582982FD85E8B00C03409 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F26582972FD85E8B00C03409 /* SwiftUI.framework */; };
+		F26582A32FD85E8E00C03409 /* JustWaterWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F26582932FD85E8A00C03409 /* JustWaterWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
+		F26582A12FD85E8E00C03409 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F2A74DB82FB0BF6000D96A02 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F26582922FD85E8A00C03409;
+			remoteInfo = JustWaterWidgetExtension;
+		};
 		F2A74DD32FB0BF6300D96A02 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F2A74DB82FB0BF6000D96A02 /* Project object */;
@@ -16,14 +29,64 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		F26582A82FD85E8E00C03409 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				F26582A32FD85E8E00C03409 /* JustWaterWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		F26582932FD85E8A00C03409 /* JustWaterWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = JustWaterWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		F26582952FD85E8B00C03409 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		F26582972FD85E8B00C03409 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		F26582AA2FD8646200C03409 /* JustWaterWidgetExtensionRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JustWaterWidgetExtensionRelease.entitlements; sourceTree = "<group>"; };
 		F2A74DC02FB0BF6000D96A02 /* JustWater.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JustWater.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2A74DD22FB0BF6300D96A02 /* JustWaterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JustWaterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F26582A42FD85E8E00C03409 /* Exceptions for "JustWaterWidget" folder in "JustWaterWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F26582922FD85E8A00C03409 /* JustWaterWidgetExtension */;
+		};
+		F26582B22FD8650300C03409 /* Exceptions for "JustWater" folder in "JustWaterWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Core/Units/MeasurementUnit.swift,
+				Core/Units/MeasurementUnitConverter.swift,
+				Core/Units/MeasurementUnitFormatter.swift,
+				Core/Widget/WidgetHydrationSnapshot.swift,
+				Core/Widget/WidgetSnapshotStorage.swift,
+			);
+			target = F26582922FD85E8A00C03409 /* JustWaterWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		F26582992FD85E8B00C03409 /* JustWaterWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F26582A42FD85E8E00C03409 /* Exceptions for "JustWaterWidget" folder in "JustWaterWidgetExtension" target */,
+			);
+			path = JustWaterWidget;
+			sourceTree = "<group>";
+		};
 		F2A74DC22FB0BF6000D96A02 /* JustWater */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F26582B22FD8650300C03409 /* Exceptions for "JustWater" folder in "JustWaterWidgetExtension" target */,
+			);
 			path = JustWater;
 			sourceTree = "<group>";
 		};
@@ -35,6 +98,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		F26582902FD85E8A00C03409 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F26582982FD85E8B00C03409 /* SwiftUI.framework in Frameworks */,
+				F26582962FD85E8B00C03409 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F2A74DBD2FB0BF6000D96A02 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -52,11 +124,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F26582942FD85E8B00C03409 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F26582952FD85E8B00C03409 /* WidgetKit.framework */,
+				F26582972FD85E8B00C03409 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		F2A74DB72FB0BF6000D96A02 = {
 			isa = PBXGroup;
 			children = (
+				F26582AA2FD8646200C03409 /* JustWaterWidgetExtensionRelease.entitlements */,
 				F2A74DC22FB0BF6000D96A02 /* JustWater */,
 				F2A74DD52FB0BF6300D96A02 /* JustWaterTests */,
+				F26582992FD85E8B00C03409 /* JustWaterWidget */,
+				F26582942FD85E8B00C03409 /* Frameworks */,
 				F2A74DC12FB0BF6000D96A02 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -66,6 +150,7 @@
 			children = (
 				F2A74DC02FB0BF6000D96A02 /* JustWater.app */,
 				F2A74DD22FB0BF6300D96A02 /* JustWaterTests.xctest */,
+				F26582932FD85E8A00C03409 /* JustWaterWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -73,6 +158,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		F26582922FD85E8A00C03409 /* JustWaterWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F26582A52FD85E8E00C03409 /* Build configuration list for PBXNativeTarget "JustWaterWidgetExtension" */;
+			buildPhases = (
+				F265828F2FD85E8A00C03409 /* Sources */,
+				F26582902FD85E8A00C03409 /* Frameworks */,
+				F26582912FD85E8A00C03409 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F26582992FD85E8B00C03409 /* JustWaterWidget */,
+			);
+			name = JustWaterWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = JustWaterWidgetExtension;
+			productReference = F26582932FD85E8A00C03409 /* JustWaterWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		F2A74DBF2FB0BF6000D96A02 /* JustWater */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F2A74DE62FB0BF6300D96A02 /* Build configuration list for PBXNativeTarget "JustWater" */;
@@ -80,10 +187,12 @@
 				F2A74DBC2FB0BF6000D96A02 /* Sources */,
 				F2A74DBD2FB0BF6000D96A02 /* Frameworks */,
 				F2A74DBE2FB0BF6000D96A02 /* Resources */,
+				F26582A82FD85E8E00C03409 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				F26582A22FD85E8E00C03409 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				F2A74DC22FB0BF6000D96A02 /* JustWater */,
@@ -125,9 +234,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1620;
+				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
+					F26582922FD85E8A00C03409 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
 					F2A74DBF2FB0BF6000D96A02 = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -154,11 +266,19 @@
 			targets = (
 				F2A74DBF2FB0BF6000D96A02 /* JustWater */,
 				F2A74DD12FB0BF6300D96A02 /* JustWaterTests */,
+				F26582922FD85E8A00C03409 /* JustWaterWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		F26582912FD85E8A00C03409 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F2A74DBE2FB0BF6000D96A02 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -176,6 +296,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		F265828F2FD85E8A00C03409 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F2A74DBC2FB0BF6000D96A02 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -193,6 +320,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		F26582A22FD85E8E00C03409 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F26582922FD85E8A00C03409 /* JustWaterWidgetExtension */;
+			targetProxy = F26582A12FD85E8E00C03409 /* PBXContainerItemProxy */;
+		};
 		F2A74DD42FB0BF6300D96A02 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F2A74DBF2FB0BF6000D96A02 /* JustWater */;
@@ -201,6 +333,67 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		F26582A62FD85E8E00C03409 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JustWaterWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = JustWaterWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.alexandrkazdev.JustWater.JustWaterWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F26582A72FD85E8E00C03409 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = JustWaterWidgetExtensionRelease.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JustWaterWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = JustWaterWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.alexandrkazdev.JustWater.JustWaterWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		F2A74DE42FB0BF6300D96A02 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -369,6 +562,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = JustWater/JustWaterRelease.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"JustWater/Preview Content\"";
@@ -407,7 +601,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexandrkazdev.JustWaterTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -425,7 +619,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexandrkazdev.JustWaterTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -439,6 +633,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		F26582A52FD85E8E00C03409 /* Build configuration list for PBXNativeTarget "JustWaterWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F26582A62FD85E8E00C03409 /* Debug */,
+				F26582A72FD85E8E00C03409 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F2A74DBB2FB0BF6000D96A02 /* Build configuration list for PBXProject "JustWater" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

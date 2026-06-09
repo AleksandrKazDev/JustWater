@@ -25,7 +25,8 @@ enum AppFactory {
             storageService: storageService,
             streakDayService: streakDayService,
             hapticService: makeHapticService(),
-            errorReporter: makeErrorReporter()
+            errorReporter: makeErrorReporter(),
+            widgetSnapshotService: WidgetSnapshotService()
         )
     }
     

@@ -15,6 +15,7 @@ final class HomeViewModel {
     private let streakDayService: HydrationStreakDayTracking
     private let hapticService: HapticServicing
     private let errorReporter: ErrorReporting
+    private let widgetSnapshotService: WidgetSnapshotServicing
     
     
     var hydrationState = HydrationState(
@@ -33,12 +34,14 @@ final class HomeViewModel {
         storageService: WaterStorageServicing,
         streakDayService: HydrationStreakDayTracking,
         hapticService: HapticServicing,
-        errorReporter: ErrorReporting
+        errorReporter: ErrorReporting,
+        widgetSnapshotService: WidgetSnapshotServicing
     ) {
         self.storageService = storageService
         self.streakDayService = streakDayService
         self.hapticService = hapticService
         self.errorReporter = errorReporter
+        self.widgetSnapshotService = widgetSnapshotService
     }
     
     func loadEntries() {
@@ -51,6 +54,11 @@ final class HomeViewModel {
             )
             
             hydrationState.entries = entries
+            
+            widgetSnapshotService.updateSnapshot(
+                hydrationState: hydrationState
+            )
+            
         } catch {
             errorReporter.report(
                 error,
