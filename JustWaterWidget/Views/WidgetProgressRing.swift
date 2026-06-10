@@ -38,8 +38,8 @@ struct WidgetProgressRing: View {
     private var track: some View {
         Circle()
             .stroke(
-                palette.secondaryText.opacity(0.16),
-                lineWidth: 5
+                palette.secondaryText.opacity(0.20),
+                lineWidth: 5.5 
             )
     }
     
@@ -49,14 +49,14 @@ struct WidgetProgressRing: View {
             .stroke(
                 AngularGradient(
                     colors: [
-                        palette.accentText.opacity(0.72),
+                        palette.accentText.opacity(0.88),
                         palette.accentText,
-                        palette.accentText.opacity(0.72)
+                        palette.accentText.opacity(0.88)
                     ],
                     center: .center
                 ),
                 style: StrokeStyle(
-                    lineWidth: 5,
+                    lineWidth: 5.5,
                     lineCap: .round
                 )
             )

@@ -39,10 +39,10 @@ struct JustWaterWidgetPalette {
     // MARK: - Effects
     
     var accentGlow: Color {
-        Color("WidgetAccentGlow").opacity(0.22)
+        Color("WidgetAccentGlow").opacity(0.32)
     }
     
     var secondaryGlow: Color {
-        Color("WidgetSecondaryGlow").opacity(0.34)
+        Color("WidgetSecondaryGlow").opacity(0.44)
     }
 }

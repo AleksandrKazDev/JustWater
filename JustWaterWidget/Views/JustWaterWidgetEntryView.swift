@@ -124,7 +124,7 @@ struct JustWaterWidgetEntryView: View {
     
     private var emptyStateText: some View {
         Text(startTodayText)
-            .font(.system(size: 13, weight: .medium, design: .rounded))
+            .font(.system(size: 13, weight: .semibold, design: .rounded))
             .foregroundStyle(palette.accentText)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
