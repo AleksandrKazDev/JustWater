@@ -114,6 +114,23 @@
         }
       }
     },
+    "widget.goal_completed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goal completed"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цель выполнена"
+          }
+        }
+      }
+    },
     "widget.goal.prefix" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -131,6 +148,23 @@
         }
       }
     },
+    "widget.remaining.prefix" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Left"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Осталось"
+          }
+        }
+      }
+    },
     "widget.start_today" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -144,6 +178,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Начните с воды"
+          }
+        }
+      }
+    },
+    "widget.today" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сегодня"
           }
         }
       }

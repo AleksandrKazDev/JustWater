@@ -26,7 +26,7 @@ struct JustWaterWidget: Widget {
         }
         .configurationDisplayName("JustWater")
         .description(String(localized: "widget.description"))
-        .supportedFamilies([.systemSmall])
+        .supportedFamilies([.systemSmall, .systemMedium])
         .contentMarginsDisabled()
     }
 }

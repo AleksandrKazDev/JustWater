@@ -29,6 +29,14 @@ struct WidgetHydrationSnapshot: Codable {
         Int(rawCompletionRate * 100)
     }
     
+    var remainingWater: Int {
+        max(dailyGoal - consumedWater, 0)
+    }
+
+    var isGoalCompleted: Bool {
+        consumedWater >= dailyGoal
+    }
+    
     func isForToday(
         calendar: Calendar = .current
     ) -> Bool {
