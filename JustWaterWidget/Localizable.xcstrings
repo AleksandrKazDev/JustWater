@@ -154,13 +154,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Left"
+            "value" : "To the goal"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Осталось"
+            "value" : "До цели"
           }
         }
       }
