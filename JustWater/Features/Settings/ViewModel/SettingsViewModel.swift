@@ -65,8 +65,6 @@ final class SettingsViewModel {
         self.reminderEndHour = AppSettingsStorage.reminderEndHour
         self.reminderFrequency = AppSettingsStorage.reminderFrequency
         self.notificationAuthorizationStatus = .notDetermined
-        
-        syncCurrentGoal()
     }
     
     // MARK: - Public Methods

@@ -34,6 +34,7 @@ final class HistoryViewModel {
     var analytics: HistoryAnalytics?
     
     private(set) var currentStreak: Int = 0
+    private(set) var displayDailyGoal: Int = AppSettingsStorage.dailyGoal
     private(set) var pendingUndoAction: WaterEntryUndoAction?
     private(set) var measurementUnit = AppSettingsStorage.measurementUnit
     
@@ -56,20 +57,6 @@ final class HistoryViewModel {
             
         case .year:
             return yearReferenceDate
-        }
-    }
-    
-    var displayDailyGoal: Int {
-        do {
-            return try goalStorageService.goal(
-                for: referenceDate
-            )
-        } catch {
-            errorReporter.report(
-                error,
-                context: "Failed to fetch display daily goal"
-            )
-            return AppSettingsStorage.dailyGoal
         }
     }
     
@@ -173,26 +160,31 @@ final class HistoryViewModel {
         measurementUnit = AppSettingsStorage.measurementUnit
         
         do {
-            let entries = try storageService.fetchEntries(
+            let interval = dateInterval(
                 for: selectedPeriod,
                 referenceDate: referenceDate
             )
             
-            let goalStorageService = goalStorageService
-            let errorReporter = errorReporter
+            let entries = try storageService.fetchEntries(
+                from: interval.start,
+                to: interval.end
+            )
+            
+            let goalsByDay = try goalStorageService.goalsByDay(
+                from: interval.start,
+                to: interval.end
+            )
+            
+            displayDailyGoal = goal(
+                for: referenceDate,
+                in: goalsByDay
+            )
             
             let dailyGoalProvider: (Date) -> Int = { date in
-                do {
-                    return try goalStorageService.goal(
-                        for: date
-                    )
-                } catch {
-                    errorReporter.report(
-                        error,
-                        context: "Failed to fetch goal for history date"
-                    )
-                    return AppSettingsStorage.dailyGoal
-                }
+                self.goal(
+                    for: date,
+                    in: goalsByDay
+                )
             }
             
             analytics = HistoryAnalyticsService.makeAnalytics(
@@ -470,5 +462,82 @@ final class HistoryViewModel {
         setReferenceDate(newDate)
         
         loadAnalytics()
+    }
+    
+    private func dateInterval(
+        for period: HistoryPeriod,
+        referenceDate: Date
+    ) -> DateInterval {
+        switch period {
+        case .day:
+            let startDate = calendar.startOfDay(
+                for: referenceDate
+            )
+            
+            let endDate = calendar.date(
+                byAdding: .day,
+                value: 1,
+                to: startDate
+            ) ?? referenceDate
+            
+            return DateInterval(
+                start: startDate,
+                end: endDate
+            )
+            
+        case .week:
+            return calendar.dateInterval(
+                of: .weekOfYear,
+                for: referenceDate
+            ) ?? fallbackDateInterval(
+                referenceDate: referenceDate
+            )
+            
+        case .month:
+            return calendar.dateInterval(
+                of: .month,
+                for: referenceDate
+            ) ?? fallbackDateInterval(
+                referenceDate: referenceDate
+            )
+            
+        case .year:
+            return calendar.dateInterval(
+                of: .year,
+                for: referenceDate
+            ) ?? fallbackDateInterval(
+                referenceDate: referenceDate
+            )
+        }
+    }
+    
+    private func fallbackDateInterval(
+        referenceDate: Date
+    ) -> DateInterval {
+        let startDate = calendar.startOfDay(
+            for: referenceDate
+        )
+        
+        let endDate = calendar.date(
+            byAdding: .day,
+            value: 1,
+            to: startDate
+        ) ?? referenceDate
+        
+        return DateInterval(
+            start: startDate,
+            end: endDate
+        )
+    }
+    
+    private func goal(
+        for date: Date,
+        in goalsByDay: [Date: Int]
+    ) -> Int {
+        let startOfDay = calendar.startOfDay(
+            for: date
+        )
+        
+        return goalsByDay[startOfDay] ?? AppSettingsStorage.dailyGoal
     }
 }

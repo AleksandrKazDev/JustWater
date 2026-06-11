@@ -268,11 +268,15 @@ enum HistoryAnalyticsService {
         ? 0
         : totalAmount / activePoints.count
         
-        let activePointsWithGoals = activePoints.map { point in
+        let pointsWithGoals = chartPoints.map { point in
             (
                 point: point,
                 goal: dailyGoalProvider(point.date)
             )
+        }
+        
+        let activePointsWithGoals = pointsWithGoals.filter {
+            $0.point.amount > 0
         }
         
         let averageGoal = activePointsWithGoals.isEmpty
@@ -281,13 +285,7 @@ enum HistoryAnalyticsService {
             result + item.goal
         } / activePointsWithGoals.count
         
-        let goalReachedCount = chartPoints
-            .map { point in
-                (
-                    point: point,
-                    goal: dailyGoalProvider(point.date)
-                )
-            }
+        let goalReachedCount = pointsWithGoals
             .filter { item in
                 item.goal > 0 && item.point.amount >= item.goal
             }
