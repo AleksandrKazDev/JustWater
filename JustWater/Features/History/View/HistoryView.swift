@@ -14,9 +14,22 @@ struct HistoryView: View {
     
     @Environment(\.modelContext) private var modelContext
     
+    // MARK: - Body
+    
+    var body: some View {
+        HistoryContentScreen(
+            viewModel: AppFactory.makeHistoryViewModel(
+                context: modelContext
+            )
+        )
+    }
+}
+
+private struct HistoryContentScreen: View {
+    
     // MARK: - State
     
-    @State private var viewModel: HistoryViewModel?
+    @State private var viewModel: HistoryViewModel
     @State private var isDatePickerPresented = false
     @State private var editorMode: WaterEntryEditorMode?
     
@@ -25,6 +38,16 @@ struct HistoryView: View {
     @State private var undoBannerMessage = ""
     @State private var undoBannerDismissTask: Task<Void, Never>?
     
+    // MARK: - Initializer
+    
+    init(
+        viewModel: HistoryViewModel
+    ) {
+        _viewModel = State(
+            initialValue: viewModel
+        )
+    }
+    
     // MARK: - Body
     
     var body: some View {
@@ -32,50 +55,48 @@ struct HistoryView: View {
             AppBackground()
             
             ScrollView(showsIndicators: false) {
-                if let viewModel {
-                    VStack(alignment: .leading, spacing: AppSpacing.lg) {
-                        HistoryPeriodPicker(
-                            selectedPeriod: viewModel.selectedPeriod,
-                            onSelect: viewModel.selectPeriod
-                        )
-                        
-                        HistoryPeriodNavigation(
-                            title: viewModel.periodTitle,
-                            onPrevious: viewModel.showPreviousPeriod,
-                            onNext: viewModel.showNextPeriod,
-                            onTapTitle: {
-                                isDatePickerPresented = true
+                LazyVStack(alignment: .leading, spacing: AppSpacing.lg) {
+                    HistoryPeriodPicker(
+                        selectedPeriod: viewModel.selectedPeriod,
+                        onSelect: viewModel.selectPeriod
+                    )
+                    
+                    HistoryPeriodNavigation(
+                        title: viewModel.periodTitle,
+                        onPrevious: viewModel.showPreviousPeriod,
+                        onNext: viewModel.showNextPeriod,
+                        onTapTitle: {
+                            isDatePickerPresented = true
+                        }
+                    )
+                    
+                    if let analytics = viewModel.analytics {
+                        HistoryContentView(
+                            analytics: analytics,
+                            dailyGoal: viewModel.displayDailyGoal,
+                            currentStreak: viewModel.currentStreak,
+                            measurementUnit: viewModel.measurementUnit,
+                            onAddEntry: {
+                                editorMode = .add(
+                                    date: viewModel.referenceDate
+                                )
+                            },
+                            onEditEntry: { entry in
+                                editorMode = .edit(
+                                    entry: entry
+                                )
+                            },
+                            onDeleteEntry: { entry in
+                                viewModel.deleteEntry(entry)
+                                
+                                showUndoBanner(
+                                    message: viewModel.undoBannerMessage
+                                )
                             }
                         )
-                        
-                        if let analytics = viewModel.analytics {
-                            HistoryContentView(
-                                analytics: analytics,
-                                dailyGoal: viewModel.displayDailyGoal,
-                                currentStreak: viewModel.currentStreak,
-                                measurementUnit: viewModel.measurementUnit,
-                                onAddEntry: {
-                                    editorMode = .add(
-                                        date: viewModel.referenceDate
-                                    )
-                                },
-                                onEditEntry: { entry in
-                                    editorMode = .edit(
-                                        entry: entry
-                                    )
-                                },
-                                onDeleteEntry: { entry in
-                                    viewModel.deleteEntry(entry)
-                                    
-                                    showUndoBanner(
-                                        message: viewModel.undoBannerMessage
-                                    )
-                                }
-                            )
-                        }
                     }
-                    .padding(AppSpacing.lg)
                 }
+                .padding(AppSpacing.lg)
             }
             
             if isUndoBannerPresented {
@@ -84,7 +105,7 @@ struct HistoryView: View {
                     isVisible: isUndoBannerVisible,
                     onUndo: {
                         undoBannerDismissTask?.cancel()
-                        viewModel?.undoLastAction()
+                        viewModel.undoLastAction()
                         
                         Task {
                             await hideUndoBanner()
@@ -94,23 +115,20 @@ struct HistoryView: View {
             }
         }
         .onAppear {
-            setupViewModelIfNeeded()
-            viewModel?.loadAnalytics()
+            viewModel.loadAnalytics()
         }
         .sheet(isPresented: $isDatePickerPresented) {
-            if let viewModel {
-                HistoryDatePickerSheet(
-                    selectedDate: viewModel.referenceDate,
-                    dayStatesProvider: { monthDate in
-                        viewModel.calendarDayStates(
-                            for: monthDate
-                        )
-                    },
-                    onSelectDate: { date in
-                        viewModel.selectReferenceDate(date)
-                    }
-                )
-            }
+            HistoryDatePickerSheet(
+                selectedDate: viewModel.referenceDate,
+                dayStatesProvider: { monthDate in
+                    viewModel.calendarDayStates(
+                        for: monthDate
+                    )
+                },
+                onSelectDate: { date in
+                    viewModel.selectReferenceDate(date)
+                }
+            )
         }
         .sheet(item: $editorMode) { mode in
             editorSheet(mode)
@@ -125,19 +143,16 @@ struct HistoryView: View {
     private func editorSheet(
         _ mode: WaterEntryEditorMode
     ) -> some View {
-        if let viewModel {
-            WaterEntryEditorSheet(
+        WaterEntryEditorSheet(
+            mode: mode,
+            measurementUnit: viewModel.measurementUnit
+        ) { amount, date, drinkType in
+            handleEditorSave(
                 mode: mode,
-                measurementUnit: viewModel.measurementUnit
-            ) { amount, date, drinkType in
-                handleEditorSave(
-                    mode: mode,
-                    amount: amount,
-                    date: date,
-                    drinkType: drinkType,
-                    viewModel: viewModel
-                )
-            }
+                amount: amount,
+                date: date,
+                drinkType: drinkType
+            )
         }
     }
     
@@ -147,8 +162,7 @@ struct HistoryView: View {
         mode: WaterEntryEditorMode,
         amount: Int,
         date: Date,
-        drinkType: DrinkType,
-        viewModel: HistoryViewModel
+        drinkType: DrinkType
     ) {
         switch mode {
         case .add:
@@ -209,15 +223,5 @@ struct HistoryView: View {
         if !isUndoBannerVisible {
             isUndoBannerPresented = false
         }
-    }
-    
-    // MARK: - Setup
-    
-    private func setupViewModelIfNeeded() {
-        guard viewModel == nil else { return }
-        
-        viewModel = AppFactory.makeHistoryViewModel(
-            context: modelContext
-        )
     }
 }

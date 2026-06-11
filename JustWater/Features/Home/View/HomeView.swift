@@ -13,12 +13,28 @@ struct HomeView: View {
     // MARK: - Environment
     
     @Environment(\.modelContext) private var modelContext
+    
+    // MARK: - Body
+    
+    var body: some View {
+        HomeContentView(
+            viewModel: AppFactory.makeHomeViewModel(
+                context: modelContext
+            )
+        )
+    }
+}
+
+private struct HomeContentView: View {
+    
+    // MARK: - Environment
+    
     @Environment(\.scenePhase) private var scenePhase
     @Environment(AppCoordinator.self) private var coordinator
     
     // MARK: - State
     
-    @State private var viewModel: HomeViewModel?
+    @State private var viewModel: HomeViewModel
     @State private var isAddWaterSheetPresented = false
     @State private var isUndoBannerPresented = false
     @State private var isUndoBannerVisible = false
@@ -30,6 +46,16 @@ struct HomeView: View {
     
     private let quickAddAmounts = [100, 200, 300]
     private let addWaterPresetAmounts = [100, 200, 300, 500]
+    
+    // MARK: - Initializer
+    
+    init(
+        viewModel: HomeViewModel
+    ) {
+        _viewModel = State(
+            initialValue: viewModel
+        )
+    }
     
     // MARK: - Computed Properties
     
@@ -48,57 +74,58 @@ struct HomeView: View {
             AppBackground()
             
             ScrollView(showsIndicators: false) {
-                if let viewModel {
-                    VStack(spacing: AppSpacing.xl) {
-                        HomeHeader(
-                            todayTitle: todayTitle,
-                            onResetOnboarding: coordinator.resetOnboarding,
-                            onGoalUpdated: {
-                                viewModel.loadEntries()
-                            }
-                        )
-                        
-                        HomeProgressCard(
-                            hydrationState: viewModel.hydrationState,
-                            measurementUnit: viewModel.measurementUnit
-                        )
-                        
-                        PrimaryButton(
-                            title: String(localized: "Add Water"),
-                            systemImage: "plus"
-                        ) {
-                            isAddWaterSheetPresented = true
+                LazyVStack(spacing: AppSpacing.xl) {
+                    HomeHeader(
+                        todayTitle: todayTitle,
+                        onResetOnboarding: coordinator.resetOnboarding,
+                        onGoalUpdated: {
+                            viewModel.loadEntries()
                         }
-                        
-                        QuickAddSection(
-                            amounts: quickAddAmounts,
-                            measurementUnit: viewModel.measurementUnit,
-                            onAdd: { amount in
-                                viewModel.addWater(amount)
-                                showUndoBanner(
-                                    message: viewModel.undoBannerMessage
-                                )
-                            }
-                        )
-                        RecentActivitySection(
-                            entries: viewModel.hydrationState.entries,
-                            measurementUnit: viewModel.measurementUnit,
-                            onDelete: { entry in
-                                viewModel.deleteEntry(entry)
-                                showUndoBanner(
-                                    message: viewModel.undoBannerMessage
-                                )
-                            },
-                            onOpenHistory: {
-                                isHistoryPresented = true
-                            }
-                        )
-                        
-                        Spacer(minLength: AppSpacing.xl)
+                    )
+                    
+                    HomeProgressCard(
+                        hydrationState: viewModel.hydrationState,
+                        measurementUnit: viewModel.measurementUnit
+                    )
+                    
+                    PrimaryButton(
+                        title: String(localized: "Add Water"),
+                        systemImage: "plus"
+                    ) {
+                        isAddWaterSheetPresented = true
                     }
-                    .padding(.horizontal, AppSpacing.lg)
-                    .padding(.top, AppSpacing.xl)
+                    
+                    QuickAddSection(
+                        amounts: quickAddAmounts,
+                        measurementUnit: viewModel.measurementUnit,
+                        onAdd: { amount in
+                            viewModel.addWater(amount)
+                            
+                            showUndoBanner(
+                                message: viewModel.undoBannerMessage
+                            )
+                        }
+                    )
+                    
+                    RecentActivitySection(
+                        entries: viewModel.hydrationState.entries,
+                        measurementUnit: viewModel.measurementUnit,
+                        onDelete: { entry in
+                            viewModel.deleteEntry(entry)
+                            
+                            showUndoBanner(
+                                message: viewModel.undoBannerMessage
+                            )
+                        },
+                        onOpenHistory: {
+                            isHistoryPresented = true
+                        }
+                    )
+                    
+                    Spacer(minLength: AppSpacing.xl)
                 }
+                .padding(.horizontal, AppSpacing.lg)
+                .padding(.top, AppSpacing.xl)
             }
             
             if isUndoBannerPresented {
@@ -107,7 +134,8 @@ struct HomeView: View {
                     isVisible: isUndoBannerVisible,
                     onUndo: {
                         undoBannerDismissTask?.cancel()
-                        viewModel?.undoLastAction()
+                        viewModel.undoLastAction()
+                        
                         Task {
                             await hideUndoBanner()
                         }
@@ -116,44 +144,31 @@ struct HomeView: View {
             }
         }
         .sheet(isPresented: $isAddWaterSheetPresented) {
-            if let viewModel {
-                AddWaterSheet(
-                    presets: quickAddAmounts,
-                    measurementUnit: viewModel.measurementUnit
-                ) { amount, drinkType in
-                    viewModel.addWater(
-                        amount,
-                        drinkType: drinkType
-                    )
-                    
-                    showUndoBanner(
-                        message: viewModel.undoBannerMessage
-                    )
-                }
+            AddWaterSheet(
+                presets: quickAddAmounts,
+                measurementUnit: viewModel.measurementUnit
+            ) { amount, drinkType in
+                viewModel.addWater(
+                    amount,
+                    drinkType: drinkType
+                )
+                
+                showUndoBanner(
+                    message: viewModel.undoBannerMessage
+                )
             }
         }
         .navigationDestination(isPresented: $isHistoryPresented) {
             HistoryView()
         }
         .onAppear {
-            setupViewModelIfNeeded()
-            viewModel?.loadEntries()
+            viewModel.loadEntries()
         }
         .onChange(of: scenePhase) { _, newPhase in
             guard newPhase == .active else { return }
             
-            viewModel?.loadEntries()
+            viewModel.loadEntries()
         }
-    }
-    
-    // MARK: - Setup
-    
-    private func setupViewModelIfNeeded() {
-        guard viewModel == nil else { return }
-        
-        viewModel = AppFactory.makeHomeViewModel(
-            context: modelContext
-        )
     }
     
     // MARK: - Actions

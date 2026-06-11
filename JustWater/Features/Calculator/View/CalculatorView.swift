@@ -52,7 +52,7 @@ struct CalculatorView: View {
             
             ScrollViewReader { proxy in
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: AppSpacing.xl) {
+                    LazyVStack(spacing: AppSpacing.xl) {
                         CalculatorHeaderView(
                             showsTitle: showsHeaderTitle
                         )

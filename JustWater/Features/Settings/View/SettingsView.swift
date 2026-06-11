@@ -15,9 +15,32 @@ struct SettingsView: View {
     
     @Environment(\.modelContext) private var modelContext
     
+    // MARK: - Body
+    
+    var body: some View {
+        SettingsContentView(
+            viewModel: AppFactory.makeSettingsViewModel(
+                context: modelContext
+            )
+        )
+    }
+}
+
+private struct SettingsContentView: View {
+    
     // MARK: - State
     
-    @State private var viewModel: SettingsViewModel?
+    @State private var viewModel: SettingsViewModel
+    
+    // MARK: - Initializer
+    
+    init(
+        viewModel: SettingsViewModel
+    ) {
+        _viewModel = State(
+            initialValue: viewModel
+        )
+    }
     
     // MARK: - Body
     
@@ -26,29 +49,26 @@ struct SettingsView: View {
             AppBackground()
             
             ScrollView(showsIndicators: false) {
-                if let viewModel {
-                    VStack(alignment: .leading, spacing: AppSpacing.lg) {
-                        header
-                        
-                        dailyGoalSection(viewModel)
-                        
-                        appearanceSection(viewModel)
-                        
-                        preferencesSection(viewModel)
-                        
-                        remindersSection(viewModel)
-                        
-                        appInfoSection
-                    }
-                    .padding(AppSpacing.lg)
+                LazyVStack(alignment: .leading, spacing: AppSpacing.lg) {
+                    header
+                    
+                    dailyGoalSection(viewModel)
+                    
+                    appearanceSection(viewModel)
+                    
+                    preferencesSection(viewModel)
+                    
+                    remindersSection(viewModel)
+                    
+                    appInfoSection
                 }
+                .padding(AppSpacing.lg)
             }
         }
         .navigationTitle(String(localized: "Settings"))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            setupViewModelIfNeeded()
-            viewModel?.reload()
+            viewModel.reload()
         }
     }
     
@@ -447,16 +467,6 @@ struct SettingsView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-    }
-    
-    // MARK: - Setup
-    
-    private func setupViewModelIfNeeded() {
-        guard viewModel == nil else { return }
-        
-        viewModel = AppFactory.makeSettingsViewModel(
-            context: modelContext
-        )
     }
     
     // MARK: - Helpers
