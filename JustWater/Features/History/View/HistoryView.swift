@@ -14,13 +14,26 @@ struct HistoryView: View {
     
     @Environment(\.modelContext) private var modelContext
     
+    // MARK: - Properties
+    
+    let onEntriesChanged: () -> Void
+    
+    // MARK: - Initializer
+    
+    init(
+        onEntriesChanged: @escaping () -> Void = {}
+    ) {
+        self.onEntriesChanged = onEntriesChanged
+    }
+    
     // MARK: - Body
     
     var body: some View {
         HistoryContentScreen(
             viewModel: AppFactory.makeHistoryViewModel(
                 context: modelContext
-            )
+            ),
+            onEntriesChanged: onEntriesChanged
         )
     }
 }
@@ -37,15 +50,18 @@ private struct HistoryContentScreen: View {
     @State private var isUndoBannerVisible = false
     @State private var undoBannerMessage = ""
     @State private var undoBannerDismissTask: Task<Void, Never>?
+    private let onEntriesChanged: () -> Void
     
     // MARK: - Initializer
     
     init(
-        viewModel: HistoryViewModel
+        viewModel: HistoryViewModel,
+        onEntriesChanged: @escaping () -> Void
     ) {
         _viewModel = State(
             initialValue: viewModel
         )
+        self.onEntriesChanged = onEntriesChanged
     }
     
     // MARK: - Body
@@ -88,6 +104,7 @@ private struct HistoryContentScreen: View {
                             },
                             onDeleteEntry: { entry in
                                 viewModel.deleteEntry(entry)
+                                onEntriesChanged()
                                 
                                 showUndoBanner(
                                     message: viewModel.undoBannerMessage
@@ -106,6 +123,7 @@ private struct HistoryContentScreen: View {
                     onUndo: {
                         undoBannerDismissTask?.cancel()
                         viewModel.undoLastAction()
+                        onEntriesChanged()
                         
                         Task {
                             await hideUndoBanner()
@@ -171,6 +189,7 @@ private struct HistoryContentScreen: View {
                 date: date,
                 drinkType: drinkType
             )
+            onEntriesChanged()
             
             showUndoBanner(
                 message: viewModel.undoBannerMessage
@@ -183,6 +202,7 @@ private struct HistoryContentScreen: View {
                 date: date,
                 drinkType: drinkType
             )
+            onEntriesChanged()
         }
     }
     

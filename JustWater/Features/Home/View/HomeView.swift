@@ -41,6 +41,7 @@ private struct HomeContentView: View {
     @State private var isHistoryPresented = false
     @State private var undoBannerMessage = ""
     @State private var undoBannerDismissTask: Task<Void, Never>?
+    @State private var hasLoadedInitialEntries = false
     
     // MARK: - Constants
     
@@ -79,8 +80,9 @@ private struct HomeContentView: View {
                         todayTitle: todayTitle,
                         onResetOnboarding: coordinator.resetOnboarding,
                         onGoalUpdated: {
-                            viewModel.loadEntries()
-                        }
+                            reloadEntries()
+                        },
+                        onHydrationDataChanged: reloadEntries
                     )
                     
                     HomeProgressCard(
@@ -159,19 +161,32 @@ private struct HomeContentView: View {
             }
         }
         .navigationDestination(isPresented: $isHistoryPresented) {
-            HistoryView()
+            HistoryView(
+                onEntriesChanged: reloadEntries
+            )
         }
         .onAppear {
-            viewModel.loadEntries()
+            loadInitialEntriesIfNeeded()
         }
         .onChange(of: scenePhase) { _, newPhase in
             guard newPhase == .active else { return }
             
-            viewModel.loadEntries()
+            reloadEntries()
         }
     }
     
     // MARK: - Actions
+    
+    private func loadInitialEntriesIfNeeded() {
+        guard !hasLoadedInitialEntries else { return }
+        
+        reloadEntries()
+    }
+    
+    private func reloadEntries() {
+        hasLoadedInitialEntries = true
+        viewModel.loadEntries()
+    }
     
     private func showUndoBanner(
         message: String

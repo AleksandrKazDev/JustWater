@@ -19,6 +19,7 @@ struct HomeHeader: View {
     let todayTitle: String
     let onResetOnboarding: () -> Void
     let onGoalUpdated: () -> Void
+    let onHydrationDataChanged: () -> Void
     
     // MARK: - State
     
@@ -53,7 +54,9 @@ struct HomeHeader: View {
     private var menuButton: some View {
         Menu {
             NavigationLink {
-                HistoryView()
+                HistoryView(
+                    onEntriesChanged: onHydrationDataChanged
+                )
             } label: {
                 Label(
                     String(localized: "History"),
@@ -73,7 +76,9 @@ struct HomeHeader: View {
 //            }
             
             NavigationLink {
-                SettingsView()
+                SettingsView(
+                    onHydrationSettingsChanged: onHydrationDataChanged
+                )
             } label: {
                 Label(
                     String(localized: "Settings"),

@@ -15,13 +15,26 @@ struct SettingsView: View {
     
     @Environment(\.modelContext) private var modelContext
     
+    // MARK: - Properties
+    
+    let onHydrationSettingsChanged: () -> Void
+    
+    // MARK: - Initializer
+    
+    init(
+        onHydrationSettingsChanged: @escaping () -> Void = {}
+    ) {
+        self.onHydrationSettingsChanged = onHydrationSettingsChanged
+    }
+    
     // MARK: - Body
     
     var body: some View {
         SettingsContentView(
             viewModel: AppFactory.makeSettingsViewModel(
                 context: modelContext
-            )
+            ),
+            onHydrationSettingsChanged: onHydrationSettingsChanged
         )
     }
 }
@@ -31,15 +44,18 @@ private struct SettingsContentView: View {
     // MARK: - State
     @State private var hasLoadedSettings = false
     @State private var viewModel: SettingsViewModel
+    private let onHydrationSettingsChanged: () -> Void
     
     // MARK: - Initializer
     
     init(
-        viewModel: SettingsViewModel
+        viewModel: SettingsViewModel,
+        onHydrationSettingsChanged: @escaping () -> Void
     ) {
         _viewModel = State(
             initialValue: viewModel
         )
+        self.onHydrationSettingsChanged = onHydrationSettingsChanged
     }
     
     // MARK: - Body
@@ -113,6 +129,7 @@ private struct SettingsContentView: View {
                     NavigationLink {
                         CalculatorView { goal in
                             viewModel.updateDailyGoal(goal)
+                            onHydrationSettingsChanged()
                         }
                     } label: {
                         SettingsPillButton(title: String(localized: "Change"))
@@ -218,6 +235,7 @@ private struct SettingsContentView: View {
                     viewModel.updateMeasurementUnit(
                         viewModel.measurementUnit.toggled
                     )
+                    onHydrationSettingsChanged()
                 } label: {
                     HStack(spacing: AppSpacing.md) {
                         SettingsLabel(
