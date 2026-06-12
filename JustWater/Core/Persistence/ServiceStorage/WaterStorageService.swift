@@ -130,9 +130,9 @@ final class WaterStorageService: WaterStorageServicing {
             to: interval.end
         )
     }
-        
+    
     // MARK: - Saving
-
+    
     @discardableResult
     func saveEntry(amount: Int) throws -> WaterEntry {
         try saveEntry(
@@ -141,7 +141,7 @@ final class WaterStorageService: WaterStorageServicing {
             drinkType: .water
         )
     }
-
+    
     @discardableResult
     func saveEntry(
         amount: Int,
@@ -149,11 +149,12 @@ final class WaterStorageService: WaterStorageServicing {
         drinkType: DrinkType = .water
     ) throws -> WaterEntry {
         let id = UUID()
+        let normalizedDate = try uniqueDateIfNeeded(date)
         
         let entity = WaterEntryEntity(
             id: id,
             amount: amount,
-            date: date,
+            date: normalizedDate,
             drinkTypeRawValue: drinkType.rawValue
         )
         
@@ -164,7 +165,7 @@ final class WaterStorageService: WaterStorageServicing {
         return WaterEntry(
             id: id,
             amount: amount,
-            date: date,
+            date: normalizedDate,
             drinkType: drinkType
         )
     }
@@ -181,8 +182,13 @@ final class WaterStorageService: WaterStorageServicing {
             return
         }
         
+        let normalizedDate = try uniqueDateIfNeeded(
+            date,
+            excludingEntryID: id
+        )
+        
         entity.amount = amount
-        entity.date = date
+        entity.date = normalizedDate
         entity.drinkTypeRawValue = drinkType.rawValue
         
         try context.save()
@@ -201,7 +207,7 @@ final class WaterStorageService: WaterStorageServicing {
     }
     
     // MARK: - Restoring
-
+    
     @discardableResult
     func restoreEntry(
         from snapshot: WaterEntrySnapshot
@@ -242,7 +248,49 @@ final class WaterStorageService: WaterStorageServicing {
         return try context.fetch(descriptor).first
     }
     
+    /// Сохраняет визуальную сортировку записей, когда несколько записей отображают одну и ту же минуту.
+    /// Избегаею изменения схемы SwiftData, поскольку приложение уже опубликовано.
     // MARK: - Private Helpers
+    
+    private func uniqueDateIfNeeded(
+        _ date: Date,
+        excludingEntryID excludedID: UUID? = nil
+    ) throws -> Date {
+        let calendar = Calendar.current
+        
+        guard let minuteInterval = calendar.dateInterval(
+            of: .minute,
+            for: date
+        ) else {
+            return date
+        }
+        
+        let descriptor = FetchDescriptor<WaterEntryEntity>(
+            predicate: #Predicate { entry in
+                entry.date >= minuteInterval.start && entry.date < minuteInterval.end
+            },
+            sortBy: [
+                SortDescriptor(\.date, order: .reverse)
+            ]
+        )
+        
+        let entriesInSameMinute = try context.fetch(descriptor)
+            .filter { entry in
+                entry.id != excludedID
+            }
+        
+        guard let latestEntry = entriesInSameMinute.first else {
+            return date
+        }
+        
+        let candidateDate = latestEntry.date.addingTimeInterval(0.001)
+        
+        if candidateDate < minuteInterval.end {
+            return candidateDate
+        }
+        
+        return date
+    }
     
     private func dateInterval(
         for period: HistoryPeriod,

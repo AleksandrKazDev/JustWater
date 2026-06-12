@@ -29,7 +29,7 @@ struct SettingsView: View {
 private struct SettingsContentView: View {
     
     // MARK: - State
-    
+    @State private var hasLoadedSettings = false
     @State private var viewModel: SettingsViewModel
     
     // MARK: - Initializer
@@ -68,6 +68,8 @@ private struct SettingsContentView: View {
         .navigationTitle(String(localized: "Settings"))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
+            guard !hasLoadedSettings else { return }
+            hasLoadedSettings = true
             viewModel.reload()
         }
     }
