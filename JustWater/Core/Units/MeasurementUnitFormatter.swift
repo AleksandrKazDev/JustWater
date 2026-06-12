@@ -51,20 +51,20 @@ struct MeasurementUnitFormatter {
         _ value: Double,
         unit: MeasurementUnit
     ) -> String {
-        let formatter = NumberFormatter()
-        formatter.locale = locale
-        formatter.numberStyle = .decimal
-        
         switch unit {
         case .milliliters:
-            formatter.maximumFractionDigits = 0
-            formatter.minimumFractionDigits = 0
+            return value.formatted(
+                .number
+                    .locale(locale)
+                    .precision(.fractionLength(0))
+            )
             
         case .fluidOunces:
-            formatter.maximumFractionDigits = 1
-            formatter.minimumFractionDigits = 0
+            return value.formatted(
+                .number
+                    .locale(locale)
+                    .precision(.fractionLength(0...1))
+            )
         }
-        
-        return formatter.string(from: NSNumber(value: value)) ?? "\(value)"
     }
 }

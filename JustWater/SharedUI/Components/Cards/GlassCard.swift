@@ -34,6 +34,12 @@ struct GlassCard<Content: View>: View {
                             .fill(.ultraThinMaterial)
                             .opacity(0.45)
                     }
+                    .shadow(
+                        color: AppColors.blueGlow.opacity(0.08),
+                        radius: 22,
+                        x: 0,
+                        y: 12
+                    )
             }
             .overlay {
                 RoundedRectangle(cornerRadius: AppRadius.xl)
@@ -53,11 +59,5 @@ struct GlassCard<Content: View>: View {
                         lineWidth: 1
                     )
             }
-            .shadow(
-                color: AppColors.blueGlow.opacity(0.08),
-                radius: 22,
-                x: 0,
-                y: 12
-            )
     }
 }
