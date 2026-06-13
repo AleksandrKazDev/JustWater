@@ -12,11 +12,12 @@ final class CalculatorViewModelTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
+        AppSettingsStorageTestSupport.setUpIsolatedDefaults()
         AppSettingsStorage.measurementUnit = .milliliters
     }
     
     override func tearDown() {
-        AppSettingsStorage.measurementUnit = .milliliters
+        AppSettingsStorageTestSupport.tearDownIsolatedDefaults()
         super.tearDown()
     }
     

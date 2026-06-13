@@ -9,6 +9,10 @@ import Foundation
 
 enum AppSettingsStorage {
     
+    // MARK: - Storage
+    
+    private static var defaults = UserDefaults.standard
+    
     // MARK: - Keys
     
     private enum Keys {
@@ -23,17 +27,29 @@ enum AppSettingsStorage {
         static let reminderFrequency = "reminderFrequency"
     }
     
+    #if DEBUG
+    static func useDefaults(
+        _ defaults: UserDefaults
+    ) {
+        self.defaults = defaults
+    }
+    
+    static func useStandardDefaults() {
+        defaults = .standard
+    }
+    #endif
+    
     
     // MARK: - Onboarding
     
     static var hasCompletedOnboarding: Bool {
         get {
-            UserDefaults.standard.bool(
+            defaults.bool(
                 forKey: Keys.hasCompletedOnboarding
             )
         }
         set {
-            UserDefaults.standard.set(
+            defaults.set(
                 newValue,
                 forKey: Keys.hasCompletedOnboarding
             )
@@ -44,14 +60,14 @@ enum AppSettingsStorage {
     
     static var dailyGoal: Int {
         get {
-            let value = UserDefaults.standard.integer(
+            let value = defaults.integer(
                 forKey: Keys.dailyGoal
             )
             
             return value == 0 ? 2500 : value
         }
         set {
-            UserDefaults.standard.set(
+            defaults.set(
                 newValue,
                 forKey: Keys.dailyGoal
             )
@@ -62,18 +78,18 @@ enum AppSettingsStorage {
     
     static var isHapticsEnabled: Bool {
         get {
-            if UserDefaults.standard.object(
+            if defaults.object(
                 forKey: Keys.isHapticsEnabled
             ) == nil {
                 return true
             }
             
-            return UserDefaults.standard.bool(
+            return defaults.bool(
                 forKey: Keys.isHapticsEnabled
             )
         }
         set {
-            UserDefaults.standard.set(
+            defaults.set(
                 newValue,
                 forKey: Keys.isHapticsEnabled
             )
@@ -84,7 +100,7 @@ enum AppSettingsStorage {
     
     static var appearanceMode: AppAppearanceMode {
         get {
-            guard let rawValue = UserDefaults.standard.string(
+            guard let rawValue = defaults.string(
                 forKey: Keys.appearanceMode
             ),
                   let mode = AppAppearanceMode(
@@ -96,7 +112,7 @@ enum AppSettingsStorage {
             return mode
         }
         set {
-            UserDefaults.standard.set(
+            defaults.set(
                 newValue.rawValue,
                 forKey: Keys.appearanceMode
             )
@@ -107,12 +123,12 @@ enum AppSettingsStorage {
     
     static var measurementUnit: MeasurementUnit {
         get {
-            guard let rawValue = UserDefaults.standard.string(
+            guard let rawValue = defaults.string(
                 forKey: Keys.measurementUnit
             ) else {
                 let defaultUnit = MeasurementUnit.defaultUnit()
                 
-                UserDefaults.standard.set(
+                defaults.set(
                     defaultUnit.rawValue,
                     forKey: Keys.measurementUnit
                 )
@@ -123,7 +139,7 @@ enum AppSettingsStorage {
             guard let unit = MeasurementUnit(rawValue: rawValue) else {
                 let fallbackUnit = MeasurementUnit.defaultUnit()
                 
-                UserDefaults.standard.set(
+                defaults.set(
                     fallbackUnit.rawValue,
                     forKey: Keys.measurementUnit
                 )
@@ -134,7 +150,7 @@ enum AppSettingsStorage {
             return unit
         }
         set {
-            UserDefaults.standard.set(
+            defaults.set(
                 newValue.rawValue,
                 forKey: Keys.measurementUnit
             )
@@ -145,12 +161,12 @@ enum AppSettingsStorage {
     
     static var areRemindersEnabled: Bool {
         get {
-            UserDefaults.standard.bool(
+            defaults.bool(
                 forKey: Keys.areRemindersEnabled
             )
         }
         set {
-            UserDefaults.standard.set(
+            defaults.set(
                 newValue,
                 forKey: Keys.areRemindersEnabled
             )
@@ -159,18 +175,18 @@ enum AppSettingsStorage {
     
     static var reminderStartHour: Int {
         get {
-            guard UserDefaults.standard.object(
+            guard defaults.object(
                 forKey: Keys.reminderStartHour
             ) != nil else {
                 return 9
             }
             
-            return UserDefaults.standard.integer(
+            return defaults.integer(
                 forKey: Keys.reminderStartHour
             )
         }
         set {
-            UserDefaults.standard.set(
+            defaults.set(
                 newValue,
                 forKey: Keys.reminderStartHour
             )
@@ -179,18 +195,18 @@ enum AppSettingsStorage {
     
     static var reminderEndHour: Int {
         get {
-            guard UserDefaults.standard.object(
+            guard defaults.object(
                 forKey: Keys.reminderEndHour
             ) != nil else {
                 return 22
             }
             
-            return UserDefaults.standard.integer(
+            return defaults.integer(
                 forKey: Keys.reminderEndHour
             )
         }
         set {
-            UserDefaults.standard.set(
+            defaults.set(
                 newValue,
                 forKey: Keys.reminderEndHour
             )
@@ -199,14 +215,14 @@ enum AppSettingsStorage {
     
     static var reminderFrequency: ReminderFrequency {
         get {
-            let rawValue = UserDefaults.standard.integer(
+            let rawValue = defaults.integer(
                 forKey: Keys.reminderFrequency
             )
             
             return ReminderFrequency(rawValue: rawValue) ?? .twoHours
         }
         set {
-            UserDefaults.standard.set(
+            defaults.set(
                 newValue.rawValue,
                 forKey: Keys.reminderFrequency
             )

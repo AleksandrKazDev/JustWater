@@ -11,16 +11,13 @@ import XCTest
 @MainActor
 final class DailyGoalUpdateServiceTests: XCTestCase {
     
-    private var originalDailyGoal: Int!
-    
     override func setUp() {
         super.setUp()
-        originalDailyGoal = AppSettingsStorage.dailyGoal
+        AppSettingsStorageTestSupport.setUpIsolatedDefaults()
     }
     
     override func tearDown() {
-        AppSettingsStorage.dailyGoal = originalDailyGoal
-        originalDailyGoal = nil
+        AppSettingsStorageTestSupport.tearDownIsolatedDefaults()
         super.tearDown()
     }
     

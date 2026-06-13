@@ -18,7 +18,13 @@ final class WaterGoalStorageServiceTests: XCTestCase {
     
     // MARK: - Lifecycle
     
+    override func setUp() {
+        super.setUp()
+        AppSettingsStorageTestSupport.setUpIsolatedDefaults()
+    }
+    
     override func tearDown() async throws {
+        AppSettingsStorageTestSupport.tearDownIsolatedDefaults()
         modelContainer = nil
         try await super.tearDown()
     }
