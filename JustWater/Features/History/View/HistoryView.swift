@@ -133,7 +133,7 @@ private struct HistoryContentScreen: View {
             }
         }
         .onAppear {
-            viewModel.loadAnalytics()
+            viewModel.loadInitialAnalyticsIfNeeded()
         }
         .sheet(isPresented: $isDatePickerPresented) {
             HistoryDatePickerSheet(

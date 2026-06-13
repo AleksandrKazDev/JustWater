@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Observation
 import UserNotifications
 
 @MainActor
@@ -18,6 +19,7 @@ final class SettingsViewModel {
     private let dailyGoalUpdateService: DailyGoalUpdating
     private let notificationService: NotificationServicing
     private let errorReporter: ErrorReporting
+    @ObservationIgnored private var hasLoadedSettings = false
     
     // MARK: - Properties
     
@@ -74,7 +76,7 @@ final class SettingsViewModel {
     ) {
         do {
             try dailyGoalUpdateService.updateDailyGoal(goal)
-            dailyGoal = goal
+            updateIfNeeded(\.dailyGoal, to: goal)
         } catch {
             errorReporter.report(
                 error,
@@ -86,15 +88,20 @@ final class SettingsViewModel {
     func updateHapticsEnabled(
         _ isEnabled: Bool
     ) {
-        AppSettingsStorage.isHapticsEnabled = isEnabled
-        isHapticsEnabled = isEnabled
+        if AppSettingsStorage.isHapticsEnabled != isEnabled {
+            AppSettingsStorage.isHapticsEnabled = isEnabled
+        }
+        
+        updateIfNeeded(\.isHapticsEnabled, to: isEnabled)
     }
     
     func updateAppearanceMode(
         _ mode: AppAppearanceMode
     ) {
+        guard appearanceMode != mode else { return }
+        
         AppSettingsStorage.appearanceMode = mode
-        appearanceMode = mode
+        updateIfNeeded(\.appearanceMode, to: mode)
         
         NotificationCenter.default.post(
             name: .appAppearanceDidChange,
@@ -105,14 +112,19 @@ final class SettingsViewModel {
     func updateMeasurementUnit(
         _ unit: MeasurementUnit
     ) {
-        AppSettingsStorage.measurementUnit = unit
-        measurementUnit = unit
+        if AppSettingsStorage.measurementUnit != unit {
+            AppSettingsStorage.measurementUnit = unit
+        }
+        
+        updateIfNeeded(\.measurementUnit, to: unit)
     }
     
     func updateReminderStartHour(
         _ hour: Int
     ) {
-        reminderStartHour = hour
+        guard reminderStartHour != hour else { return }
+        
+        updateIfNeeded(\.reminderStartHour, to: hour)
         AppSettingsStorage.reminderStartHour = hour
         
         Task {
@@ -123,7 +135,9 @@ final class SettingsViewModel {
     func updateReminderEndHour(
         _ hour: Int
     ) {
-        reminderEndHour = hour
+        guard reminderEndHour != hour else { return }
+        
+        updateIfNeeded(\.reminderEndHour, to: hour)
         AppSettingsStorage.reminderEndHour = hour
         
         Task {
@@ -134,7 +148,9 @@ final class SettingsViewModel {
     func updateReminderFrequency(
         _ frequency: ReminderFrequency
     ) {
-        reminderFrequency = frequency
+        guard reminderFrequency != frequency else { return }
+        
+        updateIfNeeded(\.reminderFrequency, to: frequency)
         AppSettingsStorage.reminderFrequency = frequency
         
         Task {
@@ -152,11 +168,16 @@ final class SettingsViewModel {
     
     func refreshNotificationAuthorizationStatus() {
         Task {
-            notificationAuthorizationStatus = await notificationService.getAuthorizationStatus()
+            let status = await notificationService.getAuthorizationStatus()
+            updateIfNeeded(\.notificationAuthorizationStatus, to: status)
             
-            if notificationAuthorizationStatus == .denied {
-                areRemindersEnabled = false
-                AppSettingsStorage.areRemindersEnabled = false
+            if status == .denied {
+                updateIfNeeded(\.areRemindersEnabled, to: false)
+                
+                if AppSettingsStorage.areRemindersEnabled {
+                    AppSettingsStorage.areRemindersEnabled = false
+                }
+                
                 notificationService.cancelHydrationReminders()
             }
         }
@@ -172,16 +193,23 @@ final class SettingsViewModel {
     }
     #endif
     
+    func reloadIfNeeded() {
+        guard !hasLoadedSettings else { return }
+        hasLoadedSettings = true
+        
+        reload()
+    }
+    
     func reload() {
         syncCurrentGoal()
-        isHapticsEnabled = AppSettingsStorage.isHapticsEnabled
-        appearanceMode = AppSettingsStorage.appearanceMode
-        measurementUnit = AppSettingsStorage.measurementUnit
+        updateIfNeeded(\.isHapticsEnabled, to: AppSettingsStorage.isHapticsEnabled)
+        updateIfNeeded(\.appearanceMode, to: AppSettingsStorage.appearanceMode)
+        updateIfNeeded(\.measurementUnit, to: AppSettingsStorage.measurementUnit)
         
-        areRemindersEnabled = AppSettingsStorage.areRemindersEnabled
-        reminderStartHour = AppSettingsStorage.reminderStartHour
-        reminderEndHour = AppSettingsStorage.reminderEndHour
-        reminderFrequency = AppSettingsStorage.reminderFrequency
+        updateIfNeeded(\.areRemindersEnabled, to: AppSettingsStorage.areRemindersEnabled)
+        updateIfNeeded(\.reminderStartHour, to: AppSettingsStorage.reminderStartHour)
+        updateIfNeeded(\.reminderEndHour, to: AppSettingsStorage.reminderEndHour)
+        updateIfNeeded(\.reminderFrequency, to: AppSettingsStorage.reminderFrequency)
         
         refreshNotificationAuthorizationStatus()
     }
@@ -193,7 +221,7 @@ final class SettingsViewModel {
     ) async {
         if isEnabled {
             let status = await notificationService.getAuthorizationStatus()
-            notificationAuthorizationStatus = status
+            updateIfNeeded(\.notificationAuthorizationStatus, to: status)
             
             let isAuthorized: Bool
             
@@ -203,7 +231,8 @@ final class SettingsViewModel {
                 
             case .notDetermined:
                 isAuthorized = await notificationService.requestAuthorization()
-                notificationAuthorizationStatus = await notificationService.getAuthorizationStatus()
+                let updatedStatus = await notificationService.getAuthorizationStatus()
+                updateIfNeeded(\.notificationAuthorizationStatus, to: updatedStatus)
                 
             case .denied:
                 isAuthorized = false
@@ -213,19 +242,30 @@ final class SettingsViewModel {
             }
             
             guard isAuthorized else {
-                areRemindersEnabled = false
-                AppSettingsStorage.areRemindersEnabled = false
+                updateIfNeeded(\.areRemindersEnabled, to: false)
+                
+                if AppSettingsStorage.areRemindersEnabled {
+                    AppSettingsStorage.areRemindersEnabled = false
+                }
+                
                 notificationService.cancelHydrationReminders()
                 return
             }
             
-            areRemindersEnabled = true
-            AppSettingsStorage.areRemindersEnabled = true
+            updateIfNeeded(\.areRemindersEnabled, to: true)
+            
+            if !AppSettingsStorage.areRemindersEnabled {
+                AppSettingsStorage.areRemindersEnabled = true
+            }
             
             await scheduleReminders()
         } else {
-            areRemindersEnabled = false
-            AppSettingsStorage.areRemindersEnabled = false
+            updateIfNeeded(\.areRemindersEnabled, to: false)
+            
+            if AppSettingsStorage.areRemindersEnabled {
+                AppSettingsStorage.areRemindersEnabled = false
+            }
+            
             notificationService.cancelHydrationReminders()
         }
     }
@@ -256,13 +296,25 @@ final class SettingsViewModel {
         do {
             let currentGoal = try goalStorageService.currentGoal()
             
-            AppSettingsStorage.dailyGoal = currentGoal
-            dailyGoal = currentGoal
+            if AppSettingsStorage.dailyGoal != currentGoal {
+                AppSettingsStorage.dailyGoal = currentGoal
+            }
+            
+            updateIfNeeded(\.dailyGoal, to: currentGoal)
         } catch {
             errorReporter.report(
                 error,
                 context: "Failed to sync current goal"
             )
         }
+    }
+    
+    private func updateIfNeeded<Value: Equatable>(
+        _ keyPath: ReferenceWritableKeyPath<SettingsViewModel, Value>,
+        to newValue: Value
+    ) {
+        guard self[keyPath: keyPath] != newValue else { return }
+        
+        self[keyPath: keyPath] = newValue
     }
 }

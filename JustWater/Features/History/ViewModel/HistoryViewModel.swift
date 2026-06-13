@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Observation
 
 @Observable
 @MainActor
@@ -21,6 +22,7 @@ final class HistoryViewModel {
     private let hapticService: HapticServicing
     private let errorReporter: ErrorReporting
     private let calendar: Calendar
+    @ObservationIgnored private var hasLoadedInitialAnalytics = false
     
     // MARK: - State
     
@@ -135,6 +137,8 @@ final class HistoryViewModel {
     func selectPeriod(
         _ period: HistoryPeriod
     ) {
+        guard selectedPeriod != period else { return }
+        
         selectedPeriod = period
         
         loadAnalytics()
@@ -143,6 +147,8 @@ final class HistoryViewModel {
     func selectReferenceDate(
         _ date: Date
     ) {
+        guard referenceDate != date else { return }
+        
         setReferenceDate(date)
         
         loadAnalytics()
@@ -156,8 +162,15 @@ final class HistoryViewModel {
         shiftPeriod(by: 1)
     }
     
+    func loadInitialAnalyticsIfNeeded() {
+        guard !hasLoadedInitialAnalytics else { return }
+        
+        loadAnalytics()
+    }
+    
     func loadAnalytics() {
-        measurementUnit = AppSettingsStorage.measurementUnit
+        hasLoadedInitialAnalytics = true
+        updateIfNeeded(\.measurementUnit, to: AppSettingsStorage.measurementUnit)
         
         do {
             let interval = dateInterval(
@@ -175,10 +188,11 @@ final class HistoryViewModel {
                 to: interval.end
             )
             
-            displayDailyGoal = goal(
+            let newDisplayDailyGoal = goal(
                 for: referenceDate,
                 in: goalsByDay
             )
+            updateIfNeeded(\.displayDailyGoal, to: newDisplayDailyGoal)
             
             let dailyGoalProvider: (Date) -> Int = { date in
                 self.goal(
@@ -187,12 +201,13 @@ final class HistoryViewModel {
                 )
             }
             
-            analytics = HistoryAnalyticsService.makeAnalytics(
+            let newAnalytics = HistoryAnalyticsService.makeAnalytics(
                 period: selectedPeriod,
                 entries: entries,
                 dailyGoalProvider: dailyGoalProvider,
                 referenceDate: referenceDate
             )
+            updateIfNeeded(\.analytics, to: newAnalytics)
             
             reloadCurrentStreak()
         } catch {
@@ -352,13 +367,15 @@ final class HistoryViewModel {
         do {
             let streakDays = try streakDayService.fetchStreakDays()
             
-            currentStreak = streakCalculator.currentStreak(
+            let newCurrentStreak = streakCalculator.currentStreak(
                 streakDays: streakDays,
                 currentDate: dateProvider.now,
                 calendar: calendar
             )
+            
+            updateIfNeeded(\.currentStreak, to: newCurrentStreak)
         } catch {
-            currentStreak = 0
+            updateIfNeeded(\.currentStreak, to: 0)
             
             errorReporter.report(
                 error,
@@ -459,6 +476,8 @@ final class HistoryViewModel {
             to: referenceDate
         ) ?? referenceDate
         
+        guard referenceDate != newDate else { return }
+        
         setReferenceDate(newDate)
         
         loadAnalytics()
@@ -539,5 +558,14 @@ final class HistoryViewModel {
         )
         
         return goalsByDay[startOfDay] ?? AppSettingsStorage.dailyGoal
+    }
+    
+    private func updateIfNeeded<Value: Equatable>(
+        _ keyPath: ReferenceWritableKeyPath<HistoryViewModel, Value>,
+        to newValue: Value
+    ) {
+        guard self[keyPath: keyPath] != newValue else { return }
+        
+        self[keyPath: keyPath] = newValue
     }
 }

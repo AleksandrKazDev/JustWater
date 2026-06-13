@@ -12,4 +12,13 @@ struct HistoryChartPoint: Identifiable, Equatable {
     let date: Date
     let label: String
     let amount: Int
+    
+    static func == (
+        lhs: HistoryChartPoint,
+        rhs: HistoryChartPoint
+    ) -> Bool {
+        lhs.date == rhs.date &&
+        lhs.label == rhs.label &&
+        lhs.amount == rhs.amount
+    }
 }
