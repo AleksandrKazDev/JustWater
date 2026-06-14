@@ -72,6 +72,13 @@
 			);
 			target = F26582922FD85E8A00C03409 /* JustWaterWidgetExtension */;
 		};
+		F2B1E1682FDF5B3500CF4AB9 /* Exceptions for "JustWater" folder in "JustWater" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F2A74DBF2FB0BF6000D96A02 /* JustWater */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -86,6 +93,7 @@
 		F2A74DC22FB0BF6000D96A02 /* JustWater */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				F2B1E1682FDF5B3500CF4AB9 /* Exceptions for "JustWater" folder in "JustWater" target */,
 				F26582B22FD8650300C03409 /* Exceptions for "JustWater" folder in "JustWaterWidgetExtension" target */,
 			);
 			path = JustWater;
@@ -542,8 +550,10 @@
 				DEVELOPMENT_ASSET_PATHS = "\"JustWater/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JustWater/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = JustWater;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "JustWater does not read data from Apple Health.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "JustWater saves your logged water intake to Apple Health when you enable Health sync.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -580,8 +590,10 @@
 				DEVELOPMENT_ASSET_PATHS = "\"JustWater/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JustWater/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = JustWater;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "JustWater does not read data from Apple Health.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "JustWater saves your logged water intake to Apple Health when you enable Health sync.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
