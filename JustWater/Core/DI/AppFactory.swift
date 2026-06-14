@@ -21,12 +21,17 @@ enum AppFactory {
             context: context
         )
         
+        let errorReporter = makeErrorReporter()
+        
         return HomeViewModel(
             storageService: storageService,
             streakDayService: streakDayService,
             hapticService: makeHapticService(),
-            errorReporter: makeErrorReporter(),
-            widgetSnapshotService: WidgetSnapshotService()
+            errorReporter: errorReporter,
+            widgetSnapshotService: WidgetSnapshotService(),
+            healthSyncService: makeHealthSyncService(
+                errorReporter: errorReporter
+            )
         )
     }
     

@@ -16,6 +16,7 @@ final class HomeViewModel {
     private let hapticService: HapticServicing
     private let errorReporter: ErrorReporting
     private let widgetSnapshotService: WidgetSnapshotServicing
+    private let healthSyncService: HealthSyncServicing
     
     
     var hydrationState = HydrationState(
@@ -35,13 +36,15 @@ final class HomeViewModel {
         streakDayService: HydrationStreakDayTracking,
         hapticService: HapticServicing,
         errorReporter: ErrorReporting,
-        widgetSnapshotService: WidgetSnapshotServicing
+        widgetSnapshotService: WidgetSnapshotServicing,
+        healthSyncService: HealthSyncServicing
     ) {
         self.storageService = storageService
         self.streakDayService = streakDayService
         self.hapticService = hapticService
         self.errorReporter = errorReporter
         self.widgetSnapshotService = widgetSnapshotService
+        self.healthSyncService = healthSyncService
     }
     
     func loadEntries() {
@@ -90,6 +93,14 @@ final class HomeViewModel {
             
             loadEntries()
             hapticService.success()
+            
+            Task {
+                await healthSyncService.syncAddedWater(
+                    amountInMilliliters: entry.amount,
+                    date: entry.date,
+                    entryID: entry.id
+                )
+            }
         } catch {
             errorReporter.report(
                 error,
@@ -108,6 +119,12 @@ final class HomeViewModel {
             
             loadEntries()
             hapticService.lightImpact()
+            
+            Task {
+                await healthSyncService.syncDeletedWater(
+                    entryID: snapshot.id
+                )
+            }
         } catch {
             errorReporter.report(
                 error,
@@ -124,8 +141,22 @@ final class HomeViewModel {
             case .added(let snapshot):
                 try storageService.deleteEntry(id: snapshot.id)
                 
+                Task {
+                    await healthSyncService.syncDeletedWater(
+                        entryID: snapshot.id
+                    )
+                }
+                
             case .deleted(let snapshot):
                 try storageService.restoreEntry(from: snapshot)
+                
+                Task {
+                    await healthSyncService.syncAddedWater(
+                        amountInMilliliters: snapshot.amount,
+                        date: snapshot.date,
+                        entryID: snapshot.id
+                    )
+                }
             }
             
             self.pendingUndoAction = nil

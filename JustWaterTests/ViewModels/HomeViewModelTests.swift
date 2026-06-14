@@ -97,6 +97,41 @@ final class HomeViewModelTests: XCTestCase {
         )
     }
     
+    func testAddWater_syncsAddedWaterWithAppleHealth() async {
+        // Arrange
+        let storageService = TestWaterStorageService()
+        let healthSyncService = TestHealthSyncService()
+        
+        let sut = makeSUT(
+            storageService: storageService,
+            healthSyncService: healthSyncService
+        )
+        
+        // Act
+        sut.addWater(
+            200,
+            drinkType: .water
+        )
+        
+        await Task.yield()
+        
+        // Assert
+        XCTAssertEqual(
+            healthSyncService.syncedAddedWaterCount,
+            1
+        )
+        
+        XCTAssertEqual(
+            healthSyncService.lastAddedAmount,
+            200
+        )
+        
+        XCTAssertEqual(
+            healthSyncService.lastAddedEntryID,
+            sut.hydrationState.entries.first?.id
+        )
+    }
+    
     // MARK: - Undo Add
     
     func testUndoLastAction_afterAddingEntry_removesEntry() {
@@ -129,6 +164,42 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertEqual(
             hapticService.warningCallCount,
             1
+        )
+    }
+    
+    func testUndoLastAction_afterAddingEntry_syncsDeletedWaterWithAppleHealth() async {
+        // Arrange
+        let storageService = TestWaterStorageService()
+        let healthSyncService = TestHealthSyncService()
+        
+        let sut = makeSUT(
+            storageService: storageService,
+            healthSyncService: healthSyncService
+        )
+        
+        sut.addWater(
+            200,
+            drinkType: .water
+        )
+        
+        let addedEntryID = sut.hydrationState.entries.first?.id
+        
+        await Task.yield()
+        
+        // Act
+        sut.undoLastAction()
+        
+        await Task.yield()
+        
+        // Assert
+        XCTAssertEqual(
+            healthSyncService.syncedDeletedWaterCount,
+            1
+        )
+        
+        XCTAssertEqual(
+            healthSyncService.lastDeletedEntryID,
+            addedEntryID
         )
     }
     
@@ -172,6 +243,45 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertEqual(
             hapticService.lightImpactCallCount,
             1
+        )
+    }
+    
+    func testDeleteEntry_syncsDeletedWaterWithAppleHealth() async {
+        // Arrange
+        let entry = WaterEntry(
+            id: UUID(),
+            amount: 500,
+            date: Date(),
+            drinkType: .water
+        )
+        
+        let storageService = TestWaterStorageService(
+            entries: [entry]
+        )
+        
+        let healthSyncService = TestHealthSyncService()
+        
+        let sut = makeSUT(
+            storageService: storageService,
+            healthSyncService: healthSyncService
+        )
+        
+        sut.loadEntries()
+        
+        // Act
+        sut.deleteEntry(entry)
+        
+        await Task.yield()
+        
+        // Assert
+        XCTAssertEqual(
+            healthSyncService.syncedDeletedWaterCount,
+            1
+        )
+        
+        XCTAssertEqual(
+            healthSyncService.lastDeletedEntryID,
+            entry.id
         )
     }
     
@@ -232,6 +342,53 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertEqual(
             hapticService.warningCallCount,
             1
+        )
+    }
+    
+    func testUndoLastAction_afterDeletingEntry_syncsAddedWaterWithAppleHealth() async {
+        // Arrange
+        let entry = WaterEntry(
+            id: UUID(),
+            amount: 300,
+            date: Date(),
+            drinkType: .tea
+        )
+        
+        let storageService = TestWaterStorageService(
+            entries: [entry]
+        )
+        
+        let healthSyncService = TestHealthSyncService()
+        
+        let sut = makeSUT(
+            storageService: storageService,
+            healthSyncService: healthSyncService
+        )
+        
+        sut.loadEntries()
+        sut.deleteEntry(entry)
+        
+        await Task.yield()
+        
+        // Act
+        sut.undoLastAction()
+        
+        await Task.yield()
+        
+        // Assert
+        XCTAssertEqual(
+            healthSyncService.syncedAddedWaterCount,
+            1
+        )
+        
+        XCTAssertEqual(
+            healthSyncService.lastAddedAmount,
+            entry.amount
+        )
+        
+        XCTAssertEqual(
+            healthSyncService.lastAddedEntryID,
+            entry.id
         )
     }
     
@@ -309,7 +466,8 @@ final class HomeViewModelTests: XCTestCase {
             streakDayService: TestHydrationStreakDayService(),
             hapticService: TestHapticService(),
             errorReporter: TestErrorReporter(),
-            widgetSnapshotService: TestWidgetSnapshotService()
+            widgetSnapshotService: TestWidgetSnapshotService(),
+            healthSyncService: TestHealthSyncService()
         )
     }
     
@@ -322,7 +480,8 @@ final class HomeViewModelTests: XCTestCase {
             streakDayService: TestHydrationStreakDayService(),
             hapticService: hapticService,
             errorReporter: TestErrorReporter(),
-            widgetSnapshotService: TestWidgetSnapshotService()
+            widgetSnapshotService: TestWidgetSnapshotService(),
+            healthSyncService: TestHealthSyncService()
         )
     }
     
@@ -336,7 +495,22 @@ final class HomeViewModelTests: XCTestCase {
             streakDayService: TestHydrationStreakDayService(),
             hapticService: hapticService,
             errorReporter: errorReporter,
-            widgetSnapshotService: TestWidgetSnapshotService()
+            widgetSnapshotService: TestWidgetSnapshotService(),
+            healthSyncService: TestHealthSyncService()
+        )
+    }
+    
+    private func makeSUT(
+        storageService: TestWaterStorageService,
+        healthSyncService: TestHealthSyncService
+    ) -> HomeViewModel {
+        HomeViewModel(
+            storageService: storageService,
+            streakDayService: TestHydrationStreakDayService(),
+            hapticService: TestHapticService(),
+            errorReporter: TestErrorReporter(),
+            widgetSnapshotService: TestWidgetSnapshotService(),
+            healthSyncService: healthSyncService
         )
     }
     
