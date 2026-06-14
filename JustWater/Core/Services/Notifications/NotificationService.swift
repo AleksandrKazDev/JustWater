@@ -26,10 +26,10 @@ protocol NotificationServicing {
     
     func cancelHydrationReminders()
     
-    #if DEBUG
-    func scheduleTestNotificationInFiveSeconds() async
-    func debugPrintPendingNotifications() async
-    #endif
+//    #if DEBUG
+//    func scheduleTestNotificationInFiveSeconds() async
+//    func debugPrintPendingNotifications() async
+//    #endif
 }
 
 @MainActor
@@ -127,10 +127,10 @@ final class AppNotificationService: NotificationServicing {
                 body: reminderBodies[index]
             )
         }
-        
-        #if DEBUG
-        await debugPrintPendingNotifications()
-        #endif
+//        
+//        #if DEBUG
+//        await debugPrintPendingNotifications()
+//        #endif
     }
     
     func cancelHydrationReminders() {
@@ -140,54 +140,54 @@ final class AppNotificationService: NotificationServicing {
             )
     }
     
-    #if DEBUG
-    func scheduleTestNotificationInFiveSeconds() async {
-        let content = UNMutableNotificationContent()
-        content.title = String(localized: "notification.test.title")
-        content.body = String(localized: "notification.test.body")
-        content.sound = .default
-        
-        let trigger = UNTimeIntervalNotificationTrigger(
-            timeInterval: 5,
-            repeats: false
-        )
-        
-        let request = UNNotificationRequest(
-            identifier: "hydration-test-notification",
-            content: content,
-            trigger: trigger
-        )
-        
-        do {
-            try await UNUserNotificationCenter.current()
-                .add(request)
-        } catch {
-            errorReporter.report(
-                error,
-                context: "Failed to schedule test notification"
-            )
-        }
-    }
-    
-    func debugPrintPendingNotifications() async {
-        let requests = await UNUserNotificationCenter.current()
-            .pendingNotificationRequests()
-        
-        print("🔔 Pending notifications count:", requests.count)
-        
-        for request in requests {
-            print("🔔 ID:", request.identifier)
-            print("🔔 Title:", request.content.title)
-            print("🔔 Body:", request.content.body)
-            
-            if let trigger = request.trigger as? UNCalendarNotificationTrigger {
-                print("🔔 Next trigger:", String(describing: trigger.nextTriggerDate()))
-            } else {
-                print("🔔 Trigger:", String(describing: request.trigger))
-            }
-        }
-    }
-    #endif
+//    #if DEBUG
+//    func scheduleTestNotificationInFiveSeconds() async {
+//        let content = UNMutableNotificationContent()
+//        content.title = String(localized: "notification.test.title")
+//        content.body = String(localized: "notification.test.body")
+//        content.sound = .default
+//        
+//        let trigger = UNTimeIntervalNotificationTrigger(
+//            timeInterval: 5,
+//            repeats: false
+//        )
+//        
+//        let request = UNNotificationRequest(
+//            identifier: "hydration-test-notification",
+//            content: content,
+//            trigger: trigger
+//        )
+//        
+//        do {
+//            try await UNUserNotificationCenter.current()
+//                .add(request)
+//        } catch {
+//            errorReporter.report(
+//                error,
+//                context: "Failed to schedule test notification"
+//            )
+//        }
+//    }
+//    
+//    func debugPrintPendingNotifications() async {
+//        let requests = await UNUserNotificationCenter.current()
+//            .pendingNotificationRequests()
+//        
+//        print("🔔 Pending notifications count:", requests.count)
+//        
+//        for request in requests {
+//            print("🔔 ID:", request.identifier)
+//            print("🔔 Title:", request.content.title)
+//            print("🔔 Body:", request.content.body)
+//            
+//            if let trigger = request.trigger as? UNCalendarNotificationTrigger {
+//                print("🔔 Next trigger:", String(describing: trigger.nextTriggerDate()))
+//            } else {
+//                print("🔔 Trigger:", String(describing: request.trigger))
+//            }
+//        }
+//    }
+//    #endif
     
     // MARK: - Private Properties
     

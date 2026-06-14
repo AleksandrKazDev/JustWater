@@ -192,11 +192,11 @@ final class SettingsViewModel {
         notificationService.openAppNotificationSettings()
     }
     
-    #if DEBUG
-    func scheduleTestNotificationInFiveSeconds() async {
-        await notificationService.scheduleTestNotificationInFiveSeconds()
-    }
-    #endif
+//    #if DEBUG
+//    func scheduleTestNotificationInFiveSeconds() async {
+//        await notificationService.scheduleTestNotificationInFiveSeconds()
+//    }
+//    #endif
     
     func setHealthSyncEnabled(
         _ isEnabled: Bool

@@ -28,18 +28,18 @@ enum AppSettingsStorage {
         static let isHealthSyncEnabled = "isHealthSyncEnabled"
     }
     
-    #if DEBUG
-    static func useDefaults(
-        _ defaults: UserDefaults
-    ) {
-        self.defaults = defaults
-    }
-    
-    static func useStandardDefaults() {
-        defaults = .standard
-    }
-    #endif
-    
+//    #if DEBUG
+//    static func useDefaults(
+//        _ defaults: UserDefaults
+//    ) {
+//        self.defaults = defaults
+//    }
+//    
+//    static func useStandardDefaults() {
+//        defaults = .standard
+//    }
+//    #endif
+//    
     
     // MARK: - Onboarding
     
