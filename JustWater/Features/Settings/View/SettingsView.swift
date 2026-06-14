@@ -75,6 +75,8 @@ private struct SettingsContentView: View {
                     
                     remindersSection(viewModel)
                     
+                    healthSection(viewModel)
+                    
                     appInfoSection
                 }
                 .padding(AppSpacing.lg)
@@ -314,6 +316,40 @@ private struct SettingsContentView: View {
                     )
                 )
 #endif
+            }
+        }
+    }
+    
+    private func healthSection(
+        _ viewModel: SettingsViewModel
+    ) -> some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: AppSpacing.md) {
+                SettingsSectionTitle(title: String(localized: "Apple Health"))
+                
+                Toggle(
+                    isOn: Binding(
+                        get: {
+                            viewModel.isHealthSyncEnabled
+                        },
+                        set: { isEnabled in
+                            HapticService.selection()
+                            viewModel.setHealthSyncEnabled(isEnabled)
+                        }
+                    )
+                ) {
+                    SettingsLabel(
+                        title: String(localized: "Sync Water Intake"),
+                        subtitle: String(localized: "Save your logged water intake to Apple Health."),
+                        systemImage: "heart.text.square"
+                    )
+                }
+                .tint(AppColors.primaryBlue)
+                
+                Text(String(localized: "JustWater only writes water entries to Apple Health when this option is enabled."))
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }

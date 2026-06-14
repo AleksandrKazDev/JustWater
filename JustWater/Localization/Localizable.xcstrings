@@ -294,6 +294,16 @@
         }
       }
     },
+    "Apple Health" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Health"
+          }
+        }
+      }
+    },
     "Build a calmer hydration habit." : {
       "localizations" : {
         "ru" : {
@@ -1494,6 +1504,16 @@
         }
       }
     },
+    "JustWater only writes water entries to Apple Health when this option is enabled." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JustWater записывает данные о воде в Apple Health только когда эта настройка включена."
+          }
+        }
+      }
+    },
     "Language" : {
       "localizations" : {
         "ru" : {
@@ -2054,6 +2074,16 @@
         }
       }
     },
+    "Save your logged water intake to Apple Health." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохраняйте добавленную воду в Apple Health."
+          }
+        }
+      }
+    },
     "See your daily intake at a glance." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2258,6 +2288,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Получайте напоминания в течение дня."
+          }
+        }
+      }
+    },
+    "Sync Water Intake" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Синхронизация воды"
           }
         }
       }

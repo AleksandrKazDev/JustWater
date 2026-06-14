@@ -25,6 +25,7 @@ enum AppSettingsStorage {
         static let reminderStartHour = "reminderStartHour"
         static let reminderEndHour = "reminderEndHour"
         static let reminderFrequency = "reminderFrequency"
+        static let isHealthSyncEnabled = "isHealthSyncEnabled"
     }
     
     #if DEBUG
@@ -225,6 +226,22 @@ enum AppSettingsStorage {
             defaults.set(
                 newValue.rawValue,
                 forKey: Keys.reminderFrequency
+            )
+        }
+    }
+
+    // MARK: - Health
+    
+    static var isHealthSyncEnabled: Bool {
+        get {
+            defaults.bool(
+                forKey: Keys.isHealthSyncEnabled
+            )
+        }
+        set {
+            defaults.set(
+                newValue,
+                forKey: Keys.isHealthSyncEnabled
             )
         }
     }

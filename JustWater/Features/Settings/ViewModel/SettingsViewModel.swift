@@ -18,6 +18,7 @@ final class SettingsViewModel {
     private let goalStorageService: WaterGoalStorageServicing
     private let dailyGoalUpdateService: DailyGoalUpdating
     private let notificationService: NotificationServicing
+    private let healthKitService: HealthKitServicing
     private let errorReporter: ErrorReporting
     @ObservationIgnored private var hasLoadedSettings = false
     
@@ -33,6 +34,7 @@ final class SettingsViewModel {
     var reminderEndHour: Int
     var reminderFrequency: ReminderFrequency
     var notificationAuthorizationStatus: UNAuthorizationStatus
+    var isHealthSyncEnabled: Bool = AppSettingsStorage.isHealthSyncEnabled
     
     // MARK: - Computed Properties
     
@@ -50,6 +52,7 @@ final class SettingsViewModel {
         goalStorageService: WaterGoalStorageServicing,
         dailyGoalUpdateService: DailyGoalUpdating,
         notificationService: NotificationServicing,
+        healthKitService: HealthKitServicing,
         errorReporter: ErrorReporting
     ) {
         self.goalStorageService = goalStorageService
@@ -67,6 +70,8 @@ final class SettingsViewModel {
         self.reminderEndHour = AppSettingsStorage.reminderEndHour
         self.reminderFrequency = AppSettingsStorage.reminderFrequency
         self.notificationAuthorizationStatus = .notDetermined
+        self.healthKitService = healthKitService
+        
     }
     
     // MARK: - Public Methods
@@ -193,6 +198,14 @@ final class SettingsViewModel {
     }
     #endif
     
+    func setHealthSyncEnabled(
+        _ isEnabled: Bool
+    ) {
+        Task {
+            await updateHealthSyncEnabled(isEnabled)
+        }
+    }
+    
     func reloadIfNeeded() {
         guard !hasLoadedSettings else { return }
         hasLoadedSettings = true
@@ -205,11 +218,13 @@ final class SettingsViewModel {
         updateIfNeeded(\.isHapticsEnabled, to: AppSettingsStorage.isHapticsEnabled)
         updateIfNeeded(\.appearanceMode, to: AppSettingsStorage.appearanceMode)
         updateIfNeeded(\.measurementUnit, to: AppSettingsStorage.measurementUnit)
+        updateIfNeeded(\.isHealthSyncEnabled, to: AppSettingsStorage.isHealthSyncEnabled)
         
         updateIfNeeded(\.areRemindersEnabled, to: AppSettingsStorage.areRemindersEnabled)
         updateIfNeeded(\.reminderStartHour, to: AppSettingsStorage.reminderStartHour)
         updateIfNeeded(\.reminderEndHour, to: AppSettingsStorage.reminderEndHour)
         updateIfNeeded(\.reminderFrequency, to: AppSettingsStorage.reminderFrequency)
+        
         
         refreshNotificationAuthorizationStatus()
     }
@@ -306,6 +321,43 @@ final class SettingsViewModel {
                 error,
                 context: "Failed to sync current goal"
             )
+        }
+    }
+    
+    private func updateHealthSyncEnabled(
+        _ isEnabled: Bool
+    ) async {
+        guard isHealthSyncEnabled != isEnabled else {
+            return
+        }
+        
+        if isEnabled {
+            do {
+                try await healthKitService.requestAuthorization()
+                
+                if !AppSettingsStorage.isHealthSyncEnabled {
+                    AppSettingsStorage.isHealthSyncEnabled = true
+                }
+                
+                updateIfNeeded(\.isHealthSyncEnabled, to: true)
+            } catch {
+                if AppSettingsStorage.isHealthSyncEnabled {
+                    AppSettingsStorage.isHealthSyncEnabled = false
+                }
+                
+                updateIfNeeded(\.isHealthSyncEnabled, to: false)
+                
+                errorReporter.report(
+                    error,
+                    context: "Failed to enable Apple Health sync"
+                )
+            }
+        } else {
+            if AppSettingsStorage.isHealthSyncEnabled {
+                AppSettingsStorage.isHealthSyncEnabled = false
+            }
+            
+            updateIfNeeded(\.isHealthSyncEnabled, to: false)
         }
     }
     

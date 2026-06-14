@@ -75,6 +75,7 @@ enum AppFactory {
             notificationService: makeNotificationService(
                 errorReporter: errorReporter
             ),
+            healthKitService: makeHealthKitService(),
             errorReporter: errorReporter
         )
     }
@@ -127,5 +128,9 @@ enum AppFactory {
         AppNotificationService(
             errorReporter: errorReporter
         )
+    }
+    
+    private static func makeHealthKitService() -> HealthKitServicing {
+        HealthKitService()
     }
 }
