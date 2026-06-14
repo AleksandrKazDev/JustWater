@@ -50,6 +50,8 @@ enum AppFactory {
             context: context
         )
         
+        let errorReporter = makeErrorReporter()
+        
         return HistoryViewModel(
             storageService: storageService,
             goalStorageService: goalStorageService,
@@ -57,7 +59,10 @@ enum AppFactory {
             streakCalculator: HydrationStreakCalculator(),
             dateProvider: SystemDateProvider(),
             hapticService: makeHapticService(),
-            errorReporter: makeErrorReporter()
+            errorReporter: makeErrorReporter(),
+            healthSyncService: makeHealthSyncService(
+                errorReporter: errorReporter
+            )
         )
     }
     

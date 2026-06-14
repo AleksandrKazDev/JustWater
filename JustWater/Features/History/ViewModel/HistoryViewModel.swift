@@ -21,6 +21,7 @@ final class HistoryViewModel {
     private let dateProvider: DateProviding
     private let hapticService: HapticServicing
     private let errorReporter: ErrorReporting
+    private let healthSyncService: HealthSyncServicing
     private let calendar: Calendar
     @ObservationIgnored private var hasLoadedInitialAnalytics = false
     
@@ -130,6 +131,7 @@ final class HistoryViewModel {
         dateProvider: DateProviding = SystemDateProvider(),
         hapticService: HapticServicing,
         errorReporter: ErrorReporting,
+        healthSyncService: HealthSyncServicing,
         calendar: Calendar = .current
     ) {
         self.storageService = storageService
@@ -140,6 +142,7 @@ final class HistoryViewModel {
         self.hapticService = hapticService
         self.errorReporter = errorReporter
         self.calendar = calendar
+        self.healthSyncService = healthSyncService
     }
     
     // MARK: - Public Methods
@@ -279,6 +282,12 @@ final class HistoryViewModel {
             
             loadAnalytics()
             hapticService.lightImpact()
+            
+            Task {
+                await healthSyncService.syncDeletedWater(
+                    entryID: snapshot.id
+                )
+            }
         } catch {
             errorReporter.report(
                 error,
@@ -311,6 +320,14 @@ final class HistoryViewModel {
             
             loadAnalytics()
             hapticService.success()
+            
+            Task {
+                await healthSyncService.syncAddedWater(
+                    amountInMilliliters: entry.amount,
+                    date: entry.date,
+                    entryID: entry.id
+                )
+            }
         } catch {
             errorReporter.report(
                 error,
@@ -335,6 +352,14 @@ final class HistoryViewModel {
             
             loadAnalytics()
             hapticService.success()
+            
+            Task {
+                await healthSyncService.syncUpdatedWater(
+                    amountInMilliliters: amount,
+                    date: date,
+                    entryID: entry.id
+                )
+            }
         } catch {
             errorReporter.report(
                 error,
@@ -353,10 +378,24 @@ final class HistoryViewModel {
                     id: snapshot.id
                 )
                 
+                Task {
+                    await healthSyncService.syncDeletedWater(
+                        entryID: snapshot.id
+                    )
+                }
+                
             case .deleted(let snapshot):
                 try storageService.restoreEntry(
                     from: snapshot
                 )
+                
+                Task {
+                    await healthSyncService.syncAddedWater(
+                        amountInMilliliters: snapshot.amount,
+                        date: snapshot.date,
+                        entryID: snapshot.id
+                    )
+                }
             }
             
             self.pendingUndoAction = nil
@@ -370,7 +409,6 @@ final class HistoryViewModel {
             )
         }
     }
-    
     // MARK: - Private Methods
     
     private func reloadCurrentStreak() {

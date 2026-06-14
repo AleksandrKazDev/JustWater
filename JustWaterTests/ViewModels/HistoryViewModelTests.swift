@@ -44,6 +44,43 @@ final class HistoryViewModelTests: XCTestCase {
         )
     }
     
+    func testDeleteEntry_syncsDeletedWaterWithAppleHealth() async {
+        // Arrange
+        let entry = WaterEntry(
+            id: UUID(),
+            amount: 250,
+            date: Date(),
+            drinkType: .coffee
+        )
+        
+        let storageService = TestWaterStorageService(
+            entries: [entry]
+        )
+        
+        let healthSyncService = TestHealthSyncService()
+        
+        let sut = makeSUT(
+            storageService: storageService,
+            healthSyncService: healthSyncService
+        )
+        
+        // Act
+        sut.deleteEntry(entry)
+        
+        await Task.yield()
+        
+        // Assert
+        XCTAssertEqual(
+            healthSyncService.syncedDeletedWaterCount,
+            1
+        )
+        
+        XCTAssertEqual(
+            healthSyncService.lastDeletedEntryID,
+            entry.id
+        )
+    }
+    
     // MARK: - Undo Delete
     
     func testUndoLastAction_afterDeletingEntry_restoresEntry() {
@@ -92,6 +129,52 @@ final class HistoryViewModelTests: XCTestCase {
         XCTAssertEqual(
             sut.undoBannerMessage,
             ""
+        )
+    }
+    
+    func testUndoLastAction_afterDeletingEntry_syncsAddedWaterWithAppleHealth() async {
+        // Arrange
+        let entry = WaterEntry(
+            id: UUID(),
+            amount: 400,
+            date: Date(),
+            drinkType: .tea
+        )
+        
+        let storageService = TestWaterStorageService(
+            entries: [entry]
+        )
+        
+        let healthSyncService = TestHealthSyncService()
+        
+        let sut = makeSUT(
+            storageService: storageService,
+            healthSyncService: healthSyncService
+        )
+        
+        sut.deleteEntry(entry)
+        
+        await Task.yield()
+        
+        // Act
+        sut.undoLastAction()
+        
+        await Task.yield()
+        
+        // Assert
+        XCTAssertEqual(
+            healthSyncService.syncedAddedWaterCount,
+            1
+        )
+        
+        XCTAssertEqual(
+            healthSyncService.lastAddedAmount,
+            entry.amount
+        )
+        
+        XCTAssertEqual(
+            healthSyncService.lastAddedEntryID,
+            entry.id
         )
     }
     
@@ -371,6 +454,48 @@ final class HistoryViewModelTests: XCTestCase {
         )
     }
     
+    func testAddEntry_syncsAddedWaterWithAppleHealth() async {
+        // Arrange
+        let storageService = TestWaterStorageService()
+        let healthSyncService = TestHealthSyncService()
+        
+        let sut = makeSUT(
+            storageService: storageService,
+            healthSyncService: healthSyncService
+        )
+        
+        let date = makeDate(
+            year: 2026,
+            month: 5,
+            day: 25
+        )
+        
+        // Act
+        sut.addEntry(
+            amount: 450,
+            date: date,
+            drinkType: .juice
+        )
+        
+        await Task.yield()
+        
+        // Assert
+        XCTAssertEqual(
+            healthSyncService.syncedAddedWaterCount,
+            1
+        )
+        
+        XCTAssertEqual(
+            healthSyncService.lastAddedAmount,
+            450
+        )
+        
+        XCTAssertEqual(
+            healthSyncService.lastAddedEntryID,
+            storageService.entries.first?.id
+        )
+    }
+    
     // MARK: - Update Entry
     
     func testUpdateEntry_updatesEntryAndReloadsAnalytics() {
@@ -447,8 +572,69 @@ final class HistoryViewModelTests: XCTestCase {
         )
     }
     
+    func testUpdateEntry_syncsUpdatedWaterWithAppleHealth() async {
+        // Arrange
+        let id = UUID()
+        
+        let originalDate = makeDate(
+            year: 2026,
+            month: 5,
+            day: 25
+        )
+        
+        let updatedDate = makeDate(
+            year: 2026,
+            month: 5,
+            day: 26
+        )
+        
+        let entry = WaterEntry(
+            id: id,
+            amount: 200,
+            date: originalDate,
+            drinkType: .water
+        )
+        
+        let storageService = TestWaterStorageService(
+            entries: [entry]
+        )
+        
+        let healthSyncService = TestHealthSyncService()
+        
+        let sut = makeSUT(
+            storageService: storageService,
+            healthSyncService: healthSyncService
+        )
+        
+        // Act
+        sut.updateEntry(
+            entry,
+            amount: 700,
+            date: updatedDate,
+            drinkType: .coffee
+        )
+        
+        await Task.yield()
+        
+        // Assert
+        XCTAssertEqual(
+            healthSyncService.syncedUpdatedWaterCount,
+            1
+        )
+        
+        XCTAssertEqual(
+            healthSyncService.lastUpdatedAmount,
+            700
+        )
+        
+        XCTAssertEqual(
+            healthSyncService.lastUpdatedEntryID,
+            id
+        )
+    }
+    
     // MARK: - Helpers
-
+    
     private func makeSUT(
         storageService: TestWaterStorageService
     ) -> HistoryViewModel {
@@ -457,10 +643,11 @@ final class HistoryViewModelTests: XCTestCase {
             goalStorageService: TestWaterGoalStorageService(),
             streakDayService: TestHydrationStreakDayService(),
             hapticService: TestHapticService(),
-            errorReporter: TestErrorReporter()
+            errorReporter: TestErrorReporter(),
+            healthSyncService: TestHealthSyncService()
         )
     }
-
+    
     private func makeSUT(
         storageService: TestWaterStorageService,
         goalStorageService: TestWaterGoalStorageService
@@ -470,10 +657,11 @@ final class HistoryViewModelTests: XCTestCase {
             goalStorageService: goalStorageService,
             streakDayService: TestHydrationStreakDayService(),
             hapticService: TestHapticService(),
-            errorReporter: TestErrorReporter()
+            errorReporter: TestErrorReporter(),
+            healthSyncService: TestHealthSyncService()
         )
     }
-
+    
     private func makeSUT(
         storageService: TestWaterStorageService,
         goalStorageService: TestWaterGoalStorageService,
@@ -485,20 +673,35 @@ final class HistoryViewModelTests: XCTestCase {
             goalStorageService: goalStorageService,
             streakDayService: TestHydrationStreakDayService(),
             hapticService: hapticService,
-            errorReporter: errorReporter
+            errorReporter: errorReporter,
+            healthSyncService: TestHealthSyncService()
         )
     }
-
+    
+    private func makeSUT(
+        storageService: TestWaterStorageService,
+        healthSyncService: TestHealthSyncService
+    ) -> HistoryViewModel {
+        HistoryViewModel(
+            storageService: storageService,
+            goalStorageService: TestWaterGoalStorageService(),
+            streakDayService: TestHydrationStreakDayService(),
+            hapticService: TestHapticService(),
+            errorReporter: TestErrorReporter(),
+            healthSyncService: healthSyncService
+        )
+    }
+    
     private final class TestHydrationStreakDayService: HydrationStreakDayTracking {
         func markTodayIfEntryIsForToday(
             entryDate: Date
         ) throws {}
-
+        
         func fetchStreakDays() throws -> Set<Date> {
             []
         }
     }
-
+    
     private func makeDate(
         year: Int,
         month: Int,
@@ -513,10 +716,10 @@ final class HistoryViewModelTests: XCTestCase {
         components.day = day
         components.hour = hour
         components.minute = minute
-
+        
         return components.date!
     }
-
+    
     private func expectedAddedMessage(
         for drinkType: DrinkType
     ) -> String {
@@ -525,7 +728,7 @@ final class HistoryViewModelTests: XCTestCase {
             drinkType.title
         )
     }
-
+    
     private func expectedDeletedMessage(
         for drinkType: DrinkType
     ) -> String {
