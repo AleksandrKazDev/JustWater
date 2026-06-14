@@ -40,10 +40,12 @@ struct HistoryPeriodNavigation: View {
                 onTapTitle()
             } label: {
                 Text(title)
-                    .font(AppTypography.title)
+                    .font(AppTypography.title2)
                     .foregroundStyle(AppColors.primaryText)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.82)
+                    .minimumScaleFactor(0.72)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
                     .contentShape(Rectangle())
             }
             .buttonStyle(
@@ -102,11 +104,17 @@ struct HistoryPeriodNavigation: View {
                         lineWidth: 1
                     )
             }
+//            .shadow(
+//                color: AppColors.blueGlow.opacity(0.05),
+//                radius: 10,
+//                x: 0,
+//                y: 5
+//            )
             .shadow(
-                color: AppColors.blueGlow.opacity(0.05),
-                radius: 10,
+                color: AppColors.blueGlow.opacity(0.02),
+                radius: 4,
                 x: 0,
-                y: 5
+                y: 2
             )
     }
 }
