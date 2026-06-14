@@ -40,6 +40,12 @@ Download JustWater⁠￼
   <img src="Screenshots/lastStepLight.jpg" width="220" />
 </p>
 
+<p align="center">
+  <img src="Screenshots/homeFlOzDark.jpg" width="220" />
+  <img src="Screenshots/widgetsDark.jpg" width="220" />
+  <img src="Screenshots/appleHealthDark.jpg" width="220" />
+</p>
+
 ## Что есть в приложении
 
 - добавление воды быстрыми кнопками;
