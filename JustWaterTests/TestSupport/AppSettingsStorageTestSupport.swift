@@ -10,32 +10,51 @@ import Foundation
 
 enum AppSettingsStorageTestSupport {
     
-    private static let suiteName = "JustWaterTests"
+    private static let keys = [
+        "hasCompletedOnboarding",
+        "dailyGoal",
+        "isHapticsEnabled",
+        "appearanceMode",
+        "measurementUnit",
+        "areRemindersEnabled",
+        "reminderStartHour",
+        "reminderEndHour",
+        "reminderFrequency",
+        "isHealthSyncEnabled"
+    ]
+    
+    private static var storedValues: [String: Any] = [:]
     
     static func setUpIsolatedDefaults() {
-        let defaults = makeDefaults()
-        defaults.removePersistentDomain(
-            forName: suiteName
-        )
+        storedValues = [:]
         
-        AppSettingsStorage.useDefaults(defaults)
+        for key in keys {
+            if let value = UserDefaults.standard.object(
+                forKey: key
+            ) {
+                storedValues[key] = value
+            }
+            
+            UserDefaults.standard.removeObject(
+                forKey: key
+            )
+        }
     }
     
     static func tearDownIsolatedDefaults() {
-        AppSettingsStorage.useStandardDefaults()
-        
-        makeDefaults().removePersistentDomain(
-            forName: suiteName
-        )
-    }
-    
-    private static func makeDefaults() -> UserDefaults {
-        guard let defaults = UserDefaults(
-            suiteName: suiteName
-        ) else {
-            preconditionFailure("Unable to create isolated JustWater test defaults")
+        for key in keys {
+            UserDefaults.standard.removeObject(
+                forKey: key
+            )
         }
         
-        return defaults
+        for (key, value) in storedValues {
+            UserDefaults.standard.set(
+                value,
+                forKey: key
+            )
+        }
+        
+        storedValues = [:]
     }
 }
