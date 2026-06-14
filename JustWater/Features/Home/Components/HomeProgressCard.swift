@@ -50,6 +50,12 @@ struct HomeProgressCard: View {
                 }
             }
         }
+        .shadow(
+            color: AppColors.blueGlow.opacity(0.055),
+            radius: 16,
+            x: 0,
+            y: 10
+        )
     }
     
     // MARK: - Private

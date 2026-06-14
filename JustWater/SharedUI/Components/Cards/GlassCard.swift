@@ -53,11 +53,11 @@ struct GlassCard<Content: View>: View {
                         lineWidth: 1
                     )
             }
-            .shadow(
-                color: AppColors.blueGlow.opacity(0.08),
-                radius: 22,
-                x: 0,
-                y: 12
-            )
+//            .shadow(
+//                color: AppColors.blueGlow.opacity(0.08),
+//                radius: 22,
+//                x: 0,
+//                y: 12
+//            )
     }
 }

@@ -34,7 +34,7 @@ struct SettingsPillButton: View {
             .overlay {
                 Capsule()
                     .stroke(
-                        AppColors.glassStroke.opacity(0.20),
+                        AppColors.secondaryText.opacity(0.22),
                         lineWidth: 1
                     )
             }
