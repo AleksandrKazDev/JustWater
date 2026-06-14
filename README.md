@@ -2,23 +2,23 @@
 
 JustWater — iOS-приложение для отслеживания количества выпитой воды за день.
 
-Приложение помогает поставить дневную цель, быстро добавлять выпитую воду, смотреть историю и отслеживать, в какие дни цель была достигнута.
+Приложение помогает поставить дневную цель, быстро добавлять воду и другие напитки, смотреть историю, отслеживать, в какие дни цель была достигнута, использовать виджеты и синхронизировать записи с Apple Health.
 
 ## English Summary
 
 JustWater is an iOS app for tracking daily water intake.
 
-The app helps users set a daily hydration goal, quickly log water and other drinks, review hydration history, configure reminders, and track goal completion over time.
+The app helps users set a daily hydration goal, quickly log water and other drinks, review hydration history, configure reminders, use Home Screen widgets, sync logged intake with Apple Health, and track goal completion over time.
 
 ## App Store
 
 JustWater доступен в App Store:
 
-[Скачать JustWater](https://apps.apple.com/app/justwater-hydration-tracker/id6775974283)
+Скачать JustWater⁠￼
 
 JustWater is available on the App Store:
 
-[Download JustWater](https://apps.apple.com/app/justwater-hydration-tracker/id6775974283)
+Download JustWater⁠￼
 
 ## Скриншоты
 
@@ -45,6 +45,7 @@ JustWater is available on the App Store:
 - добавление воды быстрыми кнопками;
 - добавление записи вручную;
 - выбор типа напитка;
+- поддержка миллилитров и fluid ounces;
 - расчёт дневной цели;
 - изменение дневной цели;
 - история за день, неделю, месяц и год;
@@ -52,10 +53,12 @@ JustWater is available on the App Store:
 - текущая серия дней;
 - undo для добавления и удаления записей;
 - локальные напоминания о воде;
+- виджеты на главный экран;
+- синхронизация с Apple Health;
 - настройки темы;
 - настройка haptics;
 - onboarding при первом запуске;
-- локализация на русский и английский языки.
+- локализация на русский и английский языки..
 
 ## Стек
 
@@ -63,6 +66,8 @@ JustWater is available on the App Store:
 - SwiftUI
 - SwiftData
 - Observation
+- WidgetKit
+- HealthKit
 - UserNotifications
 - Charts
 - OSLog
