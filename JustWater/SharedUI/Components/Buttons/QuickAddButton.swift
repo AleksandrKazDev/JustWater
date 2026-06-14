@@ -94,10 +94,10 @@ struct QuickAddButton: View {
                         )
                 }
                 .shadow(
-                    color: AppColors.blueGlow.opacity(0.06),
-                    radius: 12,
+                    color: AppColors.blueGlow.opacity(0.018),
+                    radius: 4,
                     x: 0,
-                    y: 6
+                    y: 2
                 )
         }
         .buttonStyle(

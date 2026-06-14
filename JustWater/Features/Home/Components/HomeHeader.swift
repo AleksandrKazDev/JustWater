@@ -128,10 +128,10 @@ struct HomeHeader: View {
                         )
                 }
                 .shadow(
-                    color: AppColors.blueGlow.opacity(0.06),
-                    radius: 12,
+                    color: AppColors.blueGlow.opacity(0.02),
+                    radius: 4,
                     x: 0,
-                    y: 6
+                    y: 2
                 )
                 .scaleEffect(isMenuPressed ? 0.94 : 1)
                 .brightness(isMenuPressed ? -0.03 : 0)

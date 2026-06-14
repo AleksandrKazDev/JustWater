@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct HistoryPeriodPicker: View {
     
     // MARK: - Properties
@@ -110,7 +108,7 @@ struct HistoryPeriodPicker: View {
         isSelected: Bool
     ) -> Color {
         isSelected
-        ? AppColors.blueGlow.opacity(0.14)
-        : AppColors.blueGlow.opacity(0.04)
+        ? AppColors.blueGlow.opacity(0.08)
+        : AppColors.blueGlow.opacity(0.015)
     }
 }

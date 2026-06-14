@@ -79,8 +79,10 @@ final class HistoryViewModel {
                 return ""
             }
             
-            let start = weekInterval.start.formatted(
-                .dateTime.day().month(.abbreviated)
+            let start = removingMonthAbbreviationDot(
+                from: weekInterval.start.formatted(
+                    .dateTime.day().month(.abbreviated)
+                )
             )
             
             let endDate = calendar.date(
@@ -89,8 +91,10 @@ final class HistoryViewModel {
                 to: weekInterval.end
             ) ?? weekInterval.end
             
-            let end = endDate.formatted(
-                .dateTime.day().month(.abbreviated)
+            let end = removingMonthAbbreviationDot(
+                from: endDate.formatted(
+                    .dateTime.day().month(.abbreviated)
+                )
             )
             
             return "\(start) – \(end)"
@@ -108,6 +112,12 @@ final class HistoryViewModel {
                     .year()
             )
         }
+    }
+    
+    private func removingMonthAbbreviationDot(
+        from string: String
+    ) -> String {
+        string.replacingOccurrences(of: ".", with: "")
     }
     
     // MARK: - Initializer

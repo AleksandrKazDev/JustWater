@@ -33,7 +33,7 @@ struct HistoryPeriodNavigation: View {
                 )
             )
             
-            Spacer()
+//            Spacer()
             
             Button {
                 HapticService.selection()
@@ -55,7 +55,7 @@ struct HistoryPeriodNavigation: View {
                 )
             )
             
-            Spacer()
+//            Spacer()
             
             Button {
                 HapticService.selection()
@@ -104,12 +104,6 @@ struct HistoryPeriodNavigation: View {
                         lineWidth: 1
                     )
             }
-//            .shadow(
-//                color: AppColors.blueGlow.opacity(0.05),
-//                radius: 10,
-//                x: 0,
-//                y: 5
-//            )
             .shadow(
                 color: AppColors.blueGlow.opacity(0.02),
                 radius: 4,
