@@ -133,4 +133,13 @@ enum AppFactory {
     private static func makeHealthKitService() -> HealthKitServicing {
         HealthKitService()
     }
+    
+    private static func makeHealthSyncService(
+        errorReporter: ErrorReporting
+    ) -> HealthSyncServicing {
+        HealthSyncService(
+            healthKitService: makeHealthKitService(),
+            errorReporter: errorReporter
+        )
+    }
 }
