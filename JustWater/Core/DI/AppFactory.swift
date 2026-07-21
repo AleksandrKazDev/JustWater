@@ -90,6 +90,14 @@ enum AppFactory {
         )
     }
     
+    static func makeBackupExportService(
+        context: ModelContext
+    ) -> BackupExportService {
+        BackupExportService(
+            context: context
+        )
+    }
+
     private static func makeWaterStorageService(
         context: ModelContext
     ) -> WaterStorageService {
