@@ -22,11 +22,15 @@ enum AppFactory {
         )
         
         let errorReporter = makeErrorReporter()
+        let hapticService = makeHapticService()
         
         return HomeViewModel(
             storageService: storageService,
             streakDayService: streakDayService,
-            hapticService: makeHapticService(),
+            hapticService: hapticService,
+            goalAchievementHapticService: makeGoalAchievementHapticService(
+                fallbackService: hapticService
+            ),
             errorReporter: errorReporter,
             widgetSnapshotService: WidgetSnapshotService(),
             healthSyncService: makeHealthSyncService(
@@ -52,6 +56,7 @@ enum AppFactory {
         )
         
         let errorReporter = makeErrorReporter()
+        let hapticService = makeHapticService()
         
         return HistoryViewModel(
             storageService: storageService,
@@ -59,7 +64,10 @@ enum AppFactory {
             streakDayService: streakDayService,
             streakCalculator: HydrationStreakCalculator(),
             dateProvider: SystemDateProvider(),
-            hapticService: makeHapticService(),
+            hapticService: hapticService,
+            goalAchievementHapticService: makeGoalAchievementHapticService(
+                fallbackService: hapticService
+            ),
             errorReporter: makeErrorReporter(),
             healthSyncService: makeHealthSyncService(
                 errorReporter: errorReporter
@@ -155,6 +163,14 @@ enum AppFactory {
     
     private static func makeHapticService() -> HapticServicing {
         AppHapticService()
+    }
+
+    private static func makeGoalAchievementHapticService(
+        fallbackService: HapticServicing
+    ) -> GoalAchievementHapticServicing {
+        GoalAchievementHapticService(
+            fallbackService: fallbackService
+        )
     }
     
     static func makeErrorReporter() -> ErrorReporting {

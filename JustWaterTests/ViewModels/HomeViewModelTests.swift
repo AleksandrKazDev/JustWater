@@ -118,9 +118,11 @@ final class HomeViewModelTests: XCTestCase {
             entries: [existingEntry]
         )
         let hapticService = TestHapticService()
+        let goalAchievementHapticService = TestGoalAchievementHapticService()
         let sut = makeSUT(
             storageService: storageService,
-            hapticService: hapticService
+            hapticService: hapticService,
+            goalAchievementHapticService: goalAchievementHapticService
         )
         sut.loadEntries()
 
@@ -129,10 +131,11 @@ final class HomeViewModelTests: XCTestCase {
 
         // Assert
         XCTAssertNotNil(sut.goalAchievementEventID)
-        XCTAssertEqual(hapticService.successCallCount, 1)
+        XCTAssertEqual(goalAchievementHapticService.playCallCount, 1)
+        XCTAssertEqual(hapticService.successCallCount, 0)
     }
 
-    func testAddWater_whenGoalWasAlreadyReached_doesNotPublishAchievement() {
+    func testAddWater_whenGoalWasAlreadyReached_usesRegularSuccessFeedback() {
         // Arrange
         let existingEntry = WaterEntry(
             amount: 2_000,
@@ -141,8 +144,12 @@ final class HomeViewModelTests: XCTestCase {
         let storageService = TestWaterStorageService(
             entries: [existingEntry]
         )
+        let hapticService = TestHapticService()
+        let goalAchievementHapticService = TestGoalAchievementHapticService()
         let sut = makeSUT(
-            storageService: storageService
+            storageService: storageService,
+            hapticService: hapticService,
+            goalAchievementHapticService: goalAchievementHapticService
         )
         sut.loadEntries()
 
@@ -151,6 +158,36 @@ final class HomeViewModelTests: XCTestCase {
 
         // Assert
         XCTAssertNil(sut.goalAchievementEventID)
+        XCTAssertEqual(goalAchievementHapticService.playCallCount, 0)
+        XCTAssertEqual(hapticService.successCallCount, 1)
+    }
+
+    func testAddWater_afterUndoDropsBelowGoal_playsAchievementAgain() {
+        // Arrange
+        let existingEntry = WaterEntry(
+            amount: 1_900,
+            date: Date()
+        )
+        let storageService = TestWaterStorageService(
+            entries: [existingEntry]
+        )
+        let hapticService = TestHapticService()
+        let goalAchievementHapticService = TestGoalAchievementHapticService()
+        let sut = makeSUT(
+            storageService: storageService,
+            hapticService: hapticService,
+            goalAchievementHapticService: goalAchievementHapticService
+        )
+        sut.loadEntries()
+        sut.addWater(100)
+        sut.undoLastAction()
+
+        // Act
+        sut.addWater(100)
+
+        // Assert
+        XCTAssertEqual(goalAchievementHapticService.playCallCount, 2)
+        XCTAssertEqual(hapticService.successCallCount, 0)
     }
     
     func testAddWater_syncsAddedWaterWithAppleHealth() async {
@@ -606,6 +643,7 @@ final class HomeViewModelTests: XCTestCase {
             storageService: storageService,
             streakDayService: TestHydrationStreakDayService(),
             hapticService: TestHapticService(),
+            goalAchievementHapticService: TestGoalAchievementHapticService(),
             errorReporter: TestErrorReporter(),
             widgetSnapshotService: TestWidgetSnapshotService(),
             healthSyncService: TestHealthSyncService()
@@ -614,12 +652,15 @@ final class HomeViewModelTests: XCTestCase {
     
     private func makeSUT(
         storageService: TestWaterStorageService,
-        hapticService: TestHapticService
+        hapticService: TestHapticService,
+        goalAchievementHapticService: TestGoalAchievementHapticService? = nil
     ) -> HomeViewModel {
         HomeViewModel(
             storageService: storageService,
             streakDayService: TestHydrationStreakDayService(),
             hapticService: hapticService,
+            goalAchievementHapticService: goalAchievementHapticService
+                ?? TestGoalAchievementHapticService(),
             errorReporter: TestErrorReporter(),
             widgetSnapshotService: TestWidgetSnapshotService(),
             healthSyncService: TestHealthSyncService()
@@ -635,6 +676,7 @@ final class HomeViewModelTests: XCTestCase {
             storageService: storageService,
             streakDayService: TestHydrationStreakDayService(),
             hapticService: hapticService,
+            goalAchievementHapticService: TestGoalAchievementHapticService(),
             errorReporter: errorReporter,
             widgetSnapshotService: TestWidgetSnapshotService(),
             healthSyncService: TestHealthSyncService()
@@ -649,6 +691,7 @@ final class HomeViewModelTests: XCTestCase {
             storageService: storageService,
             streakDayService: TestHydrationStreakDayService(),
             hapticService: TestHapticService(),
+            goalAchievementHapticService: TestGoalAchievementHapticService(),
             errorReporter: TestErrorReporter(),
             widgetSnapshotService: TestWidgetSnapshotService(),
             healthSyncService: healthSyncService

@@ -15,6 +15,7 @@ final class HomeViewModel {
     private let storageService: WaterStorageServicing
     private let streakDayService: HydrationStreakDayTracking
     private let hapticService: HapticServicing
+    private let goalAchievementHapticService: GoalAchievementHapticServicing
     private let errorReporter: ErrorReporting
     private let widgetSnapshotService: WidgetSnapshotServicing
     private let healthSyncService: HealthSyncServicing
@@ -39,6 +40,7 @@ final class HomeViewModel {
         storageService: WaterStorageServicing,
         streakDayService: HydrationStreakDayTracking,
         hapticService: HapticServicing,
+        goalAchievementHapticService: GoalAchievementHapticServicing,
         errorReporter: ErrorReporting,
         widgetSnapshotService: WidgetSnapshotServicing,
         healthSyncService: HealthSyncServicing,
@@ -47,6 +49,7 @@ final class HomeViewModel {
         self.storageService = storageService
         self.streakDayService = streakDayService
         self.hapticService = hapticService
+        self.goalAchievementHapticService = goalAchievementHapticService
         self.errorReporter = errorReporter
         self.widgetSnapshotService = widgetSnapshotService
         self.healthSyncService = healthSyncService
@@ -101,15 +104,18 @@ final class HomeViewModel {
             )
             
             loadEntries()
-            hapticService.success()
-
-            if goalAchievementService.shouldShowCongratulations(
+            let shouldCelebrate = goalAchievementService.shouldShowCongratulations(
                 entryDate: entry.date,
                 amountBefore: amountBefore,
                 amountAfter: amountBefore + entry.amount,
                 dailyGoal: dailyGoal
-            ) {
+            )
+
+            if shouldCelebrate {
+                goalAchievementHapticService.play()
                 goalAchievementEventID = UUID()
+            } else {
+                hapticService.success()
             }
             
             startAddedWaterSync(for: entry)

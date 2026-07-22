@@ -20,6 +20,7 @@ final class HistoryViewModel {
     private let streakCalculator: HydrationStreakCalculating
     private let dateProvider: DateProviding
     private let hapticService: HapticServicing
+    private let goalAchievementHapticService: GoalAchievementHapticServicing
     private let errorReporter: ErrorReporting
     private let healthSyncService: HealthSyncServicing
     private let goalAchievementService: GoalAchievementService
@@ -133,6 +134,7 @@ final class HistoryViewModel {
         streakCalculator: HydrationStreakCalculating = HydrationStreakCalculator(),
         dateProvider: DateProviding = SystemDateProvider(),
         hapticService: HapticServicing,
+        goalAchievementHapticService: GoalAchievementHapticServicing,
         errorReporter: ErrorReporting,
         healthSyncService: HealthSyncServicing,
         goalAchievementService: GoalAchievementService = GoalAchievementService(),
@@ -144,6 +146,7 @@ final class HistoryViewModel {
         self.streakCalculator = streakCalculator
         self.dateProvider = dateProvider
         self.hapticService = hapticService
+        self.goalAchievementHapticService = goalAchievementHapticService
         self.errorReporter = errorReporter
         self.calendar = calendar
         self.healthSyncService = healthSyncService
@@ -326,15 +329,18 @@ final class HistoryViewModel {
             )
             
             loadAnalytics()
-            hapticService.success()
-
-            if goalAchievementService.shouldShowCongratulations(
+            let shouldCelebrate = goalAchievementService.shouldShowCongratulations(
                 entryDate: entry.date,
                 amountBefore: amountBefore,
                 amountAfter: amountBefore + entry.amount,
                 dailyGoal: AppSettingsStorage.dailyGoal
-            ) {
+            )
+
+            if shouldCelebrate {
+                goalAchievementHapticService.play()
                 goalAchievementEventID = UUID()
+            } else {
+                hapticService.success()
             }
             
             startAddedWaterSync(for: entry)
@@ -367,15 +373,18 @@ final class HistoryViewModel {
             )
             
             loadAnalytics()
-            hapticService.success()
-
-            if goalAchievementService.shouldShowCongratulations(
+            let shouldCelebrate = goalAchievementService.shouldShowCongratulations(
                 entryDate: date,
                 amountBefore: amountBefore,
                 amountAfter: amountBefore - replacedAmount + amount,
                 dailyGoal: AppSettingsStorage.dailyGoal
-            ) {
+            )
+
+            if shouldCelebrate {
+                goalAchievementHapticService.play()
                 goalAchievementEventID = UUID()
+            } else {
+                hapticService.success()
             }
             
             Task {

@@ -477,10 +477,12 @@ final class HistoryViewModelTests: XCTestCase {
             ]
         )
         let hapticService = TestHapticService()
+        let goalAchievementHapticService = TestGoalAchievementHapticService()
         let sut = makeSUT(
             storageService: storageService,
             goalStorageService: TestWaterGoalStorageService(),
             hapticService: hapticService,
+            goalAchievementHapticService: goalAchievementHapticService,
             errorReporter: TestErrorReporter()
         )
         sut.loadAnalytics()
@@ -493,10 +495,11 @@ final class HistoryViewModelTests: XCTestCase {
 
         // Assert
         XCTAssertNotNil(sut.goalAchievementEventID)
-        XCTAssertEqual(hapticService.successCallCount, 1)
+        XCTAssertEqual(goalAchievementHapticService.playCallCount, 1)
+        XCTAssertEqual(hapticService.successCallCount, 0)
     }
 
-    func testAddEntry_whenEntryIsInPast_doesNotPublishAchievement() {
+    func testAddEntry_whenEntryIsInPast_usesRegularSuccessFeedback() {
         // Arrange
         let pastDate = Calendar.current.date(
             byAdding: .day,
@@ -504,8 +507,14 @@ final class HistoryViewModelTests: XCTestCase {
             to: Date()
         ) ?? .distantPast
         let storageService = TestWaterStorageService()
+        let hapticService = TestHapticService()
+        let goalAchievementHapticService = TestGoalAchievementHapticService()
         let sut = makeSUT(
-            storageService: storageService
+            storageService: storageService,
+            goalStorageService: TestWaterGoalStorageService(),
+            hapticService: hapticService,
+            goalAchievementHapticService: goalAchievementHapticService,
+            errorReporter: TestErrorReporter()
         )
         sut.selectReferenceDate(pastDate)
 
@@ -517,6 +526,8 @@ final class HistoryViewModelTests: XCTestCase {
 
         // Assert
         XCTAssertNil(sut.goalAchievementEventID)
+        XCTAssertEqual(goalAchievementHapticService.playCallCount, 0)
+        XCTAssertEqual(hapticService.successCallCount, 1)
     }
     
     func testAddEntry_syncsAddedWaterWithAppleHealth() async {
@@ -741,10 +752,12 @@ final class HistoryViewModelTests: XCTestCase {
             entries: [entry]
         )
         let hapticService = TestHapticService()
+        let goalAchievementHapticService = TestGoalAchievementHapticService()
         let sut = makeSUT(
             storageService: storageService,
             goalStorageService: TestWaterGoalStorageService(),
             hapticService: hapticService,
+            goalAchievementHapticService: goalAchievementHapticService,
             errorReporter: TestErrorReporter()
         )
         sut.loadAnalytics()
@@ -759,7 +772,8 @@ final class HistoryViewModelTests: XCTestCase {
 
         // Assert
         XCTAssertNotNil(sut.goalAchievementEventID)
-        XCTAssertEqual(hapticService.successCallCount, 1)
+        XCTAssertEqual(goalAchievementHapticService.playCallCount, 1)
+        XCTAssertEqual(hapticService.successCallCount, 0)
     }
     
     func testUpdateEntry_syncsUpdatedWaterWithAppleHealth() async {
@@ -833,6 +847,7 @@ final class HistoryViewModelTests: XCTestCase {
             goalStorageService: TestWaterGoalStorageService(),
             streakDayService: TestHydrationStreakDayService(),
             hapticService: TestHapticService(),
+            goalAchievementHapticService: TestGoalAchievementHapticService(),
             errorReporter: TestErrorReporter(),
             healthSyncService: TestHealthSyncService()
         )
@@ -847,6 +862,7 @@ final class HistoryViewModelTests: XCTestCase {
             goalStorageService: goalStorageService,
             streakDayService: TestHydrationStreakDayService(),
             hapticService: TestHapticService(),
+            goalAchievementHapticService: TestGoalAchievementHapticService(),
             errorReporter: TestErrorReporter(),
             healthSyncService: TestHealthSyncService()
         )
@@ -856,6 +872,7 @@ final class HistoryViewModelTests: XCTestCase {
         storageService: TestWaterStorageService,
         goalStorageService: TestWaterGoalStorageService,
         hapticService: TestHapticService,
+        goalAchievementHapticService: TestGoalAchievementHapticService? = nil,
         errorReporter: TestErrorReporter
     ) -> HistoryViewModel {
         HistoryViewModel(
@@ -863,6 +880,8 @@ final class HistoryViewModelTests: XCTestCase {
             goalStorageService: goalStorageService,
             streakDayService: TestHydrationStreakDayService(),
             hapticService: hapticService,
+            goalAchievementHapticService: goalAchievementHapticService
+                ?? TestGoalAchievementHapticService(),
             errorReporter: errorReporter,
             healthSyncService: TestHealthSyncService()
         )
@@ -877,6 +896,7 @@ final class HistoryViewModelTests: XCTestCase {
             goalStorageService: TestWaterGoalStorageService(),
             streakDayService: TestHydrationStreakDayService(),
             hapticService: TestHapticService(),
+            goalAchievementHapticService: TestGoalAchievementHapticService(),
             errorReporter: TestErrorReporter(),
             healthSyncService: healthSyncService
         )
