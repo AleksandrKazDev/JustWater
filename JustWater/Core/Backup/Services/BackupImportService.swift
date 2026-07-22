@@ -20,14 +20,19 @@ actor BackupImportService: BackupImportServicing {
     static let defaultMaximumFileSize = 50 * 1_024 * 1_024
 
     private let maximumFileSize: Int
+    private let validator: BackupDocumentValidator
 
     // MARK: - Initializer
 
     init(
-        maximumFileSize: Int = BackupImportService.defaultMaximumFileSize
+        maximumFileSize: Int = BackupImportService.defaultMaximumFileSize,
+        calendar: Calendar = .current
     ) {
         precondition(maximumFileSize > 0)
         self.maximumFileSize = maximumFileSize
+        self.validator = BackupDocumentValidator(
+            calendar: calendar
+        )
     }
 
     // MARK: - Public Methods
@@ -47,7 +52,6 @@ actor BackupImportService: BackupImportServicing {
             from: data
         )
 
-        try validate(document)
         try Task.checkCancellation()
 
         return PreparedBackupImport(
@@ -133,29 +137,10 @@ actor BackupImportService: BackupImportServicing {
     private func decodeDocument(
         from data: Data
     ) throws -> BackupDocumentV1 {
-        let header: BackupHeader
+        let document: BackupDocumentV1
 
         do {
-            header = try JSONDecoder().decode(
-                BackupHeader.self,
-                from: data
-            )
-        } catch is CancellationError {
-            throw CancellationError()
-        } catch {
-            throw BackupImportError.malformedBackup
-        }
-
-        guard header.format == BackupDocumentV1.format else {
-            throw BackupImportError.invalidFormat
-        }
-
-        guard header.schemaVersion == BackupDocumentV1.schemaVersion else {
-            throw BackupImportError.unsupportedSchemaVersion
-        }
-
-        do {
-            return try BackupJSONCoder.makeDecoder().decode(
+            document = try BackupJSONCoder.makeDecoder().decode(
                 BackupDocumentV1.self,
                 from: data
             )
@@ -164,61 +149,20 @@ actor BackupImportService: BackupImportServicing {
         } catch {
             throw BackupImportError.malformedBackup
         }
-    }
 
-    private func validate(
-        _ document: BackupDocumentV1
-    ) throws {
-        guard hasUniqueValues(document.entries.map(\.id)),
-              hasUniqueValues(document.goalHistory.map(\.id)),
-              hasUniqueValues(document.streakDays.map(\.dayStartDate)),
-              isValid(date: document.createdAt),
-              document.settings.dailyGoal > 0,
-              (0...23).contains(document.settings.reminderStartHour),
-              (0...23).contains(document.settings.reminderEndHour)
-        else {
-            throw BackupImportError.invalidData
-        }
-
-        for entry in document.entries {
-            guard entry.amount > 0,
-                  isValid(date: entry.date)
-            else {
+        do {
+            try validator.validate(document)
+        } catch let error as BackupDocumentValidationError {
+            switch error {
+            case .invalidFormat:
+                throw BackupImportError.invalidFormat
+            case .unsupportedSchemaVersion:
+                throw BackupImportError.unsupportedSchemaVersion
+            case .invalidData:
                 throw BackupImportError.invalidData
             }
         }
 
-        for goal in document.goalHistory {
-            guard goal.dailyGoal > 0,
-                  isValid(date: goal.effectiveDate)
-            else {
-                throw BackupImportError.invalidData
-            }
-        }
-
-        for streakDay in document.streakDays {
-            guard isValid(date: streakDay.dayStartDate),
-                  isValid(date: streakDay.createdAt)
-            else {
-                throw BackupImportError.invalidData
-            }
-        }
+        return document
     }
-
-    private func hasUniqueValues<Value: Hashable>(
-        _ values: [Value]
-    ) -> Bool {
-        Set(values).count == values.count
-    }
-
-    private func isValid(
-        date: Date
-    ) -> Bool {
-        date.timeIntervalSinceReferenceDate.isFinite
-    }
-}
-
-private struct BackupHeader: Decodable {
-    let format: String
-    let schemaVersion: Int
 }

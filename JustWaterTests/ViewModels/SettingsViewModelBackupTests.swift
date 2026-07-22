@@ -418,6 +418,53 @@ final class SettingsViewModelBackupTests: XCTestCase {
         )
     }
 
+    // MARK: - Concurrent Settings Updates
+
+    func testHealthSync_whenDisableFollowsPendingEnable_latestRequestWins() async {
+        AppSettingsStorage.isHealthSyncEnabled = false
+        let healthKitService = ControllableHealthKitService()
+        let sut = makeSUT(
+            healthKitService: healthKitService
+        )
+
+        sut.setHealthSyncEnabled(true)
+        await fulfillment(
+            of: [healthKitService.authorizationStarted],
+            timeout: 1
+        )
+
+        sut.setHealthSyncEnabled(false)
+        await drainMainActor()
+        healthKitService.completeAuthorization()
+        await drainMainActor()
+
+        XCTAssertFalse(sut.isHealthSyncEnabled)
+        XCTAssertFalse(AppSettingsStorage.isHealthSyncEnabled)
+    }
+
+    func testReminders_whenDisableFollowsPendingEnable_latestRequestWins() async {
+        AppSettingsStorage.areRemindersEnabled = false
+        let notificationService = ControllableNotificationService()
+        let sut = makeSUT(
+            notificationService: notificationService
+        )
+
+        sut.setRemindersEnabled(true)
+        await fulfillment(
+            of: [notificationService.authorizationStatusRequested],
+            timeout: 1
+        )
+
+        sut.setRemindersEnabled(false)
+        await drainMainActor()
+        notificationService.completeAuthorizationStatus(with: .authorized)
+        await drainMainActor()
+
+        XCTAssertFalse(sut.areRemindersEnabled)
+        XCTAssertFalse(AppSettingsStorage.areRemindersEnabled)
+        XCTAssertEqual(notificationService.scheduleCallCount, 0)
+    }
+
     // MARK: - Helpers
 
     @MainActor
@@ -514,16 +561,78 @@ final class SettingsViewModelBackupTests: XCTestCase {
         backupRestoreService: BackupRestoreServicing,
         errorReporter: ErrorReporting
     ) -> SettingsViewModel {
+        makeSUT(
+            backupExportService: backupExportService,
+            backupImportService: backupImportService,
+            backupRestoreService: backupRestoreService,
+            errorReporter: errorReporter,
+            notificationService: TestNotificationService(),
+            healthKitService: TestHealthKitService()
+        )
+    }
+
+    private func makeSUT(
+        backupExportService: BackupExportServicing,
+        backupImportService: BackupImportServicing,
+        backupRestoreService: BackupRestoreServicing,
+        errorReporter: ErrorReporting,
+        notificationService: NotificationServicing,
+        healthKitService: HealthKitServicing
+    ) -> SettingsViewModel {
         SettingsViewModel(
             goalStorageService: TestWaterGoalStorageService(),
             dailyGoalUpdateService: TestDailyGoalUpdateService(),
             backupExportService: backupExportService,
             backupImportService: backupImportService,
             backupRestoreService: backupRestoreService,
-            notificationService: TestNotificationService(),
-            healthKitService: TestHealthKitService(),
+            notificationService: notificationService,
+            healthKitService: healthKitService,
             errorReporter: errorReporter
         )
+    }
+
+    private func makeSUT(
+        notificationService: NotificationServicing
+    ) -> SettingsViewModel {
+        makeSUT(
+            backupExportService: TestBackupExportService(
+                result: .success(makeBackupResult())
+            ),
+            backupImportService: TestBackupImportService(
+                result: .failure(TestFailure.unused)
+            ),
+            backupRestoreService: TestBackupRestoreService(
+                mergeResult: .failure(TestFailure.unused)
+            ),
+            errorReporter: TestErrorReporter(),
+            notificationService: notificationService,
+            healthKitService: TestHealthKitService()
+        )
+    }
+
+    private func makeSUT(
+        healthKitService: HealthKitServicing
+    ) -> SettingsViewModel {
+        makeSUT(
+            backupExportService: TestBackupExportService(
+                result: .success(makeBackupResult())
+            ),
+            backupImportService: TestBackupImportService(
+                result: .failure(TestFailure.unused)
+            ),
+            backupRestoreService: TestBackupRestoreService(
+                mergeResult: .failure(TestFailure.unused)
+            ),
+            errorReporter: TestErrorReporter(),
+            notificationService: TestNotificationService(),
+            healthKitService: healthKitService
+        )
+    }
+
+    private func drainMainActor() async {
+        for _ in 0..<10 {
+            await Task.yield()
+        }
     }
 
     private func makeBackupResult() -> BackupExportResult {
@@ -728,6 +837,83 @@ private final class TestHealthKitService: HealthKitServicing {
     }
 
     func requestAuthorization() async throws {}
+
+    func saveWater(
+        amountInMilliliters: Int,
+        date: Date,
+        entryID: UUID
+    ) async throws {}
+
+    func deleteWaterSample(
+        entryID: UUID
+    ) async throws {}
+}
+
+@MainActor
+private final class ControllableNotificationService: NotificationServicing {
+
+    let authorizationStatusRequested = XCTestExpectation(
+        description: "Notification authorization status requested"
+    )
+    private var authorizationStatusContinuation: CheckedContinuation<UNAuthorizationStatus, Never>?
+    private(set) var scheduleCallCount = 0
+
+    func requestAuthorization() async -> Bool {
+        true
+    }
+
+    func getAuthorizationStatus() async -> UNAuthorizationStatus {
+        authorizationStatusRequested.fulfill()
+
+        return await withCheckedContinuation { continuation in
+            authorizationStatusContinuation = continuation
+        }
+    }
+
+    func completeAuthorizationStatus(
+        with status: UNAuthorizationStatus
+    ) {
+        authorizationStatusContinuation?.resume(returning: status)
+        authorizationStatusContinuation = nil
+    }
+
+    func openAppNotificationSettings() {}
+
+    func scheduleHydrationReminders(
+        startHour: Int,
+        endHour: Int,
+        frequency: ReminderFrequency
+    ) async {
+        scheduleCallCount += 1
+    }
+
+    func cancelHydrationReminders() {}
+}
+
+@MainActor
+private final class ControllableHealthKitService: HealthKitServicing {
+
+    nonisolated var isHealthDataAvailable: Bool {
+        true
+    }
+
+    let authorizationStarted = XCTestExpectation(
+        description: "Health authorization started"
+    )
+    private var authorizationContinuation: CheckedContinuation<Void, Error>?
+
+    func requestAuthorization() async throws {
+        authorizationStarted.fulfill()
+
+        try await withCheckedThrowingContinuation { continuation in
+            authorizationContinuation = continuation
+        }
+    }
+
+    func completeAuthorization() {
+        authorizationContinuation?.resume()
+        authorizationContinuation = nil
+    }
 
     func saveWater(
         amountInMilliliters: Int,

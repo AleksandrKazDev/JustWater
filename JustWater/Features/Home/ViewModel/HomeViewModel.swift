@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Observation
 
 @MainActor
 @Observable
@@ -17,6 +18,7 @@ final class HomeViewModel {
     private let errorReporter: ErrorReporting
     private let widgetSnapshotService: WidgetSnapshotServicing
     private let healthSyncService: HealthSyncServicing
+    @ObservationIgnored private var pendingAddedWaterSyncs: [UUID: PendingAddedWaterSync] = [:]
     
     
     var hydrationState = HydrationState(
@@ -94,13 +96,7 @@ final class HomeViewModel {
             loadEntries()
             hapticService.success()
             
-            Task {
-                await healthSyncService.syncAddedWater(
-                    amountInMilliliters: entry.amount,
-                    date: entry.date,
-                    entryID: entry.id
-                )
-            }
+            startAddedWaterSync(for: entry)
         } catch {
             errorReporter.report(
                 error,
@@ -140,12 +136,10 @@ final class HomeViewModel {
             switch pendingUndoAction {
             case .added(let snapshot):
                 try storageService.deleteEntry(id: snapshot.id)
-                
-                Task {
-                    await healthSyncService.syncDeletedWater(
-                        entryID: snapshot.id
-                    )
-                }
+
+                syncDeletedWaterAfterPendingAdd(
+                    entryID: snapshot.id
+                )
                 
             case .deleted(let snapshot):
                 try storageService.restoreEntry(from: snapshot)
@@ -169,5 +163,65 @@ final class HomeViewModel {
                 context: "Failed to undo last home action"
             )
         }
+    }
+
+    private func startAddedWaterSync(
+        for entry: WaterEntry
+    ) {
+        let operationID = UUID()
+        let healthSyncService = healthSyncService
+        let task = Task {
+            await healthSyncService.syncAddedWater(
+                amountInMilliliters: entry.amount,
+                date: entry.date,
+                entryID: entry.id
+            )
+        }
+
+        pendingAddedWaterSyncs[entry.id] = PendingAddedWaterSync(
+            operationID: operationID,
+            task: task
+        )
+
+        Task { [weak self] in
+            await task.value
+            self?.removePendingAddedWaterSync(
+                entryID: entry.id,
+                operationID: operationID
+            )
+        }
+    }
+
+    private func syncDeletedWaterAfterPendingAdd(
+        entryID: UUID
+    ) {
+        let pendingSave = pendingAddedWaterSyncs.removeValue(
+            forKey: entryID
+        )
+        let healthSyncService = healthSyncService
+
+        Task {
+            // HealthKit save is not reliably cancelled, so Undo deletes only after it finishes.
+            await pendingSave?.task.value
+            await healthSyncService.syncDeletedWater(
+                entryID: entryID
+            )
+        }
+    }
+
+    private func removePendingAddedWaterSync(
+        entryID: UUID,
+        operationID: UUID
+    ) {
+        guard pendingAddedWaterSyncs[entryID]?.operationID == operationID else {
+            return
+        }
+
+        pendingAddedWaterSyncs.removeValue(forKey: entryID)
+    }
+
+    private struct PendingAddedWaterSync {
+        let operationID: UUID
+        let task: Task<Void, Never>
     }
 }

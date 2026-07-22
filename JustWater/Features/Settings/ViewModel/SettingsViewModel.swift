@@ -24,6 +24,8 @@ final class SettingsViewModel {
     private let healthKitService: HealthKitServicing
     private let errorReporter: ErrorReporting
     @ObservationIgnored private var hasLoadedSettings = false
+    @ObservationIgnored private var latestRemindersRequestID: UUID?
+    @ObservationIgnored private var latestHealthSyncRequestID: UUID?
     
     // MARK: - Properties
     
@@ -283,8 +285,14 @@ final class SettingsViewModel {
     func setRemindersEnabled(
         _ isEnabled: Bool
     ) {
+        let requestID = UUID()
+        latestRemindersRequestID = requestID
+
         Task {
-            await updateRemindersEnabled(isEnabled)
+            await updateRemindersEnabled(
+                isEnabled,
+                requestID: requestID
+            )
         }
     }
     
@@ -318,8 +326,14 @@ final class SettingsViewModel {
     func setHealthSyncEnabled(
         _ isEnabled: Bool
     ) {
+        let requestID = UUID()
+        latestHealthSyncRequestID = requestID
+
         Task {
-            await updateHealthSyncEnabled(isEnabled)
+            await updateHealthSyncEnabled(
+                isEnabled,
+                requestID: requestID
+            )
         }
     }
     
@@ -349,10 +363,20 @@ final class SettingsViewModel {
     // MARK: - Private Methods
     
     private func updateRemindersEnabled(
-        _ isEnabled: Bool
+        _ isEnabled: Bool,
+        requestID: UUID
     ) async {
+        guard latestRemindersRequestID == requestID else {
+            return
+        }
+
         if isEnabled {
             let status = await notificationService.getAuthorizationStatus()
+
+            guard latestRemindersRequestID == requestID else {
+                return
+            }
+
             updateIfNeeded(\.notificationAuthorizationStatus, to: status)
             
             let isAuthorized: Bool
@@ -363,7 +387,17 @@ final class SettingsViewModel {
                 
             case .notDetermined:
                 isAuthorized = await notificationService.requestAuthorization()
+
+                guard latestRemindersRequestID == requestID else {
+                    return
+                }
+
                 let updatedStatus = await notificationService.getAuthorizationStatus()
+
+                guard latestRemindersRequestID == requestID else {
+                    return
+                }
+
                 updateIfNeeded(\.notificationAuthorizationStatus, to: updatedStatus)
                 
             case .denied:
@@ -381,6 +415,10 @@ final class SettingsViewModel {
                 }
                 
                 notificationService.cancelHydrationReminders()
+                return
+            }
+
+            guard latestRemindersRequestID == requestID else {
                 return
             }
             
@@ -442,8 +480,13 @@ final class SettingsViewModel {
     }
     
     private func updateHealthSyncEnabled(
-        _ isEnabled: Bool
+        _ isEnabled: Bool,
+        requestID: UUID
     ) async {
+        guard latestHealthSyncRequestID == requestID else {
+            return
+        }
+
         guard isHealthSyncEnabled != isEnabled else {
             return
         }
@@ -451,6 +494,10 @@ final class SettingsViewModel {
         if isEnabled {
             do {
                 try await healthKitService.requestAuthorization()
+
+                guard latestHealthSyncRequestID == requestID else {
+                    return
+                }
                 
                 if !AppSettingsStorage.isHealthSyncEnabled {
                     AppSettingsStorage.isHealthSyncEnabled = true
@@ -458,6 +505,10 @@ final class SettingsViewModel {
                 
                 updateIfNeeded(\.isHealthSyncEnabled, to: true)
             } catch {
+                guard latestHealthSyncRequestID == requestID else {
+                    return
+                }
+
                 if AppSettingsStorage.isHealthSyncEnabled {
                     AppSettingsStorage.isHealthSyncEnabled = false
                 }

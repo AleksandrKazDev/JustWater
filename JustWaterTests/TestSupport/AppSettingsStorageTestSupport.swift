@@ -6,55 +6,45 @@
 //
 
 import Foundation
+import Dispatch
 @testable import JustWater
 
 enum AppSettingsStorageTestSupport {
     
-    private static let keys = [
-        "hasCompletedOnboarding",
-        "dailyGoal",
-        "isHapticsEnabled",
-        "appearanceMode",
-        "measurementUnit",
-        "areRemindersEnabled",
-        "reminderStartHour",
-        "reminderEndHour",
-        "reminderFrequency",
-        "isHealthSyncEnabled"
-    ]
-    
-    private static var storedValues: [String: Any] = [:]
+    private static let suiteName = "JustWaterTests"
+    private static let semaphore = DispatchSemaphore(value: 1)
+    private static var isolatedDefaults: UserDefaults?
     
     static func setUpIsolatedDefaults() {
-        storedValues = [:]
-        
-        for key in keys {
-            if let value = UserDefaults.standard.object(
-                forKey: key
-            ) {
-                storedValues[key] = value
-            }
-            
-            UserDefaults.standard.removeObject(
-                forKey: key
+        semaphore.wait()
+
+        guard let defaults = UserDefaults(
+            suiteName: suiteName
+        ) else {
+            semaphore.signal()
+            preconditionFailure(
+                "Failed to create isolated test defaults."
             )
         }
+
+        defaults.removePersistentDomain(
+            forName: suiteName
+        )
+        AppSettingsStorage.useDefaults(defaults)
+        isolatedDefaults = defaults
     }
     
     static func tearDownIsolatedDefaults() {
-        for key in keys {
-            UserDefaults.standard.removeObject(
-                forKey: key
-            )
+        guard let isolatedDefaults else { return }
+        
+        defer {
+            self.isolatedDefaults = nil
+            semaphore.signal()
         }
         
-        for (key, value) in storedValues {
-            UserDefaults.standard.set(
-                value,
-                forKey: key
-            )
-        }
-        
-        storedValues = [:]
+        AppSettingsStorage.useStandardDefaults()
+        isolatedDefaults.removePersistentDomain(
+            forName: suiteName
+        )
     }
 }

@@ -27,19 +27,18 @@ enum AppSettingsStorage {
         static let reminderFrequency = "reminderFrequency"
         static let isHealthSyncEnabled = "isHealthSyncEnabled"
     }
+
+    #if DEBUG
+    static func useDefaults(
+        _ defaults: UserDefaults
+    ) {
+        self.defaults = defaults
+    }
     
-//    #if DEBUG
-//    static func useDefaults(
-//        _ defaults: UserDefaults
-//    ) {
-//        self.defaults = defaults
-//    }
-//    
-//    static func useStandardDefaults() {
-//        defaults = .standard
-//    }
-//    #endif
-//    
+    static func useStandardDefaults() {
+        defaults = .standard
+    }
+    #endif
     
     // MARK: - Onboarding
     

@@ -202,6 +202,91 @@ final class HomeViewModelTests: XCTestCase {
             addedEntryID
         )
     }
+
+    func testUndoLastAction_whileAddedWaterSyncIsPending_waitsForSaveBeforeDelete() async {
+        // Arrange
+        let storageService = TestWaterStorageService()
+        let healthSyncService = ControllableAddHealthSyncService()
+        let sut = makeSUT(
+            storageService: storageService,
+            healthSyncService: healthSyncService
+        )
+
+        sut.addWater(200)
+
+        await fulfillment(
+            of: [healthSyncService.saveStarted],
+            timeout: 1
+        )
+
+        let entryID = storageService.entries.first?.id
+
+        // Act
+        sut.undoLastAction()
+
+        for _ in 0..<10 where healthSyncService.deleteCallCount == 0 {
+            await Task.yield()
+        }
+
+        // Assert
+        XCTAssertEqual(healthSyncService.deleteCallCount, 0)
+        XCTAssertTrue(storageService.entries.isEmpty)
+
+        healthSyncService.completeSave()
+
+        await fulfillment(
+            of: [
+                healthSyncService.saveCompleted,
+                healthSyncService.deleteCompleted
+            ],
+            timeout: 1
+        )
+
+        XCTAssertEqual(
+            healthSyncService.events,
+            [
+                .saveStarted(entryID),
+                .saveCompleted(entryID),
+                .delete(entryID)
+            ]
+        )
+        XCTAssertEqual(healthSyncService.deleteCallCount, 1)
+        XCTAssertEqual(healthSyncService.savedEntryID, entryID)
+        XCTAssertEqual(healthSyncService.deletedEntryID, entryID)
+    }
+
+    func testAddWater_withoutUndo_completesSaveWithoutDelete() async {
+        // Arrange
+        let storageService = TestWaterStorageService()
+        let healthSyncService = ControllableAddHealthSyncService()
+        let sut = makeSUT(
+            storageService: storageService,
+            healthSyncService: healthSyncService
+        )
+
+        // Act
+        sut.addWater(200)
+
+        await fulfillment(
+            of: [healthSyncService.saveStarted],
+            timeout: 1
+        )
+
+        healthSyncService.completeSave()
+
+        await fulfillment(
+            of: [healthSyncService.saveCompleted],
+            timeout: 1
+        )
+
+        for _ in 0..<10 {
+            await Task.yield()
+        }
+
+        // Assert
+        XCTAssertEqual(healthSyncService.deleteCallCount, 0)
+        XCTAssertEqual(storageService.entries.count, 1)
+    }
     
     // MARK: - Delete
     
@@ -502,7 +587,7 @@ final class HomeViewModelTests: XCTestCase {
     
     private func makeSUT(
         storageService: TestWaterStorageService,
-        healthSyncService: TestHealthSyncService
+        healthSyncService: HealthSyncServicing
     ) -> HomeViewModel {
         HomeViewModel(
             storageService: storageService,
@@ -512,6 +597,63 @@ final class HomeViewModelTests: XCTestCase {
             widgetSnapshotService: TestWidgetSnapshotService(),
             healthSyncService: healthSyncService
         )
+    }
+
+    private final class ControllableAddHealthSyncService: HealthSyncServicing {
+
+        enum Event: Equatable {
+            case saveStarted(UUID?)
+            case saveCompleted(UUID?)
+            case delete(UUID?)
+        }
+
+        let saveStarted = XCTestExpectation(description: "Health sync save started")
+        let saveCompleted = XCTestExpectation(description: "Health sync save completed")
+        let deleteCompleted = XCTestExpectation(description: "Health sync delete completed")
+
+        private(set) var events: [Event] = []
+        private(set) var deleteCallCount = 0
+        private(set) var savedEntryID: UUID?
+        private(set) var deletedEntryID: UUID?
+
+        private var saveContinuation: CheckedContinuation<Void, Never>?
+
+        func syncAddedWater(
+            amountInMilliliters: Int,
+            date: Date,
+            entryID: UUID
+        ) async {
+            savedEntryID = entryID
+            events.append(.saveStarted(entryID))
+
+            await withCheckedContinuation { continuation in
+                saveContinuation = continuation
+                saveStarted.fulfill()
+            }
+
+            events.append(.saveCompleted(entryID))
+            saveCompleted.fulfill()
+        }
+
+        func syncDeletedWater(
+            entryID: UUID
+        ) async {
+            deleteCallCount += 1
+            deletedEntryID = entryID
+            events.append(.delete(entryID))
+            deleteCompleted.fulfill()
+        }
+
+        func syncUpdatedWater(
+            amountInMilliliters: Int,
+            date: Date,
+            entryID: UUID
+        ) async {}
+
+        func completeSave() {
+            saveContinuation?.resume()
+            saveContinuation = nil
+        }
     }
     
     private final class TestHydrationStreakDayService: HydrationStreakDayTracking {

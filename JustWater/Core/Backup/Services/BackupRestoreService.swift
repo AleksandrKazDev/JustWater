@@ -24,6 +24,7 @@ actor BackupRestoreService: BackupRestoreServicing {
 
     private let modelContainer: ModelContainer
     private let calendar: Calendar
+    private let validator: BackupDocumentValidator
 
     // MARK: - Initializer
 
@@ -33,6 +34,9 @@ actor BackupRestoreService: BackupRestoreServicing {
     ) {
         self.modelContainer = modelContainer
         self.calendar = calendar
+        self.validator = BackupDocumentValidator(
+            calendar: calendar
+        )
     }
 
     // MARK: - Public Methods
@@ -151,43 +155,10 @@ actor BackupRestoreService: BackupRestoreServicing {
             throw BackupRestoreError.invalidPreparedBackup
         }
 
-        guard document.format == BackupDocumentV1.format,
-              document.schemaVersion == BackupDocumentV1.schemaVersion,
-              hasUniqueValues(document.entries.map(\.id)),
-              hasUniqueValues(document.goalHistory.map(\.id)),
-              hasUniqueValues(
-                document.goalHistory.map {
-                    normalizedDay($0.effectiveDate)
-                }
-              ),
-              document.settings.dailyGoal > 0,
-              isValid(date: document.createdAt)
-        else {
+        do {
+            try validator.validate(document)
+        } catch {
             throw BackupRestoreError.invalidPreparedBackup
-        }
-
-        for entry in document.entries {
-            guard entry.amount > 0,
-                  isValid(date: entry.date)
-            else {
-                throw BackupRestoreError.invalidPreparedBackup
-            }
-        }
-
-        for goal in document.goalHistory {
-            guard goal.dailyGoal > 0,
-                  isValid(date: goal.effectiveDate)
-            else {
-                throw BackupRestoreError.invalidPreparedBackup
-            }
-        }
-
-        for streakDay in document.streakDays {
-            guard isValid(date: streakDay.dayStartDate),
-                  isValid(date: streakDay.createdAt)
-            else {
-                throw BackupRestoreError.invalidPreparedBackup
-            }
         }
 
         return document
@@ -524,17 +495,6 @@ actor BackupRestoreService: BackupRestoreServicing {
         }
     }
 
-    private func hasUniqueValues<Value: Hashable>(
-        _ values: [Value]
-    ) -> Bool {
-        Set(values).count == values.count
-    }
-
-    private func isValid(
-        date: Date
-    ) -> Bool {
-        date.timeIntervalSinceReferenceDate.isFinite
-    }
 }
 
 private struct ExistingRestoreData {
