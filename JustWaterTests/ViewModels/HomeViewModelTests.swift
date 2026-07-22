@@ -10,6 +10,17 @@ import XCTest
 
 @MainActor
 final class HomeViewModelTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        AppSettingsStorageTestSupport.setUpIsolatedDefaults()
+        AppSettingsStorage.dailyGoal = 2_000
+    }
+
+    override func tearDown() {
+        AppSettingsStorageTestSupport.tearDownIsolatedDefaults()
+        super.tearDown()
+    }
     
     // MARK: - Add
     
@@ -95,6 +106,51 @@ final class HomeViewModelTests: XCTestCase {
             hapticService.successCallCount,
             1
         )
+    }
+
+    func testAddWater_whenTodayCrossesGoal_publishesAchievementAndKeepsSingleHaptic() {
+        // Arrange
+        let existingEntry = WaterEntry(
+            amount: 1_900,
+            date: Date()
+        )
+        let storageService = TestWaterStorageService(
+            entries: [existingEntry]
+        )
+        let hapticService = TestHapticService()
+        let sut = makeSUT(
+            storageService: storageService,
+            hapticService: hapticService
+        )
+        sut.loadEntries()
+
+        // Act
+        sut.addWater(100)
+
+        // Assert
+        XCTAssertNotNil(sut.goalAchievementEventID)
+        XCTAssertEqual(hapticService.successCallCount, 1)
+    }
+
+    func testAddWater_whenGoalWasAlreadyReached_doesNotPublishAchievement() {
+        // Arrange
+        let existingEntry = WaterEntry(
+            amount: 2_000,
+            date: Date()
+        )
+        let storageService = TestWaterStorageService(
+            entries: [existingEntry]
+        )
+        let sut = makeSUT(
+            storageService: storageService
+        )
+        sut.loadEntries()
+
+        // Act
+        sut.addWater(100)
+
+        // Assert
+        XCTAssertNil(sut.goalAchievementEventID)
     }
     
     func testAddWater_syncsAddedWaterWithAppleHealth() async {

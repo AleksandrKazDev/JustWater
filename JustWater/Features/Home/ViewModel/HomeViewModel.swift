@@ -18,6 +18,7 @@ final class HomeViewModel {
     private let errorReporter: ErrorReporting
     private let widgetSnapshotService: WidgetSnapshotServicing
     private let healthSyncService: HealthSyncServicing
+    private let goalAchievementService: GoalAchievementService
     @ObservationIgnored private var pendingAddedWaterSyncs: [UUID: PendingAddedWaterSync] = [:]
     
     
@@ -28,6 +29,7 @@ final class HomeViewModel {
     
     private(set) var pendingUndoAction: WaterEntryUndoAction?
     private(set) var measurementUnit = AppSettingsStorage.measurementUnit
+    private(set) var goalAchievementEventID: UUID?
     
     var undoBannerMessage: String {
         pendingUndoAction?.message ?? ""
@@ -39,7 +41,8 @@ final class HomeViewModel {
         hapticService: HapticServicing,
         errorReporter: ErrorReporting,
         widgetSnapshotService: WidgetSnapshotServicing,
-        healthSyncService: HealthSyncServicing
+        healthSyncService: HealthSyncServicing,
+        goalAchievementService: GoalAchievementService = GoalAchievementService()
     ) {
         self.storageService = storageService
         self.streakDayService = streakDayService
@@ -47,6 +50,7 @@ final class HomeViewModel {
         self.errorReporter = errorReporter
         self.widgetSnapshotService = widgetSnapshotService
         self.healthSyncService = healthSyncService
+        self.goalAchievementService = goalAchievementService
     }
     
     func loadEntries() {
@@ -76,6 +80,9 @@ final class HomeViewModel {
         _ amount: Int,
         drinkType: DrinkType = .water
     ) {
+        let amountBefore = hydrationState.consumedWater
+        let dailyGoal = hydrationState.dailyGoal
+
         do {
             let entryDate = Date()
             
@@ -95,6 +102,15 @@ final class HomeViewModel {
             
             loadEntries()
             hapticService.success()
+
+            if goalAchievementService.shouldShowCongratulations(
+                entryDate: entry.date,
+                amountBefore: amountBefore,
+                amountAfter: amountBefore + entry.amount,
+                dailyGoal: dailyGoal
+            ) {
+                goalAchievementEventID = UUID()
+            }
             
             startAddedWaterSync(for: entry)
         } catch {

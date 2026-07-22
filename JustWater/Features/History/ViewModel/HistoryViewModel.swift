@@ -22,6 +22,7 @@ final class HistoryViewModel {
     private let hapticService: HapticServicing
     private let errorReporter: ErrorReporting
     private let healthSyncService: HealthSyncServicing
+    private let goalAchievementService: GoalAchievementService
     private let calendar: Calendar
     @ObservationIgnored private var hasLoadedInitialAnalytics = false
     @ObservationIgnored private var pendingAddedWaterSyncs: [UUID: PendingAddedWaterSync] = [:]
@@ -41,6 +42,7 @@ final class HistoryViewModel {
     private(set) var displayDailyGoal: Int = AppSettingsStorage.dailyGoal
     private(set) var pendingUndoAction: WaterEntryUndoAction?
     private(set) var measurementUnit = AppSettingsStorage.measurementUnit
+    private(set) var goalAchievementEventID: UUID?
     
     var undoBannerMessage: String {
         pendingUndoAction?.message ?? ""
@@ -133,6 +135,7 @@ final class HistoryViewModel {
         hapticService: HapticServicing,
         errorReporter: ErrorReporting,
         healthSyncService: HealthSyncServicing,
+        goalAchievementService: GoalAchievementService = GoalAchievementService(),
         calendar: Calendar = .current
     ) {
         self.storageService = storageService
@@ -144,6 +147,7 @@ final class HistoryViewModel {
         self.errorReporter = errorReporter
         self.calendar = calendar
         self.healthSyncService = healthSyncService
+        self.goalAchievementService = goalAchievementService
     }
     
     // MARK: - Public Methods
@@ -302,6 +306,8 @@ final class HistoryViewModel {
         date: Date,
         drinkType: DrinkType = .water
     ) {
+        let amountBefore = totalAmount(for: date)
+
         do {
             let entry = try storageService.saveEntry(
                 amount: amount,
@@ -321,6 +327,15 @@ final class HistoryViewModel {
             
             loadAnalytics()
             hapticService.success()
+
+            if goalAchievementService.shouldShowCongratulations(
+                entryDate: entry.date,
+                amountBefore: amountBefore,
+                amountAfter: amountBefore + entry.amount,
+                dailyGoal: AppSettingsStorage.dailyGoal
+            ) {
+                goalAchievementEventID = UUID()
+            }
             
             startAddedWaterSync(for: entry)
         } catch {
@@ -337,6 +352,12 @@ final class HistoryViewModel {
         date: Date,
         drinkType: DrinkType
     ) {
+        let amountBefore = totalAmount(for: date)
+        let replacedAmount = calendar.isDate(
+            entry.date,
+            inSameDayAs: date
+        ) ? entry.amount : 0
+
         do {
             try storageService.updateEntry(
                 id: entry.id,
@@ -347,6 +368,15 @@ final class HistoryViewModel {
             
             loadAnalytics()
             hapticService.success()
+
+            if goalAchievementService.shouldShowCongratulations(
+                entryDate: date,
+                amountBefore: amountBefore,
+                amountAfter: amountBefore - replacedAmount + amount,
+                dailyGoal: AppSettingsStorage.dailyGoal
+            ) {
+                goalAchievementEventID = UUID()
+            }
             
             Task {
                 await healthSyncService.syncUpdatedWater(
@@ -403,6 +433,21 @@ final class HistoryViewModel {
         }
     }
     // MARK: - Private Methods
+
+    private func totalAmount(
+        for date: Date
+    ) -> Int {
+        analytics?.entries.reduce(into: 0) { total, entry in
+            guard calendar.isDate(
+                entry.date,
+                inSameDayAs: date
+            ) else {
+                return
+            }
+
+            total += entry.amount
+        } ?? 0
+    }
 
     private func startAddedWaterSync(
         for entry: WaterEntry

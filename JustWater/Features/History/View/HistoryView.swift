@@ -153,6 +153,9 @@ private struct HistoryContentScreen: View {
         }
         .navigationTitle(String(localized: "History"))
         .navigationBarTitleDisplayMode(.inline)
+        .goalAchievementBanner(
+            trigger: viewModel.goalAchievementEventID
+        )
     }
     
     // MARK: - Components

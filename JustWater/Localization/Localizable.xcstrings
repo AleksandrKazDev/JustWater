@@ -934,6 +934,23 @@
         }
       }
     },
+    "goal_achievement.banner.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Great job! You reached today’s goal!"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Супер! Вы достигли цели на сегодня!"
+          }
+        }
+      }
+    },
     "goal_calculator.title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2302,40 +2319,6 @@
         }
       }
     },
-    "settings.backup.info.accessibility_label" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backup information"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Информация о резервном копировании"
-          }
-        }
-      }
-    },
-    "settings.backup.import.loading" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Checking Backup..."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Проверка копии..."
-          }
-        }
-      }
-    },
     "settings.backup.import_error.cannot_read.message" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2536,6 +2519,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Версия резервной копии не поддерживается"
+          }
+        }
+      }
+    },
+    "settings.backup.import.loading" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checking Backup..."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверка копии..."
+          }
+        }
+      }
+    },
+    "settings.backup.info.accessibility_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup information"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Информация о резервном копировании"
           }
         }
       }
@@ -3033,6 +3050,23 @@
         }
       }
     },
+    "settings.backup.restore" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore from Backup"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Восстановить из копии"
+          }
+        }
+      }
+    },
     "settings.backup.restore_error.invalid.message" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3216,23 +3250,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Способ восстановления"
-          }
-        }
-      }
-    },
-    "settings.backup.restore" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Restore from Backup"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Восстановить из копии"
           }
         }
       }

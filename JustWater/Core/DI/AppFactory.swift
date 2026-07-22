@@ -31,7 +31,8 @@ enum AppFactory {
             widgetSnapshotService: WidgetSnapshotService(),
             healthSyncService: makeHealthSyncService(
                 errorReporter: errorReporter
-            )
+            ),
+            goalAchievementService: GoalAchievementService()
         )
     }
     
@@ -62,7 +63,8 @@ enum AppFactory {
             errorReporter: makeErrorReporter(),
             healthSyncService: makeHealthSyncService(
                 errorReporter: errorReporter
-            )
+            ),
+            goalAchievementService: GoalAchievementService()
         )
     }
     

@@ -10,6 +10,17 @@ import XCTest
 
 @MainActor
 final class HistoryViewModelTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        AppSettingsStorageTestSupport.setUpIsolatedDefaults()
+        AppSettingsStorage.dailyGoal = 2_000
+    }
+
+    override func tearDown() {
+        AppSettingsStorageTestSupport.tearDownIsolatedDefaults()
+        super.tearDown()
+    }
     
     // MARK: - Delete
     
@@ -453,6 +464,60 @@ final class HistoryViewModelTests: XCTestCase {
             1
         )
     }
+
+    func testAddEntry_whenTodayCrossesGoal_publishesAchievementAndKeepsSingleHaptic() {
+        // Arrange
+        let today = Date()
+        let storageService = TestWaterStorageService(
+            entries: [
+                WaterEntry(
+                    amount: 1_900,
+                    date: today
+                )
+            ]
+        )
+        let hapticService = TestHapticService()
+        let sut = makeSUT(
+            storageService: storageService,
+            goalStorageService: TestWaterGoalStorageService(),
+            hapticService: hapticService,
+            errorReporter: TestErrorReporter()
+        )
+        sut.loadAnalytics()
+
+        // Act
+        sut.addEntry(
+            amount: 100,
+            date: today
+        )
+
+        // Assert
+        XCTAssertNotNil(sut.goalAchievementEventID)
+        XCTAssertEqual(hapticService.successCallCount, 1)
+    }
+
+    func testAddEntry_whenEntryIsInPast_doesNotPublishAchievement() {
+        // Arrange
+        let pastDate = Calendar.current.date(
+            byAdding: .day,
+            value: -1,
+            to: Date()
+        ) ?? .distantPast
+        let storageService = TestWaterStorageService()
+        let sut = makeSUT(
+            storageService: storageService
+        )
+        sut.selectReferenceDate(pastDate)
+
+        // Act
+        sut.addEntry(
+            amount: 2_000,
+            date: pastDate
+        )
+
+        // Assert
+        XCTAssertNil(sut.goalAchievementEventID)
+    }
     
     func testAddEntry_syncsAddedWaterWithAppleHealth() async {
         // Arrange
@@ -663,6 +728,38 @@ final class HistoryViewModelTests: XCTestCase {
             sut.analytics?.statistics.totalAmount,
             700
         )
+    }
+
+    func testUpdateEntry_whenTodayCrossesGoal_publishesAchievementAndKeepsSingleHaptic() {
+        // Arrange
+        let today = Date()
+        let entry = WaterEntry(
+            amount: 1_900,
+            date: today
+        )
+        let storageService = TestWaterStorageService(
+            entries: [entry]
+        )
+        let hapticService = TestHapticService()
+        let sut = makeSUT(
+            storageService: storageService,
+            goalStorageService: TestWaterGoalStorageService(),
+            hapticService: hapticService,
+            errorReporter: TestErrorReporter()
+        )
+        sut.loadAnalytics()
+
+        // Act
+        sut.updateEntry(
+            entry,
+            amount: 2_000,
+            date: today,
+            drinkType: .water
+        )
+
+        // Assert
+        XCTAssertNotNil(sut.goalAchievementEventID)
+        XCTAssertEqual(hapticService.successCallCount, 1)
     }
     
     func testUpdateEntry_syncsUpdatedWaterWithAppleHealth() async {

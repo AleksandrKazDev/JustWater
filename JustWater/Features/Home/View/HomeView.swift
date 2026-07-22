@@ -173,6 +173,9 @@ private struct HomeContentView: View {
             
             reloadEntries()
         }
+        .goalAchievementBanner(
+            trigger: viewModel.goalAchievementEventID
+        )
     }
     
     // MARK: - Actions

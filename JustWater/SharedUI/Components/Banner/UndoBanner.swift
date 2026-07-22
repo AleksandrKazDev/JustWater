@@ -8,6 +8,10 @@
 import SwiftUI
 
 struct UndoBanner: View {
+
+    // MARK: - Environment
+
+    @Environment(\.colorScheme) private var colorScheme
     
     // MARK: - Properties
     
@@ -24,8 +28,8 @@ struct UndoBanner: View {
             HStack {
                 Text(message)
                     .font(AppTypography.body)
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
+                    .foregroundStyle(AppColors.primaryText)
+                    .fixedSize(horizontal: false, vertical: true)
                 
                 Spacer()
                 
@@ -34,17 +38,37 @@ struct UndoBanner: View {
                     onUndo()
                 }
                 .font(AppTypography.body)
-                .foregroundStyle(AppColors.lightBlue)
+                .foregroundStyle(AppColors.primaryBlue)
             }
             .padding(AppSpacing.md)
             .background {
-                Capsule()
-                    .fill(.black.opacity(0.82))
+                RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous)
+                    .fill(.regularMaterial)
             }
+            .overlay {
+                RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous)
+                    .stroke(Color.primary.opacity(borderOpacity), lineWidth: 1)
+            }
+            .shadow(
+                color: Color.black.opacity(shadowOpacity),
+                radius: 10,
+                x: 0,
+                y: 4
+            )
             .padding(.horizontal, AppSpacing.lg)
             .padding(.bottom, AppSpacing.lg)
             .opacity(isVisible ? 1 : 0)
             .allowsHitTesting(isVisible)
         }
+    }
+
+    // MARK: - Style
+
+    private var borderOpacity: Double {
+        colorScheme == .dark ? 0.18 : 0.10
+    }
+
+    private var shadowOpacity: Double {
+        colorScheme == .dark ? 0.22 : 0.12
     }
 }
