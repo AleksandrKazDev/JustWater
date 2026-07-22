@@ -2897,6 +2897,142 @@
         }
       }
     },
+    "settings.backup.replace.confirmation.action" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replace Data"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заменить данные"
+          }
+        }
+      }
+    },
+    "settings.backup.replace.confirmation.empty_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The selected backup contains no hydration data. Continuing will delete all current water entries, goal history, and streak data. App settings, reminders, and Apple Health will not change. This cannot be undone without another backup."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбранная копия не содержит данных о воде. Продолжение удалит все текущие записи о напитках, историю целей и данные серии. Настройки приложения, напоминания и Apple Health не изменятся. Без другой резервной копии отменить результат будет невозможно."
+          }
+        }
+      }
+    },
+    "settings.backup.replace.confirmation.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All current water entries, goal history, and streak data will be deleted and replaced with this backup. App settings, reminders, and Apple Health will not change. This cannot be undone without another backup."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все текущие записи о напитках, история целей и данные серии будут удалены и заменены содержимым этой копии. Настройки приложения, напоминания и Apple Health не изменятся. Без другой резервной копии отменить результат будет невозможно."
+          }
+        }
+      }
+    },
+    "settings.backup.replace.confirmation.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replace All Data?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заменить все данные?"
+          }
+        }
+      }
+    },
+    "settings.backup.replace.progress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replacing Data..."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Замена данных..."
+          }
+        }
+      }
+    },
+    "settings.backup.replace.result.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your hydration data was replaced successfully."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Данные о воде успешно заменены."
+          }
+        }
+      }
+    },
+    "settings.backup.replace.result.restored" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restored"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Восстановлено"
+          }
+        }
+      }
+    },
+    "settings.backup.replace.result.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data Replaced"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Данные заменены"
+          }
+        }
+      }
+    },
     "settings.backup.restore_error.invalid.message" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2995,6 +3131,91 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не удалось прочитать текущие данные"
+          }
+        }
+      }
+    },
+    "settings.backup.restore_mode.merge.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add missing records and keep local data when records conflict."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить недостающие записи и сохранить локальные данные при конфликтах."
+          }
+        }
+      }
+    },
+    "settings.backup.restore_mode.merge.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merge with Current Data"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Объединить с текущими данными"
+          }
+        }
+      }
+    },
+    "settings.backup.restore_mode.replace.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete current hydration data and replace it with this backup."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить текущие данные о воде и заменить их содержимым этой копии."
+          }
+        }
+      }
+    },
+    "settings.backup.restore_mode.replace.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replace All Data"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заменить все данные"
+          }
+        }
+      }
+    },
+    "settings.backup.restore_mode.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore Method"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Способ восстановления"
           }
         }
       }

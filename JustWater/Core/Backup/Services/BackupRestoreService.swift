@@ -12,6 +12,10 @@ protocol BackupRestoreServicing: Sendable {
     func mergeRestore(
         _ preparedImport: PreparedBackupImport
     ) async throws -> MergeRestoreResult
+
+    func replaceRestore(
+        _ preparedImport: PreparedBackupImport
+    ) async throws -> ReplaceRestoreResult
 }
 
 actor BackupRestoreService: BackupRestoreServicing {
@@ -80,6 +84,55 @@ actor BackupRestoreService: BackupRestoreServicing {
         return result
     }
 
+    func replaceRestore(
+        _ preparedImport: PreparedBackupImport
+    ) async throws -> ReplaceRestoreResult {
+        try Task.checkCancellation()
+
+        let document = try decodeAndValidate(
+            preparedImport.data
+        )
+
+        try Task.checkCancellation()
+
+        let context = ModelContext(modelContainer)
+        var result: ReplaceRestoreResult?
+
+        do {
+            try context.transaction {
+                try Task.checkCancellation()
+
+                let existingData = try fetchExistingData(
+                    context: context
+                )
+
+                try Task.checkCancellation()
+
+                result = try replace(
+                    document: document,
+                    existingData: existingData,
+                    context: context
+                )
+            }
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let error as BackupRestoreError {
+            throw error
+        } catch {
+            throw BackupRestoreError.persistenceFailed
+        }
+
+        guard let result else {
+            throw BackupRestoreError.persistenceFailed
+        }
+
+        if AppSettingsStorage.dailyGoal != result.currentDailyGoal {
+            AppSettingsStorage.dailyGoal = result.currentDailyGoal
+        }
+
+        return result
+    }
+
     // MARK: - Decoding
 
     private func decodeAndValidate(
@@ -102,6 +155,11 @@ actor BackupRestoreService: BackupRestoreServicing {
               document.schemaVersion == BackupDocumentV1.schemaVersion,
               hasUniqueValues(document.entries.map(\.id)),
               hasUniqueValues(document.goalHistory.map(\.id)),
+              hasUniqueValues(
+                document.goalHistory.map {
+                    normalizedDay($0.effectiveDate)
+                }
+              ),
               document.settings.dailyGoal > 0,
               isValid(date: document.createdAt)
         else {
@@ -354,6 +412,98 @@ actor BackupRestoreService: BackupRestoreServicing {
             unchanged: unchanged,
             conflicts: conflicts
         )
+    }
+
+    // MARK: - Replace
+
+    private func replace(
+        document: BackupDocumentV1,
+        existingData: ExistingRestoreData,
+        context: ModelContext
+    ) throws -> ReplaceRestoreResult {
+        try deleteExistingData(
+            existingData,
+            context: context
+        )
+        try insertReplacementData(
+            document,
+            context: context
+        )
+
+        try Task.checkCancellation()
+
+        let currentDailyGoal = document.goalHistory
+            .max { lhs, rhs in
+                normalizedDay(lhs.effectiveDate)
+                < normalizedDay(rhs.effectiveDate)
+            }?
+            .dailyGoal
+        ?? document.settings.dailyGoal
+
+        return ReplaceRestoreResult(
+            restoredEntriesCount: document.entries.count,
+            restoredGoalsCount: document.goalHistory.count,
+            restoredStreakDaysCount: document.streakDays.count,
+            currentDailyGoal: currentDailyGoal
+        )
+    }
+
+    private func deleteExistingData(
+        _ existingData: ExistingRestoreData,
+        context: ModelContext
+    ) throws {
+        for (offset, entry) in existingData.entries.enumerated() {
+            try checkCancellationIfNeeded(offset)
+            context.delete(entry)
+        }
+
+        for (offset, goal) in existingData.goals.enumerated() {
+            try checkCancellationIfNeeded(offset)
+            context.delete(goal)
+        }
+
+        for (offset, streakDay) in existingData.streakDays.enumerated() {
+            try checkCancellationIfNeeded(offset)
+            context.delete(streakDay)
+        }
+    }
+
+    private func insertReplacementData(
+        _ document: BackupDocumentV1,
+        context: ModelContext
+    ) throws {
+        for (offset, entry) in document.entries.enumerated() {
+            try checkCancellationIfNeeded(offset)
+            context.insert(
+                WaterEntryEntity(
+                    id: entry.id,
+                    amount: entry.amount,
+                    date: entry.date,
+                    drinkTypeRawValue: entry.drinkTypeRawValue
+                )
+            )
+        }
+
+        for (offset, goal) in document.goalHistory.enumerated() {
+            try checkCancellationIfNeeded(offset)
+            context.insert(
+                WaterGoalEntity(
+                    id: goal.id,
+                    dailyGoal: goal.dailyGoal,
+                    effectiveDate: normalizedDay(goal.effectiveDate)
+                )
+            )
+        }
+
+        for (offset, streakDay) in document.streakDays.enumerated() {
+            try checkCancellationIfNeeded(offset)
+            context.insert(
+                HydrationStreakDayEntity(
+                    dayStartDate: normalizedDay(streakDay.dayStartDate),
+                    createdAt: streakDay.createdAt
+                )
+            )
+        }
     }
 
     // MARK: - Helpers

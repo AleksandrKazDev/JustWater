@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+enum BackupRestorePresentationResult: Equatable {
+    case merge(MergeRestoreResult)
+    case replace(ReplaceRestoreResult)
+}
+
 struct BackupPreviewView: View {
 
     // MARK: - Environment
@@ -16,15 +21,25 @@ struct BackupPreviewView: View {
     // MARK: - Properties
 
     let preview: BackupImportPreview
-    let mergeResult: MergeRestoreResult?
+    let restoreResult: BackupRestorePresentationResult?
     let isRestoring: Bool
     @Binding var restoreError: BackupRestoreError?
     let onMerge: () -> Void
+    let onReplace: () -> Void
     let onDone: () -> Void
 
     // MARK: - State
 
     @State private var isMergeConfirmationPresented = false
+    @State private var isReplaceConfirmationPresented = false
+    @State private var selectedRestoreMode = RestoreMode.merge
+
+    // MARK: - Types
+
+    private enum RestoreMode {
+        case merge
+        case replace
+    }
 
     // MARK: - Body
 
@@ -35,9 +50,9 @@ struct BackupPreviewView: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: AppSpacing.lg) {
-                        if let mergeResult {
-                            mergeResultContent(
-                                mergeResult
+                        if let restoreResult {
+                            restoreResultContent(
+                                restoreResult
                             )
                         } else {
                             previewContent
@@ -49,7 +64,7 @@ struct BackupPreviewView: View {
             .navigationTitle(navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                if mergeResult == nil {
+                if restoreResult == nil {
                     ToolbarItem(
                         placement: .cancellationAction
                     ) {
@@ -70,6 +85,20 @@ struct BackupPreviewView: View {
                 }
             } message: {
                 Text(String(localized: "settings.backup.merge.confirmation.message"))
+            }
+            .alert(
+                String(localized: "settings.backup.replace.confirmation.title"),
+                isPresented: $isReplaceConfirmationPresented
+            ) {
+                Button(String(localized: "common.cancel"), role: .cancel) {}
+                Button(
+                    String(localized: "settings.backup.replace.confirmation.action"),
+                    role: .destructive
+                ) {
+                    onReplace()
+                }
+            } message: {
+                Text(replaceConfirmationMessage)
             }
             .alert(
                 restoreErrorTitle,
@@ -166,6 +195,8 @@ struct BackupPreviewView: View {
                 }
             }
 
+            restoreModePicker
+
             if isRestoring {
                 restoreProgress
             } else {
@@ -173,9 +204,116 @@ struct BackupPreviewView: View {
                     title: String(localized: "common.continue"),
                     systemImage: "arrow.right"
                 ) {
-                    isMergeConfirmationPresented = true
+                    switch selectedRestoreMode {
+                    case .merge:
+                        isMergeConfirmationPresented = true
+
+                    case .replace:
+                        isReplaceConfirmationPresented = true
+                    }
                 }
             }
+        }
+    }
+
+    private var restoreModePicker: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: AppSpacing.md) {
+                Text(String(localized: "settings.backup.restore_mode.title"))
+                    .font(AppTypography.headline)
+                    .foregroundStyle(AppColors.primaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                restoreModeButton(
+                    mode: .merge,
+                    title: String(localized: "settings.backup.restore_mode.merge.title"),
+                    description: String(localized: "settings.backup.restore_mode.merge.description"),
+                    systemImage: "arrow.triangle.merge",
+                    isDestructive: false
+                )
+
+                Divider()
+                    .opacity(0.35)
+
+                restoreModeButton(
+                    mode: .replace,
+                    title: String(localized: "settings.backup.restore_mode.replace.title"),
+                    description: String(localized: "settings.backup.restore_mode.replace.description"),
+                    systemImage: "trash",
+                    isDestructive: true
+                )
+            }
+        }
+        .disabled(isRestoring)
+        .opacity(isRestoring ? 0.55 : 1)
+    }
+
+    private func restoreModeButton(
+        mode: RestoreMode,
+        title: String,
+        description: String,
+        systemImage: String,
+        isDestructive: Bool
+    ) -> some View {
+        let isSelected = selectedRestoreMode == mode
+        let accentColor = isDestructive ? Color.red : AppColors.primaryBlue
+
+        return Button {
+            selectedRestoreMode = mode
+        } label: {
+            HStack(alignment: .top, spacing: AppSpacing.sm) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(accentColor)
+                    .frame(width: 28, height: 28)
+
+                VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                    Text(title)
+                        .font(AppTypography.body)
+                        .foregroundStyle(
+                            isDestructive
+                            ? Color.red
+                            : AppColors.primaryText
+                        )
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Text(description)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.secondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: AppSpacing.sm)
+
+                Image(
+                    systemName: isSelected
+                    ? "checkmark.circle.fill"
+                    : "circle"
+                )
+                .font(.system(size: 20, weight: .medium))
+                .foregroundStyle(
+                    isSelected
+                    ? accentColor
+                    : AppColors.secondaryText.opacity(0.6)
+                )
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    @ViewBuilder
+    private func restoreResultContent(
+        _ result: BackupRestorePresentationResult
+    ) -> some View {
+        switch result {
+        case let .merge(mergeResult):
+            mergeResultContent(mergeResult)
+
+        case let .replace(replaceResult):
+            replaceResultContent(replaceResult)
         }
     }
 
@@ -221,12 +359,54 @@ struct BackupPreviewView: View {
         }
     }
 
+    private func replaceResultContent(
+        _ result: ReplaceRestoreResult
+    ) -> some View {
+        Group {
+            Text(String(localized: "settings.backup.replace.result.description"))
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.secondaryText)
+                .fixedSize(horizontal: false, vertical: true)
+
+            replaceResultCard(
+                title: String(localized: "settings.backup.preview.water_entries"),
+                systemImage: "drop",
+                count: result.restoredEntriesCount
+            )
+
+            replaceResultCard(
+                title: String(localized: "settings.backup.preview.goal_history"),
+                systemImage: "target",
+                count: result.restoredGoalsCount
+            )
+
+            replaceResultCard(
+                title: String(localized: "settings.backup.preview.streak_days"),
+                systemImage: "flame",
+                count: result.restoredStreakDaysCount
+            )
+
+            PrimaryButton(
+                title: String(localized: "common.done"),
+                systemImage: "checkmark"
+            ) {
+                onDone()
+            }
+        }
+    }
+
     private var restoreProgress: some View {
         HStack(spacing: AppSpacing.sm) {
             ProgressView()
                 .tint(AppColors.primaryBlue)
 
-            Text(String(localized: "settings.backup.merge.progress"))
+            Text(
+                String(
+                    localized: selectedRestoreMode == .replace
+                    ? "settings.backup.replace.progress"
+                    : "settings.backup.merge.progress"
+                )
+            )
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.primaryText)
                 .fixedSize(horizontal: false, vertical: true)
@@ -275,6 +455,39 @@ struct BackupPreviewView: View {
                     value: counts.conflicts
                 )
             }
+        }
+    }
+
+    private func replaceResultCard(
+        title: String,
+        systemImage: String,
+        count: Int
+    ) -> some View {
+        GlassCard {
+            HStack(spacing: AppSpacing.sm) {
+                SettingsIconView(
+                    systemImage: systemImage
+                )
+
+                VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                    Text(title)
+                        .font(AppTypography.headline)
+                        .foregroundStyle(AppColors.primaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Text(String(localized: "settings.backup.replace.result.restored"))
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.secondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: AppSpacing.sm)
+
+                Text(count.formatted())
+                    .font(AppTypography.headline)
+                    .foregroundStyle(AppColors.primaryText)
+            }
+            .accessibilityElement(children: .combine)
         }
     }
 
@@ -327,10 +540,27 @@ struct BackupPreviewView: View {
     // MARK: - Helpers
 
     private var navigationTitle: String {
-        String(
-            localized: mergeResult == nil
-            ? "settings.backup.preview.title"
-            : "settings.backup.merge.result.title"
+        switch restoreResult {
+        case .none:
+            return String(localized: "settings.backup.preview.title")
+
+        case .merge:
+            return String(localized: "settings.backup.merge.result.title")
+
+        case .replace:
+            return String(localized: "settings.backup.replace.result.title")
+        }
+    }
+
+    private var replaceConfirmationMessage: String {
+        let hasHydrationData = preview.waterEntryCount > 0
+        || preview.goalHistoryCount > 0
+        || preview.streakDayCount > 0
+
+        return String(
+            localized: hasHydrationData
+            ? "settings.backup.replace.confirmation.message"
+            : "settings.backup.replace.confirmation.empty_message"
         )
     }
 

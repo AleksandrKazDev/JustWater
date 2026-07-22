@@ -174,7 +174,7 @@ final class SettingsViewModelBackupTests: XCTestCase {
     func testMergeBackup_afterSuccessUpdatesDailyGoalAndPreservesOtherSettings() async throws {
         let expectedResult = makeMergeRestoreResult()
         let backupRestoreService = TestBackupRestoreService(
-            result: .success(expectedResult)
+            mergeResult: .success(expectedResult)
         )
         let sut = makeSUT(
             backupRestoreService: backupRestoreService
@@ -221,7 +221,7 @@ final class SettingsViewModelBackupTests: XCTestCase {
     @MainActor
     func testMergeBackup_whenServiceThrows_rethrowsAndReportsOnce() async {
         let backupRestoreService = TestBackupRestoreService(
-            result: .failure(TestFailure.expected)
+            mergeResult: .failure(TestFailure.expected)
         )
         let errorReporter = TestErrorReporter()
         let sut = makeSUT(
@@ -265,7 +265,7 @@ final class SettingsViewModelBackupTests: XCTestCase {
     @MainActor
     func testMergeBackup_whenCancelled_doesNotReportError() async {
         let backupRestoreService = TestBackupRestoreService(
-            result: .failure(CancellationError())
+            mergeResult: .failure(CancellationError())
         )
         let errorReporter = TestErrorReporter()
         let sut = makeSUT(
@@ -292,6 +292,132 @@ final class SettingsViewModelBackupTests: XCTestCase {
         )
     }
 
+    @MainActor
+    func testReplaceBackup_afterSuccessUpdatesDailyGoalAndPreservesOtherSettings() async throws {
+        let expectedResult = makeReplaceRestoreResult()
+        let backupRestoreService = TestBackupRestoreService(
+            replaceResult: .success(expectedResult)
+        )
+        let sut = makeSUT(
+            backupRestoreService: backupRestoreService
+        )
+        let initialState = settingsState(
+            of: sut
+        )
+        var stateBeforeServiceCompletion: SettingsState?
+        backupRestoreService.onReplaceRestore = { [weak sut] in
+            guard let sut else { return }
+
+            stateBeforeServiceCompletion = self.settingsState(
+                of: sut
+            )
+        }
+        AppSettingsStorage.dailyGoal = 1_800
+        let preparedImport = makePreparedImport()
+
+        let result = try await sut.replaceBackup(
+            preparedImport
+        )
+
+        XCTAssertEqual(result, expectedResult)
+        XCTAssertEqual(
+            backupRestoreService.replaceRestoreCallCount,
+            1
+        )
+        XCTAssertEqual(
+            backupRestoreService.lastReplacePreparedImport,
+            preparedImport
+        )
+        XCTAssertEqual(
+            stateBeforeServiceCompletion,
+            initialState
+        )
+        XCTAssertEqual(
+            settingsState(of: sut),
+            initialState.updatingDailyGoal(
+                to: expectedResult.currentDailyGoal
+            )
+        )
+    }
+
+    @MainActor
+    func testReplaceBackup_whenServiceThrows_rethrowsAndReportsOnce() async {
+        let backupRestoreService = TestBackupRestoreService(
+            replaceResult: .failure(TestFailure.expected)
+        )
+        let errorReporter = TestErrorReporter()
+        let sut = makeSUT(
+            backupRestoreService: backupRestoreService,
+            errorReporter: errorReporter
+        )
+        let initialState = settingsState(
+            of: sut
+        )
+
+        do {
+            _ = try await sut.replaceBackup(
+                makePreparedImport()
+            )
+            XCTFail("Expected replace restore to fail.")
+        } catch {
+            XCTAssertEqual(
+                error as? TestFailure,
+                .expected
+            )
+        }
+
+        XCTAssertEqual(
+            backupRestoreService.replaceRestoreCallCount,
+            1
+        )
+        XCTAssertEqual(
+            errorReporter.reports.count,
+            1
+        )
+        XCTAssertEqual(
+            errorReporter.reports.first?.context,
+            "Failed to replace backup"
+        )
+        XCTAssertEqual(
+            settingsState(of: sut),
+            initialState
+        )
+    }
+
+    @MainActor
+    func testReplaceBackup_whenCancelledDoesNotReportErrorOrChangeSettings() async {
+        let backupRestoreService = TestBackupRestoreService(
+            replaceResult: .failure(CancellationError())
+        )
+        let errorReporter = TestErrorReporter()
+        let sut = makeSUT(
+            backupRestoreService: backupRestoreService,
+            errorReporter: errorReporter
+        )
+        let initialState = settingsState(
+            of: sut
+        )
+
+        do {
+            _ = try await sut.replaceBackup(
+                makePreparedImport()
+            )
+            XCTFail("Expected replace restore to be cancelled.")
+        } catch {
+            XCTAssertTrue(error is CancellationError)
+        }
+
+        XCTAssertEqual(
+            backupRestoreService.replaceRestoreCallCount,
+            1
+        )
+        XCTAssertTrue(errorReporter.reports.isEmpty)
+        XCTAssertEqual(
+            settingsState(of: sut),
+            initialState
+        )
+    }
+
     // MARK: - Helpers
 
     @MainActor
@@ -304,7 +430,7 @@ final class SettingsViewModelBackupTests: XCTestCase {
                 result: .failure(TestFailure.unused)
             ),
             backupRestoreService: TestBackupRestoreService(
-                result: .failure(TestFailure.unused)
+                mergeResult: .failure(TestFailure.unused)
             ),
             errorReporter: TestErrorReporter()
         )
@@ -321,7 +447,7 @@ final class SettingsViewModelBackupTests: XCTestCase {
             ),
             backupImportService: backupImportService,
             backupRestoreService: TestBackupRestoreService(
-                result: .failure(TestFailure.unused)
+                mergeResult: .failure(TestFailure.unused)
             ),
             errorReporter: errorReporter
         )
@@ -348,7 +474,7 @@ final class SettingsViewModelBackupTests: XCTestCase {
                 result: .failure(TestFailure.unused)
             ),
             backupRestoreService: TestBackupRestoreService(
-                result: .failure(TestFailure.unused)
+                mergeResult: .failure(TestFailure.unused)
             ),
             errorReporter: errorReporter
         )
@@ -450,6 +576,15 @@ final class SettingsViewModelBackupTests: XCTestCase {
         )
     }
 
+    private func makeReplaceRestoreResult() -> ReplaceRestoreResult {
+        ReplaceRestoreResult(
+            restoredEntriesCount: 1,
+            restoredGoalsCount: 2,
+            restoredStreakDaysCount: 3,
+            currentDailyGoal: 2_700
+        )
+    }
+
     private func settingsState(
         of viewModel: SettingsViewModel
     ) -> SettingsState {
@@ -518,15 +653,21 @@ private final class TestBackupImportService: BackupImportServicing {
 @MainActor
 private final class TestBackupRestoreService: BackupRestoreServicing {
 
-    private let result: Result<MergeRestoreResult, Error>
+    private let mergeResult: Result<MergeRestoreResult, Error>
+    private let replaceResult: Result<ReplaceRestoreResult, Error>
     private(set) var mergeRestoreCallCount = 0
+    private(set) var replaceRestoreCallCount = 0
     private(set) var lastPreparedImport: PreparedBackupImport?
+    private(set) var lastReplacePreparedImport: PreparedBackupImport?
     var onMergeRestore: (() -> Void)?
+    var onReplaceRestore: (() -> Void)?
 
     init(
-        result: Result<MergeRestoreResult, Error>
+        mergeResult: Result<MergeRestoreResult, Error> = .failure(TestFailure.unused),
+        replaceResult: Result<ReplaceRestoreResult, Error> = .failure(TestFailure.unused)
     ) {
-        self.result = result
+        self.mergeResult = mergeResult
+        self.replaceResult = replaceResult
     }
 
     func mergeRestore(
@@ -536,7 +677,17 @@ private final class TestBackupRestoreService: BackupRestoreServicing {
         lastPreparedImport = preparedImport
         onMergeRestore?()
 
-        return try result.get()
+        return try mergeResult.get()
+    }
+
+    func replaceRestore(
+        _ preparedImport: PreparedBackupImport
+    ) async throws -> ReplaceRestoreResult {
+        replaceRestoreCallCount += 1
+        lastReplacePreparedImport = preparedImport
+        onReplaceRestore?()
+
+        return try replaceResult.get()
     }
 }
 

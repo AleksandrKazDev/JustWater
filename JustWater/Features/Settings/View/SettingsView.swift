@@ -56,7 +56,8 @@ private struct SettingsContentView: View {
     @State private var backupRestoreTask: Task<Void, Never>?
     @State private var backupRestoreRequestID: UUID?
     @State private var preparedBackupImport: PreparedBackupImport?
-    @State private var mergeRestoreResult: MergeRestoreResult?
+    @State private var backupImportPreview: BackupImportPreview?
+    @State private var backupRestoreResult: BackupRestorePresentationResult?
     @State private var backupRestoreError: BackupRestoreError?
     @State private var isRestoringBackup = false
     @State private var backupSheet: BackupSheet?
@@ -90,6 +91,11 @@ private struct SettingsContentView: View {
         var id: String {
             rawValue
         }
+    }
+
+    private enum BackupRestoreOperation {
+        case merge
+        case replace
     }
     
     // MARK: - Initializer
@@ -151,15 +157,27 @@ private struct SettingsContentView: View {
                 backupInfoSheet
 
             case .preview:
-                if let preparedBackupImport {
+                if let backupImportPreview {
                     BackupPreviewView(
-                        preview: preparedBackupImport.preview,
-                        mergeResult: mergeRestoreResult,
+                        preview: backupImportPreview,
+                        restoreResult: backupRestoreResult,
                         isRestoring: isRestoringBackup,
                         restoreError: $backupRestoreError,
                         onMerge: {
-                            startBackupMerge(
+                            guard let preparedBackupImport else { return }
+
+                            startBackupRestore(
                                 preparedBackupImport,
+                                operation: .merge,
+                                viewModel: viewModel
+                            )
+                        },
+                        onReplace: {
+                            guard let preparedBackupImport else { return }
+
+                            startBackupRestore(
+                                preparedBackupImport,
+                                operation: .replace,
                                 viewModel: viewModel
                             )
                         },
@@ -863,6 +881,7 @@ private struct SettingsContentView: View {
                 }
 
                 preparedBackupImport = preparedImport
+                backupImportPreview = preparedImport.preview
                 HapticService.success()
                 backupSheet = .preview
             } catch is CancellationError {
@@ -887,10 +906,12 @@ private struct SettingsContentView: View {
         backupImportTask = nil
         isPreparingBackupImport = false
         preparedBackupImport = nil
+        backupImportPreview = nil
     }
 
-    private func startBackupMerge(
+    private func startBackupRestore(
         _ preparedImport: PreparedBackupImport,
+        operation: BackupRestoreOperation,
         viewModel: SettingsViewModel
     ) {
         guard !isRestoringBackup else { return }
@@ -911,9 +932,23 @@ private struct SettingsContentView: View {
             }
 
             do {
-                let result = try await viewModel.mergeBackup(
-                    preparedImport
-                )
+                let result: BackupRestorePresentationResult
+
+                switch operation {
+                case .merge:
+                    result = .merge(
+                        try await viewModel.mergeBackup(
+                            preparedImport
+                        )
+                    )
+
+                case .replace:
+                    result = .replace(
+                        try await viewModel.replaceBackup(
+                            preparedImport
+                        )
+                    )
+                }
 
                 guard !Task.isCancelled,
                       backupRestoreRequestID == requestID,
@@ -922,7 +957,8 @@ private struct SettingsContentView: View {
                     return
                 }
 
-                mergeRestoreResult = result
+                preparedBackupImport = nil
+                backupRestoreResult = result
                 HapticService.success()
             } catch is CancellationError {
                 return
@@ -944,17 +980,18 @@ private struct SettingsContentView: View {
         backupRestoreTask?.cancel()
         backupRestoreTask = nil
         isRestoringBackup = false
-        mergeRestoreResult = nil
+        backupRestoreResult = nil
         backupRestoreError = nil
     }
 
     private func handleBackupSheetDismissed() {
-        let didCompleteMerge = mergeRestoreResult != nil
+        let didCompleteRestore = backupRestoreResult != nil
 
         cancelBackupRestore()
         preparedBackupImport = nil
+        backupImportPreview = nil
 
-        if didCompleteMerge {
+        if didCompleteRestore {
             onHydrationSettingsChanged()
         }
     }

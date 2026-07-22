@@ -147,6 +147,34 @@ final class SettingsViewModel {
         }
     }
 
+    func replaceBackup(
+        _ preparedImport: PreparedBackupImport
+    ) async throws -> ReplaceRestoreResult {
+        do {
+            let result = try await backupRestoreService.replaceRestore(
+                preparedImport
+            )
+
+            updateIfNeeded(
+                \.dailyGoal,
+                to: result.currentDailyGoal
+            )
+
+            return result
+        } catch {
+            guard !(error is CancellationError) else {
+                throw error
+            }
+
+            errorReporter.report(
+                error,
+                context: "Failed to replace backup"
+            )
+
+            throw error
+        }
+    }
+
     func reportBackupFileSaveError(
         _ error: Error
     ) {
