@@ -2,7 +2,7 @@
 //  AppSettingsStorageTestSupport.swift
 //  JustWaterTests
 //
-//  Created by Codex on 13.06.2026.
+//  Created by сонный on 13.06.2026.
 //
 
 import Foundation

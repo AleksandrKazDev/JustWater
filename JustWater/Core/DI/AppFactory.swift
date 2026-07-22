@@ -86,6 +86,9 @@ enum AppFactory {
                 context: context
             ),
             backupImportService: makeBackupImportService(),
+            backupRestoreService: makeBackupRestoreService(
+                modelContainer: context.container
+            ),
             notificationService: makeNotificationService(
                 errorReporter: errorReporter
             ),
@@ -104,6 +107,14 @@ enum AppFactory {
 
     private static func makeBackupImportService() -> BackupImportService {
         BackupImportService()
+    }
+
+    private static func makeBackupRestoreService(
+        modelContainer: ModelContainer
+    ) -> BackupRestoreService {
+        BackupRestoreService(
+            modelContainer: modelContainer
+        )
     }
 
     private static func makeWaterStorageService(

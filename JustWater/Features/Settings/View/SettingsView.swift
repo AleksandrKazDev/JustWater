@@ -53,7 +53,12 @@ private struct SettingsContentView: View {
     @State private var isPreparingBackupImport = false
     @State private var backupImportTask: Task<Void, Never>?
     @State private var backupImportRequestID: UUID?
+    @State private var backupRestoreTask: Task<Void, Never>?
+    @State private var backupRestoreRequestID: UUID?
     @State private var preparedBackupImport: PreparedBackupImport?
+    @State private var mergeRestoreResult: MergeRestoreResult?
+    @State private var backupRestoreError: BackupRestoreError?
+    @State private var isRestoringBackup = false
     @State private var backupSheet: BackupSheet?
     @State private var backupAlert: BackupAlert?
 
@@ -133,11 +138,12 @@ private struct SettingsContentView: View {
         }
         .onDisappear {
             cancelBackupImportPreparation()
+            cancelBackupRestore()
         }
         .sheet(
             item: $backupSheet,
             onDismiss: {
-                preparedBackupImport = nil
+                handleBackupSheetDismissed()
             }
         ) { sheet in
             switch sheet {
@@ -147,7 +153,19 @@ private struct SettingsContentView: View {
             case .preview:
                 if let preparedBackupImport {
                     BackupPreviewView(
-                        preview: preparedBackupImport.preview
+                        preview: preparedBackupImport.preview,
+                        mergeResult: mergeRestoreResult,
+                        isRestoring: isRestoringBackup,
+                        restoreError: $backupRestoreError,
+                        onMerge: {
+                            startBackupMerge(
+                                preparedBackupImport,
+                                viewModel: viewModel
+                            )
+                        },
+                        onDone: {
+                            backupSheet = nil
+                        }
                     )
                 }
             }
@@ -869,6 +887,76 @@ private struct SettingsContentView: View {
         backupImportTask = nil
         isPreparingBackupImport = false
         preparedBackupImport = nil
+    }
+
+    private func startBackupMerge(
+        _ preparedImport: PreparedBackupImport,
+        viewModel: SettingsViewModel
+    ) {
+        guard !isRestoringBackup else { return }
+
+        cancelBackupRestore()
+
+        let requestID = UUID()
+        backupRestoreRequestID = requestID
+        isRestoringBackup = true
+
+        backupRestoreTask = Task { @MainActor in
+            defer {
+                if backupRestoreRequestID == requestID {
+                    backupRestoreTask = nil
+                    backupRestoreRequestID = nil
+                    isRestoringBackup = false
+                }
+            }
+
+            do {
+                let result = try await viewModel.mergeBackup(
+                    preparedImport
+                )
+
+                guard !Task.isCancelled,
+                      backupRestoreRequestID == requestID,
+                      backupSheet == .preview
+                else {
+                    return
+                }
+
+                mergeRestoreResult = result
+                HapticService.success()
+            } catch is CancellationError {
+                return
+            } catch {
+                guard !Task.isCancelled,
+                      backupRestoreRequestID == requestID
+                else {
+                    return
+                }
+
+                backupRestoreError = error as? BackupRestoreError
+                ?? .persistenceFailed
+            }
+        }
+    }
+
+    private func cancelBackupRestore() {
+        backupRestoreRequestID = nil
+        backupRestoreTask?.cancel()
+        backupRestoreTask = nil
+        isRestoringBackup = false
+        mergeRestoreResult = nil
+        backupRestoreError = nil
+    }
+
+    private func handleBackupSheetDismissed() {
+        let didCompleteMerge = mergeRestoreResult != nil
+
+        cancelBackupRestore()
+        preparedBackupImport = nil
+
+        if didCompleteMerge {
+            onHydrationSettingsChanged()
+        }
     }
 
     private func backupAlert(

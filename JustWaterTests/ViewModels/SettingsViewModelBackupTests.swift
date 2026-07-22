@@ -170,6 +170,128 @@ final class SettingsViewModelBackupTests: XCTestCase {
         XCTAssertTrue(errorReporter.reports.isEmpty)
     }
 
+    @MainActor
+    func testMergeBackup_afterSuccessUpdatesDailyGoalAndPreservesOtherSettings() async throws {
+        let expectedResult = makeMergeRestoreResult()
+        let backupRestoreService = TestBackupRestoreService(
+            result: .success(expectedResult)
+        )
+        let sut = makeSUT(
+            backupRestoreService: backupRestoreService
+        )
+        let initialState = settingsState(
+            of: sut
+        )
+        var stateBeforeServiceCompletion: SettingsState?
+        backupRestoreService.onMergeRestore = { [weak sut] in
+            guard let sut else { return }
+
+            stateBeforeServiceCompletion = self.settingsState(
+                of: sut
+            )
+            AppSettingsStorage.dailyGoal = expectedResult.resolvedDailyGoal
+        }
+        let preparedImport = makePreparedImport()
+
+        let result = try await sut.mergeBackup(
+            preparedImport
+        )
+
+        XCTAssertEqual(result, expectedResult)
+        XCTAssertEqual(
+            backupRestoreService.mergeRestoreCallCount,
+            1
+        )
+        XCTAssertEqual(
+            backupRestoreService.lastPreparedImport,
+            preparedImport
+        )
+        XCTAssertEqual(
+            stateBeforeServiceCompletion,
+            initialState
+        )
+        XCTAssertEqual(
+            settingsState(of: sut),
+            initialState.updatingDailyGoal(
+                to: expectedResult.resolvedDailyGoal
+            )
+        )
+    }
+
+    @MainActor
+    func testMergeBackup_whenServiceThrows_rethrowsAndReportsOnce() async {
+        let backupRestoreService = TestBackupRestoreService(
+            result: .failure(TestFailure.expected)
+        )
+        let errorReporter = TestErrorReporter()
+        let sut = makeSUT(
+            backupRestoreService: backupRestoreService,
+            errorReporter: errorReporter
+        )
+        let initialState = settingsState(
+            of: sut
+        )
+
+        do {
+            _ = try await sut.mergeBackup(
+                makePreparedImport()
+            )
+            XCTFail("Expected merge restore to fail.")
+        } catch {
+            XCTAssertEqual(
+                error as? TestFailure,
+                .expected
+            )
+        }
+
+        XCTAssertEqual(
+            backupRestoreService.mergeRestoreCallCount,
+            1
+        )
+        XCTAssertEqual(
+            errorReporter.reports.count,
+            1
+        )
+        XCTAssertEqual(
+            errorReporter.reports.first?.context,
+            "Failed to merge backup"
+        )
+        XCTAssertEqual(
+            settingsState(of: sut),
+            initialState
+        )
+    }
+
+    @MainActor
+    func testMergeBackup_whenCancelled_doesNotReportError() async {
+        let backupRestoreService = TestBackupRestoreService(
+            result: .failure(CancellationError())
+        )
+        let errorReporter = TestErrorReporter()
+        let sut = makeSUT(
+            backupRestoreService: backupRestoreService,
+            errorReporter: errorReporter
+        )
+        let initialState = settingsState(
+            of: sut
+        )
+
+        do {
+            _ = try await sut.mergeBackup(
+                makePreparedImport()
+            )
+            XCTFail("Expected merge restore to be cancelled.")
+        } catch {
+            XCTAssertTrue(error is CancellationError)
+        }
+
+        XCTAssertTrue(errorReporter.reports.isEmpty)
+        XCTAssertEqual(
+            settingsState(of: sut),
+            initialState
+        )
+    }
+
     // MARK: - Helpers
 
     @MainActor
@@ -179,6 +301,9 @@ final class SettingsViewModelBackupTests: XCTestCase {
         makeSUT(
             backupExportService: backupExportService,
             backupImportService: TestBackupImportService(
+                result: .failure(TestFailure.unused)
+            ),
+            backupRestoreService: TestBackupRestoreService(
                 result: .failure(TestFailure.unused)
             ),
             errorReporter: TestErrorReporter()
@@ -195,6 +320,9 @@ final class SettingsViewModelBackupTests: XCTestCase {
                 result: .success(makeBackupResult())
             ),
             backupImportService: backupImportService,
+            backupRestoreService: TestBackupRestoreService(
+                result: .failure(TestFailure.unused)
+            ),
             errorReporter: errorReporter
         )
     }
@@ -219,6 +347,36 @@ final class SettingsViewModelBackupTests: XCTestCase {
             backupImportService: TestBackupImportService(
                 result: .failure(TestFailure.unused)
             ),
+            backupRestoreService: TestBackupRestoreService(
+                result: .failure(TestFailure.unused)
+            ),
+            errorReporter: errorReporter
+        )
+    }
+
+    @MainActor
+    private func makeSUT(
+        backupRestoreService: BackupRestoreServicing
+    ) -> SettingsViewModel {
+        makeSUT(
+            backupRestoreService: backupRestoreService,
+            errorReporter: TestErrorReporter()
+        )
+    }
+
+    @MainActor
+    private func makeSUT(
+        backupRestoreService: BackupRestoreServicing,
+        errorReporter: ErrorReporting
+    ) -> SettingsViewModel {
+        makeSUT(
+            backupExportService: TestBackupExportService(
+                result: .success(makeBackupResult())
+            ),
+            backupImportService: TestBackupImportService(
+                result: .failure(TestFailure.unused)
+            ),
+            backupRestoreService: backupRestoreService,
             errorReporter: errorReporter
         )
     }
@@ -227,6 +385,7 @@ final class SettingsViewModelBackupTests: XCTestCase {
     private func makeSUT(
         backupExportService: BackupExportServicing,
         backupImportService: BackupImportServicing,
+        backupRestoreService: BackupRestoreServicing,
         errorReporter: ErrorReporting
     ) -> SettingsViewModel {
         SettingsViewModel(
@@ -234,6 +393,7 @@ final class SettingsViewModelBackupTests: XCTestCase {
             dailyGoalUpdateService: TestDailyGoalUpdateService(),
             backupExportService: backupExportService,
             backupImportService: backupImportService,
+            backupRestoreService: backupRestoreService,
             notificationService: TestNotificationService(),
             healthKitService: TestHealthKitService(),
             errorReporter: errorReporter
@@ -266,6 +426,27 @@ final class SettingsViewModelBackupTests: XCTestCase {
                 fileSize: data.count
             ),
             data: data
+        )
+    }
+
+    private func makeMergeRestoreResult() -> MergeRestoreResult {
+        MergeRestoreResult(
+            waterEntries: MergeRestoreCounts(
+                inserted: 1,
+                unchanged: 2,
+                conflicts: 3
+            ),
+            goalHistory: MergeRestoreCounts(
+                inserted: 4,
+                unchanged: 5,
+                conflicts: 6
+            ),
+            streakDays: MergeRestoreCounts(
+                inserted: 7,
+                unchanged: 8,
+                conflicts: 9
+            ),
+            resolvedDailyGoal: 2_500
         )
     }
 
@@ -335,6 +516,31 @@ private final class TestBackupImportService: BackupImportServicing {
 }
 
 @MainActor
+private final class TestBackupRestoreService: BackupRestoreServicing {
+
+    private let result: Result<MergeRestoreResult, Error>
+    private(set) var mergeRestoreCallCount = 0
+    private(set) var lastPreparedImport: PreparedBackupImport?
+    var onMergeRestore: (() -> Void)?
+
+    init(
+        result: Result<MergeRestoreResult, Error>
+    ) {
+        self.result = result
+    }
+
+    func mergeRestore(
+        _ preparedImport: PreparedBackupImport
+    ) async throws -> MergeRestoreResult {
+        mergeRestoreCallCount += 1
+        lastPreparedImport = preparedImport
+        onMergeRestore?()
+
+        return try result.get()
+    }
+}
+
+@MainActor
 private final class TestDailyGoalUpdateService: DailyGoalUpdating {
 
     func updateDailyGoal(
@@ -394,4 +600,21 @@ private struct SettingsState: Equatable {
     let reminderFrequency: ReminderFrequency
     let notificationAuthorizationStatus: UNAuthorizationStatus
     let isHealthSyncEnabled: Bool
+
+    func updatingDailyGoal(
+        to dailyGoal: Int
+    ) -> SettingsState {
+        SettingsState(
+            dailyGoal: dailyGoal,
+            isHapticsEnabled: isHapticsEnabled,
+            appearanceMode: appearanceMode,
+            measurementUnit: measurementUnit,
+            areRemindersEnabled: areRemindersEnabled,
+            reminderStartHour: reminderStartHour,
+            reminderEndHour: reminderEndHour,
+            reminderFrequency: reminderFrequency,
+            notificationAuthorizationStatus: notificationAuthorizationStatus,
+            isHealthSyncEnabled: isHealthSyncEnabled
+        )
+    }
 }

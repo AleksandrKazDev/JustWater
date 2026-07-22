@@ -2574,6 +2574,176 @@
         }
       }
     },
+    "settings.backup.merge.confirmation.action" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merge Data"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Объединить данные"
+          }
+        }
+      }
+    },
+    "settings.backup.merge.confirmation.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New records will be added. Existing data will not be replaced, and the local version will be kept if there is a conflict. Your app settings will not change."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новые записи будут добавлены. Существующие данные не заменяются, а при конфликте сохраняется локальная версия. Настройки приложения не изменятся."
+          }
+        }
+      }
+    },
+    "settings.backup.merge.confirmation.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merge with Current Data?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Объединить с текущими данными?"
+          }
+        }
+      }
+    },
+    "settings.backup.merge.progress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restoring Backup..."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Восстановление копии..."
+          }
+        }
+      }
+    },
+    "settings.backup.merge.result.added" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Added"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавлено"
+          }
+        }
+      }
+    },
+    "settings.backup.merge.result.conflicts" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conflicts"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Конфликты"
+          }
+        }
+      }
+    },
+    "settings.backup.merge.result.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The backup was merged successfully. Existing local data was preserved."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Резервная копия успешно объединена. Существующие локальные данные сохранены."
+          }
+        }
+      }
+    },
+    "settings.backup.merge.result.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore Complete"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Восстановление завершено"
+          }
+        }
+      }
+    },
+    "settings.backup.merge.result.unchanged" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Already Present"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уже есть"
+          }
+        }
+      }
+    },
+    "settings.backup.merge.result.up_to_date" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your data is already up to date. No new records were added."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ваши данные уже актуальны. Новые записи не добавлены."
+          }
+        }
+      }
+    },
     "settings.backup.preview.app_version" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2587,40 +2757,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Версия и сборка приложения"
-          }
-        }
-      }
-    },
-    "settings.backup.preview.continue_alert.message" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The backup was checked successfully. Restoring data will be added in a future update."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Резервная копия успешно проверена. Восстановление данных появится в одном из следующих обновлений."
-          }
-        }
-      }
-    },
-    "settings.backup.preview.continue_alert.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Restore Not Available Yet"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Восстановление пока недоступно"
           }
         }
       }
@@ -2757,6 +2893,108 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Записи о напитках"
+          }
+        }
+      }
+    },
+    "settings.backup.restore_error.invalid.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The backup could not be verified for restore. Choose the file again and retry."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось повторно проверить резервную копию. Выберите файл ещё раз и повторите попытку."
+          }
+        }
+      }
+    },
+    "settings.backup.restore_error.invalid.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup Is No Longer Valid"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Резервная копия недействительна"
+          }
+        }
+      }
+    },
+    "settings.backup.restore_error.persistence.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The restore was not completed. Your current data was preserved."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Восстановление не выполнено. Текущие данные сохранены."
+          }
+        }
+      }
+    },
+    "settings.backup.restore_error.persistence.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t Restore Backup"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось восстановить копию"
+          }
+        }
+      }
+    },
+    "settings.backup.restore_error.read.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The restore was not started because the current data could not be read. Try again."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Восстановление не началось, потому что текущие данные не удалось прочитать. Попробуйте ещё раз."
+          }
+        }
+      }
+    },
+    "settings.backup.restore_error.read.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t Read Current Data"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать текущие данные"
           }
         }
       }

@@ -19,6 +19,7 @@ final class SettingsViewModel {
     private let dailyGoalUpdateService: DailyGoalUpdating
     private let backupExportService: BackupExportServicing
     private let backupImportService: BackupImportServicing
+    private let backupRestoreService: BackupRestoreServicing
     private let notificationService: NotificationServicing
     private let healthKitService: HealthKitServicing
     private let errorReporter: ErrorReporting
@@ -55,6 +56,7 @@ final class SettingsViewModel {
         dailyGoalUpdateService: DailyGoalUpdating,
         backupExportService: BackupExportServicing,
         backupImportService: BackupImportServicing,
+        backupRestoreService: BackupRestoreServicing,
         notificationService: NotificationServicing,
         healthKitService: HealthKitServicing,
         errorReporter: ErrorReporting
@@ -63,6 +65,7 @@ final class SettingsViewModel {
         self.dailyGoalUpdateService = dailyGoalUpdateService
         self.backupExportService = backupExportService
         self.backupImportService = backupImportService
+        self.backupRestoreService = backupRestoreService
         self.notificationService = notificationService
         self.errorReporter = errorReporter
         
@@ -110,6 +113,34 @@ final class SettingsViewModel {
             errorReporter.report(
                 error,
                 context: "Failed to prepare backup import"
+            )
+
+            throw error
+        }
+    }
+
+    func mergeBackup(
+        _ preparedImport: PreparedBackupImport
+    ) async throws -> MergeRestoreResult {
+        do {
+            let result = try await backupRestoreService.mergeRestore(
+                preparedImport
+            )
+
+            updateIfNeeded(
+                \.dailyGoal,
+                to: AppSettingsStorage.dailyGoal
+            )
+
+            return result
+        } catch {
+            guard !(error is CancellationError) else {
+                throw error
+            }
+
+            errorReporter.report(
+                error,
+                context: "Failed to merge backup"
             )
 
             throw error
