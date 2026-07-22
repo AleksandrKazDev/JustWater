@@ -49,8 +49,12 @@ private struct SettingsContentView: View {
     @State private var backupFileName = ""
     @State private var isBackupExporterPresented = false
     @State private var isBackupImporterPresented = false
-    @State private var isBackupInfoPresented = false
     @State private var isPreparingBackup = false
+    @State private var isPreparingBackupImport = false
+    @State private var backupImportTask: Task<Void, Never>?
+    @State private var backupImportRequestID: UUID?
+    @State private var preparedBackupImport: PreparedBackupImport?
+    @State private var backupSheet: BackupSheet?
     @State private var backupAlert: BackupAlert?
 
     private let onHydrationSettingsChanged: () -> Void
@@ -62,7 +66,21 @@ private struct SettingsContentView: View {
         case backupCreationFailed
         case backupSaveFailed
         case backupSelectionFailed
-        case backupFileSelected
+        case backupCannotReadFile
+        case backupFileTooLarge
+        case backupMalformed
+        case backupInvalidFormat
+        case backupUnsupportedVersion
+        case backupInvalidData
+
+        var id: String {
+            rawValue
+        }
+    }
+
+    private enum BackupSheet: String, Identifiable {
+        case info
+        case preview
 
         var id: String {
             rawValue
@@ -113,8 +131,26 @@ private struct SettingsContentView: View {
         .onAppear {
             viewModel.reloadIfNeeded()
         }
-        .sheet(isPresented: $isBackupInfoPresented) {
-            backupInfoSheet
+        .onDisappear {
+            cancelBackupImportPreparation()
+        }
+        .sheet(
+            item: $backupSheet,
+            onDismiss: {
+                preparedBackupImport = nil
+            }
+        ) { sheet in
+            switch sheet {
+            case .info:
+                backupInfoSheet
+
+            case .preview:
+                if let preparedBackupImport {
+                    BackupPreviewView(
+                        preview: preparedBackupImport.preview
+                    )
+                }
+            }
         }
         .fileExporter(
             isPresented: $isBackupExporterPresented,
@@ -420,7 +456,8 @@ private struct SettingsContentView: View {
                     Spacer()
 
                     Button {
-                        isBackupInfoPresented = true
+                        guard !isPreparingBackupImport else { return }
+                        backupSheet = .info
                     } label: {
                         Image(systemName: "info.circle")
                             .font(.system(size: 18, weight: .medium))
@@ -431,6 +468,8 @@ private struct SettingsContentView: View {
                     .accessibilityLabel(
                         String(localized: "settings.backup.info.accessibility_label")
                     )
+                    .disabled(isPreparingBackupImport)
+                    .opacity(isPreparingBackupImport ? 0.45 : 1)
                 }
 
                 Text(String(localized: "settings.backup.description"))
@@ -447,17 +486,27 @@ private struct SettingsContentView: View {
                 ) {
                     prepareBackupExport(viewModel)
                 }
-                .disabled(isPreparingBackup)
+                .disabled(
+                    isPreparingBackup
+                    || isPreparingBackupImport
+                )
 
                 Divider()
                     .opacity(0.35)
 
                 backupActionRow(
-                    title: String(localized: "settings.backup.restore"),
-                    systemImage: "arrow.clockwise"
+                    title: isPreparingBackupImport
+                    ? String(localized: "settings.backup.import.loading")
+                    : String(localized: "settings.backup.restore"),
+                    systemImage: "arrow.clockwise",
+                    isLoading: isPreparingBackupImport
                 ) {
                     isBackupImporterPresented = true
                 }
+                .disabled(
+                    isPreparingBackup
+                    || isPreparingBackupImport
+                )
             }
         }
     }
@@ -465,6 +514,7 @@ private struct SettingsContentView: View {
     private func backupActionRow(
         title: String,
         systemImage: String,
+        isLoading: Bool = false,
         action: @escaping () -> Void
     ) -> some View {
         Button {
@@ -472,7 +522,13 @@ private struct SettingsContentView: View {
             action()
         } label: {
             HStack(spacing: AppSpacing.sm) {
-                SettingsIconView(systemImage: systemImage)
+                if isLoading {
+                    ProgressView()
+                        .tint(AppColors.primaryBlue)
+                        .frame(width: 40, height: 40)
+                } else {
+                    SettingsIconView(systemImage: systemImage)
+                }
 
                 Text(title)
                     .font(AppTypography.body)
@@ -481,9 +537,11 @@ private struct SettingsContentView: View {
 
                 Spacer(minLength: AppSpacing.sm)
 
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(AppColors.secondaryText.opacity(0.65))
+                if !isLoading {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(AppColors.secondaryText.opacity(0.65))
+                }
             }
             .contentShape(Rectangle())
         }
@@ -740,7 +798,10 @@ private struct SettingsContentView: View {
         case let .success(urls):
             guard let url = urls.first else { return }
 
-            handleSelectedBackupFile(url)
+            handleSelectedBackupFile(
+                url,
+                viewModel: viewModel
+            )
 
         case let .failure(error):
             guard !isUserCancellation(error) else { return }
@@ -751,16 +812,91 @@ private struct SettingsContentView: View {
     }
 
     private func handleSelectedBackupFile(
-        _ url: URL
+        _ url: URL,
+        viewModel: SettingsViewModel
     ) {
-        let isAccessing = url.startAccessingSecurityScopedResource()
-        defer {
-            if isAccessing {
-                url.stopAccessingSecurityScopedResource()
+        guard !isPreparingBackupImport else { return }
+
+        cancelBackupImportPreparation()
+
+        let requestID = UUID()
+        backupImportRequestID = requestID
+        isPreparingBackupImport = true
+
+        backupImportTask = Task { @MainActor in
+            defer {
+                if backupImportRequestID == requestID {
+                    backupImportTask = nil
+                    backupImportRequestID = nil
+                    isPreparingBackupImport = false
+                }
+            }
+
+            do {
+                let preparedImport = try await viewModel.prepareBackupImport(
+                    from: url
+                )
+
+                guard !Task.isCancelled,
+                      backupImportRequestID == requestID,
+                      backupSheet == nil
+                else {
+                    return
+                }
+
+                preparedBackupImport = preparedImport
+                HapticService.success()
+                backupSheet = .preview
+            } catch is CancellationError {
+                return
+            } catch {
+                guard !Task.isCancelled,
+                      backupImportRequestID == requestID
+                else {
+                    return
+                }
+
+                backupAlert = backupAlert(
+                    for: error
+                )
             }
         }
+    }
 
-        backupAlert = .backupFileSelected
+    private func cancelBackupImportPreparation() {
+        backupImportRequestID = nil
+        backupImportTask?.cancel()
+        backupImportTask = nil
+        isPreparingBackupImport = false
+        preparedBackupImport = nil
+    }
+
+    private func backupAlert(
+        for error: Error
+    ) -> BackupAlert {
+        guard let importError = error as? BackupImportError else {
+            return .backupCannotReadFile
+        }
+
+        switch importError {
+        case .cannotReadFile:
+            return .backupCannotReadFile
+
+        case .fileTooLarge:
+            return .backupFileTooLarge
+
+        case .malformedBackup:
+            return .backupMalformed
+
+        case .invalidFormat:
+            return .backupInvalidFormat
+
+        case .unsupportedSchemaVersion:
+            return .backupUnsupportedVersion
+
+        case .invalidData:
+            return .backupInvalidData
+        }
     }
 
     private func isUserCancellation(
@@ -795,9 +931,29 @@ private struct SettingsContentView: View {
             title = String(localized: "settings.backup.alert.selection_failed.title")
             message = String(localized: "settings.backup.alert.try_again.message")
 
-        case .backupFileSelected:
-            title = String(localized: "settings.backup.alert.file_selected.title")
-            message = String(localized: "settings.backup.alert.file_selected.message")
+        case .backupCannotReadFile:
+            title = String(localized: "settings.backup.import_error.cannot_read.title")
+            message = String(localized: "settings.backup.import_error.cannot_read.message")
+
+        case .backupFileTooLarge:
+            title = String(localized: "settings.backup.import_error.file_too_large.title")
+            message = String(localized: "settings.backup.import_error.file_too_large.message")
+
+        case .backupMalformed:
+            title = String(localized: "settings.backup.import_error.malformed.title")
+            message = String(localized: "settings.backup.import_error.malformed.message")
+
+        case .backupInvalidFormat:
+            title = String(localized: "settings.backup.import_error.invalid_format.title")
+            message = String(localized: "settings.backup.import_error.invalid_format.message")
+
+        case .backupUnsupportedVersion:
+            title = String(localized: "settings.backup.import_error.unsupported_version.title")
+            message = String(localized: "settings.backup.import_error.unsupported_version.message")
+
+        case .backupInvalidData:
+            title = String(localized: "settings.backup.import_error.invalid_data.title")
+            message = String(localized: "settings.backup.import_error.invalid_data.message")
         }
 
         return Alert(

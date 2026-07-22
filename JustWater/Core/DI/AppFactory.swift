@@ -85,6 +85,7 @@ enum AppFactory {
             backupExportService: makeBackupExportService(
                 context: context
             ),
+            backupImportService: makeBackupImportService(),
             notificationService: makeNotificationService(
                 errorReporter: errorReporter
             ),
@@ -99,6 +100,10 @@ enum AppFactory {
         BackupExportService(
             context: context
         )
+    }
+
+    private static func makeBackupImportService() -> BackupImportService {
+        BackupImportService()
     }
 
     private static func makeWaterStorageService(

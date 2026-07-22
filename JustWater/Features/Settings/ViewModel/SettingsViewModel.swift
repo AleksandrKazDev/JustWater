@@ -18,6 +18,7 @@ final class SettingsViewModel {
     private let goalStorageService: WaterGoalStorageServicing
     private let dailyGoalUpdateService: DailyGoalUpdating
     private let backupExportService: BackupExportServicing
+    private let backupImportService: BackupImportServicing
     private let notificationService: NotificationServicing
     private let healthKitService: HealthKitServicing
     private let errorReporter: ErrorReporting
@@ -53,6 +54,7 @@ final class SettingsViewModel {
         goalStorageService: WaterGoalStorageServicing,
         dailyGoalUpdateService: DailyGoalUpdating,
         backupExportService: BackupExportServicing,
+        backupImportService: BackupImportServicing,
         notificationService: NotificationServicing,
         healthKitService: HealthKitServicing,
         errorReporter: ErrorReporting
@@ -60,6 +62,7 @@ final class SettingsViewModel {
         self.goalStorageService = goalStorageService
         self.dailyGoalUpdateService = dailyGoalUpdateService
         self.backupExportService = backupExportService
+        self.backupImportService = backupImportService
         self.notificationService = notificationService
         self.errorReporter = errorReporter
         
@@ -86,6 +89,27 @@ final class SettingsViewModel {
             errorReporter.report(
                 error,
                 context: "Failed to create backup"
+            )
+
+            throw error
+        }
+    }
+
+    func prepareBackupImport(
+        from url: URL
+    ) async throws -> PreparedBackupImport {
+        do {
+            return try await backupImportService.prepareImport(
+                from: url
+            )
+        } catch {
+            guard !(error is CancellationError) else {
+                throw error
+            }
+
+            errorReporter.report(
+                error,
+                context: "Failed to prepare backup import"
             )
 
             throw error
