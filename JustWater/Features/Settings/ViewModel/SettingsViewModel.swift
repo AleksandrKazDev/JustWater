@@ -17,6 +17,7 @@ final class SettingsViewModel {
     
     private let goalStorageService: WaterGoalStorageServicing
     private let dailyGoalUpdateService: DailyGoalUpdating
+    private let backupExportService: BackupExportServicing
     private let notificationService: NotificationServicing
     private let healthKitService: HealthKitServicing
     private let errorReporter: ErrorReporting
@@ -51,12 +52,14 @@ final class SettingsViewModel {
     init(
         goalStorageService: WaterGoalStorageServicing,
         dailyGoalUpdateService: DailyGoalUpdating,
+        backupExportService: BackupExportServicing,
         notificationService: NotificationServicing,
         healthKitService: HealthKitServicing,
         errorReporter: ErrorReporting
     ) {
         self.goalStorageService = goalStorageService
         self.dailyGoalUpdateService = dailyGoalUpdateService
+        self.backupExportService = backupExportService
         self.notificationService = notificationService
         self.errorReporter = errorReporter
         
@@ -75,6 +78,37 @@ final class SettingsViewModel {
     }
     
     // MARK: - Public Methods
+
+    func createBackup() throws -> BackupExportResult {
+        do {
+            return try backupExportService.createBackup()
+        } catch {
+            errorReporter.report(
+                error,
+                context: "Failed to create backup"
+            )
+
+            throw error
+        }
+    }
+
+    func reportBackupFileSaveError(
+        _ error: Error
+    ) {
+        errorReporter.report(
+            error,
+            context: "Failed to save backup file"
+        )
+    }
+
+    func reportBackupFileSelectionError(
+        _ error: Error
+    ) {
+        errorReporter.report(
+            error,
+            context: "Failed to select backup file"
+        )
+    }
     
     func updateDailyGoal(
         _ goal: Int

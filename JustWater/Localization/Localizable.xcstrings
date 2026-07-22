@@ -2149,6 +2149,261 @@
         }
       }
     },
+    "settings.backup.alert.creation_failed.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t Create Backup"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось создать резервную копию"
+          }
+        }
+      }
+    },
+    "settings.backup.alert.file_selected.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File selected. Backup validation will be implemented in the next development step."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл выбран. Проверка резервной копии будет выполнена на следующем этапе разработки."
+          }
+        }
+      }
+    },
+    "settings.backup.alert.file_selected.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File Selected"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл выбран"
+          }
+        }
+      }
+    },
+    "settings.backup.alert.save_failed.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t Save Backup"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось сохранить резервную копию"
+          }
+        }
+      }
+    },
+    "settings.backup.alert.saved.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The backup file was saved successfully."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл резервной копии успешно сохранён."
+          }
+        }
+      }
+    },
+    "settings.backup.alert.saved.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup Saved"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Резервная копия сохранена"
+          }
+        }
+      }
+    },
+    "settings.backup.alert.selection_failed.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t Select Backup"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось выбрать резервную копию"
+          }
+        }
+      }
+    },
+    "settings.backup.alert.try_again.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please try again."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Попробуйте ещё раз."
+          }
+        }
+      }
+    },
+    "settings.backup.create" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create Backup"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Создать резервную копию"
+          }
+        }
+      }
+    },
+    "settings.backup.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save your JustWater data to a file so you can transfer or restore it later."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохраните данные JustWater в файл, чтобы перенести или восстановить их позже."
+          }
+        }
+      }
+    },
+    "settings.backup.info.accessibility_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup information"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Информация о резервном копировании"
+          }
+        }
+      }
+    },
+    "settings.backup.instructions.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A backup includes drink entries, daily goal history, streak data, and JustWater settings. Apple Health data is not included.\n\nJustWater creates a regular JSON file. You can save it in Files or iCloud Drive, or transfer it to another device. JustWater does not upload the backup to its own server.\n\nTo transfer your data, create a backup on the old device. Then move the file to the new device, open JustWater settings, and select “Restore from Backup.”\n\nDuring restore, the app will let you merge the backup with current data or completely replace it. Replacing data will delete the current local data.\n\nKeep the backup in a safe place. The file is not protected by a separate password."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Резервная копия включает записи о напитках, историю дневных целей, данные серии и настройки JustWater. Данные Apple Health в файл не входят.\n\nJustWater создаёт обычный JSON-файл. Его можно сохранить в приложении “Файлы”, в iCloud Drive или передать на другое устройство. JustWater не загружает резервную копию на собственный сервер.\n\nЧтобы перенести данные, создайте резервную копию на старом устройстве. Затем перенесите файл на новое устройство, откройте настройки JustWater и выберите “Восстановить из копии”.\n\nПри восстановлении приложение предложит объединить данные с текущими или полностью заменить их. При полной замене текущие локальные данные будут удалены.\n\nХраните резервную копию в безопасном месте. Файл не защищён отдельным паролем."
+          }
+        }
+      }
+    },
+    "settings.backup.instructions.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How to Transfer Data"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Как перенести данные"
+          }
+        }
+      }
+    },
+    "settings.backup.restore" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore from Backup"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Восстановить из копии"
+          }
+        }
+      }
+    },
+    "settings.backup.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Резервная копия"
+          }
+        }
+      }
+    },
     "settings.change" : {
       "extractionState" : "manual",
       "localizations" : {

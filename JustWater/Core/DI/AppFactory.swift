@@ -82,6 +82,9 @@ enum AppFactory {
         return SettingsViewModel(
             goalStorageService: goalStorageService,
             dailyGoalUpdateService: dailyGoalUpdateService,
+            backupExportService: makeBackupExportService(
+                context: context
+            ),
             notificationService: makeNotificationService(
                 errorReporter: errorReporter
             ),

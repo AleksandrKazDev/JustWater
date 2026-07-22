@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import UIKit
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     
@@ -42,8 +43,31 @@ struct SettingsView: View {
 private struct SettingsContentView: View {
     
     // MARK: - State
+
     @State private var viewModel: SettingsViewModel
+    @State private var backupDocument: BackupFileDocument?
+    @State private var backupFileName = ""
+    @State private var isBackupExporterPresented = false
+    @State private var isBackupImporterPresented = false
+    @State private var isBackupInfoPresented = false
+    @State private var isPreparingBackup = false
+    @State private var backupAlert: BackupAlert?
+
     private let onHydrationSettingsChanged: () -> Void
+
+    // MARK: - Types
+
+    private enum BackupAlert: String, Identifiable {
+        case backupSaved
+        case backupCreationFailed
+        case backupSaveFailed
+        case backupSelectionFailed
+        case backupFileSelected
+
+        var id: String {
+            rawValue
+        }
+    }
     
     // MARK: - Initializer
     
@@ -77,6 +101,8 @@ private struct SettingsContentView: View {
                     
                     healthSection(viewModel)
                     
+                    backupSection(viewModel)
+
                     appInfoSection
                 }
                 .padding(AppSpacing.lg)
@@ -86,6 +112,33 @@ private struct SettingsContentView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             viewModel.reloadIfNeeded()
+        }
+        .sheet(isPresented: $isBackupInfoPresented) {
+            backupInfoSheet
+        }
+        .fileExporter(
+            isPresented: $isBackupExporterPresented,
+            document: backupDocument,
+            contentType: .json,
+            defaultFilename: backupFileName
+        ) { result in
+            handleBackupExportResult(
+                result,
+                viewModel: viewModel
+            )
+        }
+        .fileImporter(
+            isPresented: $isBackupImporterPresented,
+            allowedContentTypes: [.json],
+            allowsMultipleSelection: false
+        ) { result in
+            handleBackupImportSelection(
+                result,
+                viewModel: viewModel
+            )
+        }
+        .alert(item: $backupAlert) { alert in
+            alertContent(for: alert)
         }
     }
     
@@ -353,6 +406,118 @@ private struct SettingsContentView: View {
             }
         }
     }
+
+    private func backupSection(
+        _ viewModel: SettingsViewModel
+    ) -> some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: AppSpacing.md) {
+                HStack(spacing: AppSpacing.sm) {
+                    SettingsSectionTitle(
+                        title: String(localized: "settings.backup.title")
+                    )
+
+                    Spacer()
+
+                    Button {
+                        isBackupInfoPresented = true
+                    } label: {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundStyle(AppColors.secondaryText)
+                            .frame(width: 44, height: 44)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(
+                        String(localized: "settings.backup.info.accessibility_label")
+                    )
+                }
+
+                Text(String(localized: "settings.backup.description"))
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Divider()
+                    .opacity(0.35)
+
+                backupActionRow(
+                    title: String(localized: "settings.backup.create"),
+                    systemImage: "square.and.arrow.up"
+                ) {
+                    prepareBackupExport(viewModel)
+                }
+                .disabled(isPreparingBackup)
+
+                Divider()
+                    .opacity(0.35)
+
+                backupActionRow(
+                    title: String(localized: "settings.backup.restore"),
+                    systemImage: "arrow.clockwise"
+                ) {
+                    isBackupImporterPresented = true
+                }
+            }
+        }
+    }
+
+    private func backupActionRow(
+        title: String,
+        systemImage: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button {
+            HapticService.selection()
+            action()
+        } label: {
+            HStack(spacing: AppSpacing.sm) {
+                SettingsIconView(systemImage: systemImage)
+
+                Text(title)
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.primaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Spacer(minLength: AppSpacing.sm)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(AppColors.secondaryText.opacity(0.65))
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(
+            PressableScaleButtonStyle(
+                scale: 0.985,
+                pressedBrightness: -0.015
+            )
+        )
+    }
+
+    private var backupInfoSheet: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: AppSpacing.lg) {
+                Text(String(localized: "settings.backup.instructions.title"))
+                    .font(AppTypography.headline)
+                    .foregroundStyle(AppColors.primaryText)
+
+                Text(String(localized: "settings.backup.instructions.body"))
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(AppSpacing.xl)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .background {
+            AppColors.background
+                .ignoresSafeArea()
+        }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+        .presentationBackground(AppColors.background)
+    }
     
     private func permissionDeniedView(
         _ viewModel: SettingsViewModel
@@ -523,6 +688,126 @@ private struct SettingsContentView: View {
     }
     
     // MARK: - Helpers
+
+    private func prepareBackupExport(
+        _ viewModel: SettingsViewModel
+    ) {
+        guard !isPreparingBackup else { return }
+
+        isPreparingBackup = true
+        defer {
+            isPreparingBackup = false
+        }
+
+        do {
+            let result = try viewModel.createBackup()
+            backupDocument = BackupFileDocument(
+                data: result.data
+            )
+            backupFileName = result.suggestedFileName
+            isBackupExporterPresented = true
+        } catch {
+            backupAlert = .backupCreationFailed
+        }
+    }
+
+    private func handleBackupExportResult(
+        _ result: Result<URL, Error>,
+        viewModel: SettingsViewModel
+    ) {
+        defer {
+            backupDocument = nil
+        }
+
+        switch result {
+        case .success:
+            HapticService.success()
+            backupAlert = .backupSaved
+
+        case let .failure(error):
+            guard !isUserCancellation(error) else { return }
+
+            viewModel.reportBackupFileSaveError(error)
+            backupAlert = .backupSaveFailed
+        }
+    }
+
+    private func handleBackupImportSelection(
+        _ result: Result<[URL], Error>,
+        viewModel: SettingsViewModel
+    ) {
+        switch result {
+        case let .success(urls):
+            guard let url = urls.first else { return }
+
+            handleSelectedBackupFile(url)
+
+        case let .failure(error):
+            guard !isUserCancellation(error) else { return }
+
+            viewModel.reportBackupFileSelectionError(error)
+            backupAlert = .backupSelectionFailed
+        }
+    }
+
+    private func handleSelectedBackupFile(
+        _ url: URL
+    ) {
+        let isAccessing = url.startAccessingSecurityScopedResource()
+        defer {
+            if isAccessing {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        backupAlert = .backupFileSelected
+    }
+
+    private func isUserCancellation(
+        _ error: Error
+    ) -> Bool {
+        let cocoaError = error as NSError
+
+        return cocoaError.domain == NSCocoaErrorDomain
+        && cocoaError.code == NSUserCancelledError
+    }
+
+    private func alertContent(
+        for alert: BackupAlert
+    ) -> Alert {
+        let title: String
+        let message: String
+
+        switch alert {
+        case .backupSaved:
+            title = String(localized: "settings.backup.alert.saved.title")
+            message = String(localized: "settings.backup.alert.saved.message")
+
+        case .backupCreationFailed:
+            title = String(localized: "settings.backup.alert.creation_failed.title")
+            message = String(localized: "settings.backup.alert.try_again.message")
+
+        case .backupSaveFailed:
+            title = String(localized: "settings.backup.alert.save_failed.title")
+            message = String(localized: "settings.backup.alert.try_again.message")
+
+        case .backupSelectionFailed:
+            title = String(localized: "settings.backup.alert.selection_failed.title")
+            message = String(localized: "settings.backup.alert.try_again.message")
+
+        case .backupFileSelected:
+            title = String(localized: "settings.backup.alert.file_selected.title")
+            message = String(localized: "settings.backup.alert.file_selected.message")
+        }
+
+        return Alert(
+            title: Text(title),
+            message: Text(message),
+            dismissButton: .default(
+                Text(String(localized: "common.done"))
+            )
+        )
+    }
     
     private func formattedHour(
         _ hour: Int
